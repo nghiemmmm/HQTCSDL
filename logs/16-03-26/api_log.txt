@@ -1,0 +1,41 @@
+2026-03-16 16:44:52,032 - 127.0.0.1 - / - {} - {"Message": "World"}
+2026-03-16 16:44:52,295 - 127.0.0.1 - /favicon.ico - {} - Binary data of length 17896
+2026-03-16 16:45:05,293 - 127.0.0.1 - / - {} - {"Message": "World"}
+2026-03-16 16:45:28,424 - 127.0.0.1 - / - {} - {"Message": "World"}
+2026-03-16 16:45:38,087 - 127.0.0.1 - /docs - {} - {"detail": "Not Found"}
+2026-03-16 16:45:50,964 - 127.0.0.1 - /myapi - nothing - nothing
+2026-03-16 16:45:51,317 - 127.0.0.1 - /openapi.json - nothing - nothing
+2026-03-16 16:47:39,700 - 127.0.0.1 - /myapi - nothing - nothing
+2026-03-16 16:47:40,032 - 127.0.0.1 - /openapi.json - nothing - nothing
+2026-03-16 17:07:30,518 - 127.0.0.1 - /myapi - nothing - nothing
+2026-03-16 17:07:30,697 - 127.0.0.1 - /openapi.json - nothing - nothing
+2026-03-16 17:15:02,942 - 127.0.0.1 - /myapi - nothing - nothing
+2026-03-16 17:15:03,167 - 127.0.0.1 - /openapi.json - nothing - nothing
+2026-03-16 17:16:36,623 - 127.0.0.1 - /myapi - nothing - nothing
+2026-03-16 17:16:36,717 - 127.0.0.1 - /openapi.json - nothing - nothing
+2026-03-16 17:16:58,921 - 127.0.0.1 - /user - {} - {"masv": "001     ", "ho": "L\u00ca V\u0102N ", "ten": "TH\u00c0NH"}
+2026-03-16 18:19:40,891 - 127.0.0.1 - /user - {} - {"detail": "M\u00e3 sinh vi\u00ean kh\u00f4ng t\u1ed3n t\u1ea1i"}
+2026-03-16 20:59:20,447 - 127.0.0.1 - / - {} - {"Message": "World"}
+2026-03-16 20:59:21,200 - 127.0.0.1 - /favicon.ico - {} - Binary data of length 17896
+2026-03-16 20:59:37,855 - 127.0.0.1 - /docs - {} - {"detail": "Not Found"}
+2026-03-16 20:59:44,297 - 127.0.0.1 - /myapi - nothing - nothing
+2026-03-16 20:59:44,585 - 127.0.0.1 - /openapi.json - nothing - nothing
+2026-03-16 20:59:49,840 - 127.0.0.1 - /myapi - nothing - nothing
+2026-03-16 20:59:49,985 - 127.0.0.1 - /openapi.json - nothing - nothing
+2026-03-16 20:59:50,892 - 127.0.0.1 - /myapi - nothing - nothing
+2026-03-16 20:59:50,983 - 127.0.0.1 - /openapi.json - nothing - nothing
+2026-03-16 21:03:56,492 - 127.0.0.1 - /myapi - nothing - nothing
+2026-03-16 21:03:56,714 - 127.0.0.1 - /openapi.json - nothing - nothing
+2026-03-16 21:04:06,565 - 127.0.0.1 - /myapi - nothing - nothing
+2026-03-16 21:04:06,628 - 127.0.0.1 - /openapi.json - nothing - nothing
+2026-03-16 21:04:07,573 - 127.0.0.1 - /myapi - nothing - nothing
+2026-03-16 21:04:07,631 - 127.0.0.1 - /openapi.json - nothing - nothing
+2026-03-16 21:04:08,250 - 127.0.0.1 - /myapi - nothing - nothing
+2026-03-16 21:04:08,305 - 127.0.0.1 - /openapi.json - nothing - nothing
+2026-03-16 21:04:08,443 - 127.0.0.1 - /myapi - nothing - nothing
+2026-03-16 21:04:08,502 - 127.0.0.1 - /openapi.json - nothing - nothing
+2026-03-16 21:08:18,251 - 127.0.0.1 - /user/register - {} - {"detail": [{"type": "enum", "loc": ["body", "role"], "msg": "Input should be 'PGV', 'SINHVIEN' or 'GIANGVIEN'", "input": "KHOA", "ctx": {"expected": "'PGV', 'SINHVIEN' or 'GIANGVIEN'"}}]}
+2026-03-16 21:12:18,098 - 127.0.0.1 - /myapi - nothing - nothing
+2026-03-16 21:12:18,308 - 127.0.0.1 - /openapi.json - nothing - nothing
+2026-03-16 21:15:44,502 - 127.0.0.1 - /myapi - nothing - nothing
+2026-03-16 21:15:44,735 - 127.0.0.1 - /openapi.json - nothing - nothing

@@ -1,0 +1,7 @@
+uvicorn 
+fastapi
+fastapi[standard]
+sqlalchemy
+pyodbc
+driver ODBC
+fastapi-cache2

@@ -1,0 +1,8398 @@
+2026-03-18 17:34:48,739 - 127.0.0.1 - / - {} - {"Message": "World"}
+2026-03-18 17:34:55,142 - 127.0.0.1 - /mayapi - {} - {"detail": "Not Found"}
+2026-03-18 17:35:01,743 - 127.0.0.1 - /myapi - nothing - nothing
+2026-03-18 17:35:02,333 - 127.0.0.1 - /openapi.json - nothing - nothing
+2026-03-18 17:35:11,548 - 127.0.0.1 - /user/login - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form>
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" value="GIANGVIEN" checked onclick="doiLabel()">
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" value="SINHVIEN" onclick="doiLabel()">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-row">
+
+<label id="loginLabel">Login</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+<script>
+
+function doiLabel(){
+
+    const role = document.querySelector('input[name="role"]:checked').value
+    const label = document.getElementById("loginLabel")
+
+    if(role === "SINHVIEN"){
+        label.innerText = "Mã SV"
+    }else{
+        label.innerText = "Login"
+    }
+
+}
+
+</script>
+
+</body>
+</html>
+2026-03-18 17:35:36,714 - 127.0.0.1 - /login/ - {} - {"detail": "Not Found"}
+2026-03-18 17:35:49,351 - 127.0.0.1 - /login - {} - {"detail": "Not Found"}
+2026-03-18 17:37:37,261 - 127.0.0.1 - /login - {} - {"detail": "Not Found"}
+2026-03-18 17:37:37,479 - 127.0.0.1 - /favicon.ico - {} - Binary data of length 17896
+2026-03-18 17:37:46,780 - 127.0.0.1 - /user/login - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form>
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" value="GIANGVIEN" checked onclick="doiLabel()">
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" value="SINHVIEN" onclick="doiLabel()">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-row">
+
+<label id="loginLabel">Login</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+<script>
+
+function doiLabel(){
+
+    const role = document.querySelector('input[name="role"]:checked').value
+    const label = document.getElementById("loginLabel")
+
+    if(role === "SINHVIEN"){
+        label.innerText = "Mã SV"
+    }else{
+        label.innerText = "Login"
+    }
+
+}
+
+</script>
+
+</body>
+</html>
+2026-03-18 18:03:08,099 - 127.0.0.1 - / - {} - {"Message": "World"}
+2026-03-18 18:03:19,934 - 127.0.0.1 - /user/login - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form method="POST" action="/user/login">
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" value="GIANGVIEN" checked onclick="doiLabel()">
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" value="SINHVIEN" onclick="doiLabel()">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-row">
+
+<label id="loginLabel">Login</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+<script>
+
+function doiLabel(){
+
+    const role = document.querySelector('input[name="role"]:checked').value
+    const label = document.getElementById("loginLabel")
+
+    if(role === "SINHVIEN"){
+        label.innerText = "Mã SV"
+    }else{
+        label.innerText = "Login"
+    }
+
+}
+
+// Xử lý submit form
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const role = document.querySelector('input[name="role"]:checked').value;
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+            role: role
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.detail || 'Đăng nhập thất bại');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Lưu thông tin user vào localStorage
+        localStorage.setItem('user', JSON.stringify(data));
+        alert('Đăng nhập thành công!');
+        console.log('Dữ liệu trả về:', data);
+        // Chuyển hướng đến trang info
+        window.location.href = '/user/info';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+
+</script>
+
+</body>
+</html>
+2026-03-18 18:03:37,888 - 127.0.0.1 - /user/login - {} - {"detail": [{"type": "enum", "loc": ["body", "role"], "msg": "Input should be 'PGV', 'SINHVIEN' or 'KHOA'", "input": "GIANGVIEN", "ctx": {"expected": "'PGV', 'SINHVIEN' or 'KHOA'"}}]}
+2026-03-18 18:05:57,311 - 127.0.0.1 - / - {} - {"Message": "World"}
+2026-03-18 18:06:15,633 - 127.0.0.1 - /user/login - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form method="POST" action="/user/login">
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" value="GIANGVIEN" checked onclick="doiLabel()">
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" value="SINHVIEN" onclick="doiLabel()">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-row">
+
+<label id="loginLabel">Login</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+<script>
+
+function doiLabel(){
+
+    const role = document.querySelector('input[name="role"]:checked').value
+    const label = document.getElementById("loginLabel")
+
+    if(role === "SINHVIEN"){
+        label.innerText = "Mã SV"
+    }else{
+        label.innerText = "Login"
+    }
+
+}
+
+// Xử lý submit form
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const role = document.querySelector('input[name="role"]:checked').value;
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+            role: role
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.detail || 'Đăng nhập thất bại');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Lưu thông tin user vào localStorage
+        localStorage.setItem('user', JSON.stringify(data));
+        alert('Đăng nhập thành công!');
+        console.log('Dữ liệu trả về:', data);
+        // Chuyển hướng đến trang info
+        window.location.href = '/user/info';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+
+</script>
+
+</body>
+</html>
+2026-03-18 18:13:42,653 - 127.0.0.1 - / - {} - {"Message": "World"}
+2026-03-18 18:13:56,434 - 127.0.0.1 - /user/login - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form method="POST" action="/user/login">
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" value="GIANGVIEN" checked onclick="doiLabel()">
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" value="SINHVIEN" onclick="doiLabel()">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-row">
+
+<label id="loginLabel">Login</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+<script>
+
+function doiLabel(){
+
+    const role = document.querySelector('input[name="role"]:checked').value
+    const label = document.getElementById("loginLabel")
+
+    if(role === "SINHVIEN"){
+        label.innerText = "Mã SV"
+    }else{
+        label.innerText = "Login"
+    }
+
+}
+
+// Xử lý submit form
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const role = document.querySelector('input[name="role"]:checked').value;
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+            role: role
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.detail || 'Đăng nhập thất bại');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Lưu thông tin user vào localStorage
+        localStorage.setItem('user', JSON.stringify(data));
+        alert('Đăng nhập thành công!');
+        console.log('Dữ liệu trả về:', data);
+        // Chuyển hướng đến trang info
+        window.location.href = '/user/info';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+
+</script>
+
+</body>
+</html>
+2026-03-18 18:16:23,835 - 127.0.0.1 - /user/login - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form method="POST" action="/user/login">
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" value="GIANGVIEN" checked onclick="doiLabel()">
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" value="SINHVIEN" onclick="doiLabel()">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-row">
+
+<label id="loginLabel">Login</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+<script>
+
+function doiLabel(){
+
+    const role = document.querySelector('input[name="role"]:checked').value
+    const label = document.getElementById("loginLabel")
+
+    if(role === "SINHVIEN"){
+        label.innerText = "Mã SV"
+    }else{
+        label.innerText = "Login"
+    }
+
+}
+
+// Xử lý submit form
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const role = document.querySelector('input[name="role"]:checked').value;
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+            role: role
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.detail || 'Đăng nhập thất bại');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Lưu thông tin user vào localStorage
+        localStorage.setItem('user', JSON.stringify(data));
+        alert('Đăng nhập thành công!');
+        console.log('Dữ liệu trả về:', data);
+        // Chuyển hướng đến trang info
+        window.location.href = '/user/info';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+
+</script>
+
+</body>
+</html>
+2026-03-18 18:16:24,518 - 127.0.0.1 - /user/login - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form method="POST" action="/user/login">
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" value="GIANGVIEN" checked onclick="doiLabel()">
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" value="SINHVIEN" onclick="doiLabel()">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-row">
+
+<label id="loginLabel">Login</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+<script>
+
+function doiLabel(){
+
+    const role = document.querySelector('input[name="role"]:checked').value
+    const label = document.getElementById("loginLabel")
+
+    if(role === "SINHVIEN"){
+        label.innerText = "Mã SV"
+    }else{
+        label.innerText = "Login"
+    }
+
+}
+
+// Xử lý submit form
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const role = document.querySelector('input[name="role"]:checked').value;
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+            role: role
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.detail || 'Đăng nhập thất bại');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Lưu thông tin user vào localStorage
+        localStorage.setItem('user', JSON.stringify(data));
+        alert('Đăng nhập thành công!');
+        console.log('Dữ liệu trả về:', data);
+        // Chuyển hướng đến trang info
+        window.location.href = '/user/info';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+
+</script>
+
+</body>
+</html>
+2026-03-18 18:16:24,681 - 127.0.0.1 - /user/login - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form method="POST" action="/user/login">
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" value="GIANGVIEN" checked onclick="doiLabel()">
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" value="SINHVIEN" onclick="doiLabel()">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-row">
+
+<label id="loginLabel">Login</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+<script>
+
+function doiLabel(){
+
+    const role = document.querySelector('input[name="role"]:checked').value
+    const label = document.getElementById("loginLabel")
+
+    if(role === "SINHVIEN"){
+        label.innerText = "Mã SV"
+    }else{
+        label.innerText = "Login"
+    }
+
+}
+
+// Xử lý submit form
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const role = document.querySelector('input[name="role"]:checked').value;
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+            role: role
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.detail || 'Đăng nhập thất bại');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Lưu thông tin user vào localStorage
+        localStorage.setItem('user', JSON.stringify(data));
+        alert('Đăng nhập thành công!');
+        console.log('Dữ liệu trả về:', data);
+        // Chuyển hướng đến trang info
+        window.location.href = '/user/info';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+
+</script>
+
+</body>
+</html>
+2026-03-18 18:16:24,861 - 127.0.0.1 - /user/login - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form method="POST" action="/user/login">
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" value="GIANGVIEN" checked onclick="doiLabel()">
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" value="SINHVIEN" onclick="doiLabel()">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-row">
+
+<label id="loginLabel">Login</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+<script>
+
+function doiLabel(){
+
+    const role = document.querySelector('input[name="role"]:checked').value
+    const label = document.getElementById("loginLabel")
+
+    if(role === "SINHVIEN"){
+        label.innerText = "Mã SV"
+    }else{
+        label.innerText = "Login"
+    }
+
+}
+
+// Xử lý submit form
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const role = document.querySelector('input[name="role"]:checked').value;
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+            role: role
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.detail || 'Đăng nhập thất bại');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Lưu thông tin user vào localStorage
+        localStorage.setItem('user', JSON.stringify(data));
+        alert('Đăng nhập thành công!');
+        console.log('Dữ liệu trả về:', data);
+        // Chuyển hướng đến trang info
+        window.location.href = '/user/info';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+
+</script>
+
+</body>
+</html>
+2026-03-18 18:16:25,054 - 127.0.0.1 - /user/login - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form method="POST" action="/user/login">
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" value="GIANGVIEN" checked onclick="doiLabel()">
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" value="SINHVIEN" onclick="doiLabel()">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-row">
+
+<label id="loginLabel">Login</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+<script>
+
+function doiLabel(){
+
+    const role = document.querySelector('input[name="role"]:checked').value
+    const label = document.getElementById("loginLabel")
+
+    if(role === "SINHVIEN"){
+        label.innerText = "Mã SV"
+    }else{
+        label.innerText = "Login"
+    }
+
+}
+
+// Xử lý submit form
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const role = document.querySelector('input[name="role"]:checked').value;
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+            role: role
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.detail || 'Đăng nhập thất bại');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Lưu thông tin user vào localStorage
+        localStorage.setItem('user', JSON.stringify(data));
+        alert('Đăng nhập thành công!');
+        console.log('Dữ liệu trả về:', data);
+        // Chuyển hướng đến trang info
+        window.location.href = '/user/info';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+
+</script>
+
+</body>
+</html>
+2026-03-18 18:18:37,761 - 127.0.0.1 - / - {} - {"Message": "World"}
+2026-03-18 18:18:42,104 - 127.0.0.1 - /user/login - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form method="POST" action="/user/login">
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" value="GIANGVIEN" checked onclick="doiLabel()">
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" value="SINHVIEN" onclick="doiLabel()">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-row">
+
+<label id="loginLabel">Login</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+<script>
+
+function doiLabel(){
+
+    const role = document.querySelector('input[name="role"]:checked').value
+    const label = document.getElementById("loginLabel")
+
+    if(role === "SINHVIEN"){
+        label.innerText = "Mã SV"
+    }else{
+        label.innerText = "Login"
+    }
+
+}
+
+// Xử lý submit form
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const role = document.querySelector('input[name="role"]:checked').value;
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+            role: role
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.detail || 'Đăng nhập thất bại');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Lưu thông tin user vào localStorage
+        localStorage.setItem('user', JSON.stringify(data));
+        alert('Đăng nhập thành công!');
+        console.log('Dữ liệu trả về:', data);
+        // Chuyển hướng đến trang info
+        window.location.href = '/user/info';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+
+</script>
+
+</body>
+</html>
+2026-03-18 18:18:59,774 - 127.0.0.1 - /user/login - {} - {"masv": "TH101", "ho": "KIEU DAC", "ten": "THIEN"}
+2026-03-18 18:19:01,338 - 127.0.0.1 - /user/info - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Thông tin người dùng</title>
+
+<style>
+
+body {
+    background: #dfe9ea;
+    font-family: Arial;
+}
+
+.container {
+    width: 600px;
+    margin: 60px auto;
+    background: #d9e4e6;
+    border: 1px solid #cfcfcf;
+    padding: 30px 40px;
+}
+
+h2 {
+    color: #d35400;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: #fff;
+    border-radius: 5px;
+    border-left: 4px solid #d35400;
+}
+
+.info-label {
+    width: 150px;
+    font-weight: bold;
+    color: #333;
+}
+
+.info-value {
+    flex: 1;
+    color: #555;
+    font-size: 16px;
+}
+
+.button-area {
+    margin-top: 40px;
+    text-align: center;
+}
+
+button {
+    background: #f3b37c;
+    border: 1px solid #cfa074;
+    padding: 10px 25px;
+    font-size: 15px;
+    margin-right: 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background: #f0a968;
+}
+
+.error-message {
+    color: #d32f2f;
+    text-align: center;
+    padding: 20px;
+    font-size: 16px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>THÔNG TIN NGƯỜI DÙNG</h2>
+
+<div id="userInfo">
+    <!-- Dữ liệu sẽ được hiển thị ở đây -->
+</div>
+
+<div class="button-area">
+    <button onclick="logout()">Đăng xuất</button>
+    <button onclick="goBack()">Quay lại</button>
+</div>
+
+</div>
+
+<script>
+
+// Lấy dữ liệu từ localStorage
+const userJson = localStorage.getItem('user');
+
+if (!userJson) {
+    document.getElementById('userInfo').innerHTML = 
+        '<div class="error-message">Không tìm thấy thông tin người dùng. Vui lòng <a href="/user/login">đăng nhập lại</a></div>';
+} else {
+    const userData = JSON.parse(userJson);
+    
+    // Hiển thị thông tin người dùng
+    const userInfo = `
+        <div class="info-row">
+            <div class="info-label">Mã sinh viên:</div>
+            <div class="info-value">${userData.masv || 'N/A'}</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Họ:</div>
+            <div class="info-value">${userData.ho || 'N/A'}</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Tên:</div>
+            <div class="info-value">${userData.ten || 'N/A'}</div>
+        </div>
+    `;
+    
+    document.getElementById('userInfo').innerHTML = userInfo;
+}
+
+function logout() {
+    // Xóa dữ liệu khỏi localStorage
+    localStorage.removeItem('user');
+    alert('Đã đăng xuất!');
+    // Quay về trang login
+    window.location.href = '/user/login';
+}
+
+function goBack() {
+    window.history.back();
+}
+
+</script>
+
+</body>
+</html>
+2026-03-18 22:01:11,593 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+/* Ẩn label MASV mặc định */
+.masv-label{
+    display:none;
+}
+
+/* Khi chọn sinh viên thì đổi label */
+#sv:checked ~ .form-login .login-label{
+    display:none;
+}
+
+#sv:checked ~ .form-login .masv-label{
+    display:block;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form>
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" id="gv" checked>
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" id="sv">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-login">
+
+<div class="form-row">
+
+<label class="login-label">Login</label>
+<label class="masv-label">Mã SV</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+</body>
+</html>
+2026-03-18 22:01:12,175 - 127.0.0.1 - /favicon.ico - {} - Binary data of length 17896
+2026-03-18 22:01:19,081 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+/* Ẩn label MASV mặc định */
+.masv-label{
+    display:none;
+}
+
+/* Khi chọn sinh viên thì đổi label */
+#sv:checked ~ .form-login .login-label{
+    display:none;
+}
+
+#sv:checked ~ .form-login .masv-label{
+    display:block;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form>
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" id="gv" checked>
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" id="sv">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-login">
+
+<div class="form-row">
+
+<label class="login-label">Login</label>
+<label class="masv-label">Mã SV</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+</body>
+</html>
+2026-03-18 22:01:19,970 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+/* Ẩn label MASV mặc định */
+.masv-label{
+    display:none;
+}
+
+/* Khi chọn sinh viên thì đổi label */
+#sv:checked ~ .form-login .login-label{
+    display:none;
+}
+
+#sv:checked ~ .form-login .masv-label{
+    display:block;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form>
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" id="gv" checked>
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" id="sv">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-login">
+
+<div class="form-row">
+
+<label class="login-label">Login</label>
+<label class="masv-label">Mã SV</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+</body>
+</html>
+2026-03-18 22:01:20,484 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+/* Ẩn label MASV mặc định */
+.masv-label{
+    display:none;
+}
+
+/* Khi chọn sinh viên thì đổi label */
+#sv:checked ~ .form-login .login-label{
+    display:none;
+}
+
+#sv:checked ~ .form-login .masv-label{
+    display:block;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form>
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" id="gv" checked>
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" id="sv">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-login">
+
+<div class="form-row">
+
+<label class="login-label">Login</label>
+<label class="masv-label">Mã SV</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+</body>
+</html>
+2026-03-18 22:01:20,665 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+/* Ẩn label MASV mặc định */
+.masv-label{
+    display:none;
+}
+
+/* Khi chọn sinh viên thì đổi label */
+#sv:checked ~ .form-login .login-label{
+    display:none;
+}
+
+#sv:checked ~ .form-login .masv-label{
+    display:block;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form>
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" id="gv" checked>
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" id="sv">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-login">
+
+<div class="form-row">
+
+<label class="login-label">Login</label>
+<label class="masv-label">Mã SV</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+</body>
+</html>
+2026-03-18 22:01:20,867 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+/* Ẩn label MASV mặc định */
+.masv-label{
+    display:none;
+}
+
+/* Khi chọn sinh viên thì đổi label */
+#sv:checked ~ .form-login .login-label{
+    display:none;
+}
+
+#sv:checked ~ .form-login .masv-label{
+    display:block;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form>
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" id="gv" checked>
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" id="sv">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-login">
+
+<div class="form-row">
+
+<label class="login-label">Login</label>
+<label class="masv-label">Mã SV</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+</body>
+</html>
+2026-03-18 22:01:21,342 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+/* Ẩn label MASV mặc định */
+.masv-label{
+    display:none;
+}
+
+/* Khi chọn sinh viên thì đổi label */
+#sv:checked ~ .form-login .login-label{
+    display:none;
+}
+
+#sv:checked ~ .form-login .masv-label{
+    display:block;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form>
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" id="gv" checked>
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" id="sv">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-login">
+
+<div class="form-row">
+
+<label class="login-label">Login</label>
+<label class="masv-label">Mã SV</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+</body>
+</html>
+2026-03-18 22:01:21,555 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+/* Ẩn label MASV mặc định */
+.masv-label{
+    display:none;
+}
+
+/* Khi chọn sinh viên thì đổi label */
+#sv:checked ~ .form-login .login-label{
+    display:none;
+}
+
+#sv:checked ~ .form-login .masv-label{
+    display:block;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form>
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" id="gv" checked>
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" id="sv">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-login">
+
+<div class="form-row">
+
+<label class="login-label">Login</label>
+<label class="masv-label">Mã SV</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+</body>
+</html>
+2026-03-18 22:01:26,987 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+/* Ẩn label MASV mặc định */
+.masv-label{
+    display:none;
+}
+
+/* Khi chọn sinh viên thì đổi label */
+#sv:checked ~ .form-login .login-label{
+    display:none;
+}
+
+#sv:checked ~ .form-login .masv-label{
+    display:block;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form>
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" id="gv" checked>
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" id="sv">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-login">
+
+<div class="form-row">
+
+<label class="login-label">Login</label>
+<label class="masv-label">Mã SV</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+</body>
+</html>
+2026-03-18 22:02:04,484 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+/* Ẩn label MASV mặc định */
+.masv-label{
+    display:none;
+}
+
+/* Khi chọn sinh viên thì đổi label */
+#sv:checked ~ .form-login .login-label{
+    display:none;
+}
+
+#sv:checked ~ .form-login .masv-label{
+    display:block;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form>
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" id="gv" checked>
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" id="sv">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-login">
+
+<div class="form-row">
+
+<label class="login-label">Login</label>
+<label class="masv-label">Mã SV</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+</body>
+</html>
+2026-03-18 22:02:05,300 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+/* Ẩn label MASV mặc định */
+.masv-label{
+    display:none;
+}
+
+/* Khi chọn sinh viên thì đổi label */
+#sv:checked ~ .form-login .login-label{
+    display:none;
+}
+
+#sv:checked ~ .form-login .masv-label{
+    display:block;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form>
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" id="gv" checked>
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" id="sv">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-login">
+
+<div class="form-row">
+
+<label class="login-label">Login</label>
+<label class="masv-label">Mã SV</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+</body>
+</html>
+2026-03-18 22:02:05,480 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+/* Ẩn label MASV mặc định */
+.masv-label{
+    display:none;
+}
+
+/* Khi chọn sinh viên thì đổi label */
+#sv:checked ~ .form-login .login-label{
+    display:none;
+}
+
+#sv:checked ~ .form-login .masv-label{
+    display:block;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form>
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" id="gv" checked>
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" id="sv">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-login">
+
+<div class="form-row">
+
+<label class="login-label">Login</label>
+<label class="masv-label">Mã SV</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+</body>
+</html>
+2026-03-18 22:02:05,640 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+/* Ẩn label MASV mặc định */
+.masv-label{
+    display:none;
+}
+
+/* Khi chọn sinh viên thì đổi label */
+#sv:checked ~ .form-login .login-label{
+    display:none;
+}
+
+#sv:checked ~ .form-login .masv-label{
+    display:block;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form>
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" id="gv" checked>
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" id="sv">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-login">
+
+<div class="form-row">
+
+<label class="login-label">Login</label>
+<label class="masv-label">Mã SV</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+</body>
+</html>
+2026-03-18 22:02:05,805 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+/* Ẩn label MASV mặc định */
+.masv-label{
+    display:none;
+}
+
+/* Khi chọn sinh viên thì đổi label */
+#sv:checked ~ .form-login .login-label{
+    display:none;
+}
+
+#sv:checked ~ .form-login .masv-label{
+    display:block;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form>
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" id="gv" checked>
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" id="sv">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-login">
+
+<div class="form-row">
+
+<label class="login-label">Login</label>
+<label class="masv-label">Mã SV</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+</body>
+</html>
+2026-03-18 22:02:05,973 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+/* Ẩn label MASV mặc định */
+.masv-label{
+    display:none;
+}
+
+/* Khi chọn sinh viên thì đổi label */
+#sv:checked ~ .form-login .login-label{
+    display:none;
+}
+
+#sv:checked ~ .form-login .masv-label{
+    display:block;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form>
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" id="gv" checked>
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" id="sv">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-login">
+
+<div class="form-row">
+
+<label class="login-label">Login</label>
+<label class="masv-label">Mã SV</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+</body>
+</html>
+2026-03-18 22:51:27,350 - 127.0.0.1 - / - {} - {"Message": "World"}
+2026-03-18 22:51:43,801 - 127.0.0.1 - /user/login - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form method="POST" action="/user/login">
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" value="GIANGVIEN" checked onclick="doiLabel()">
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" value="SINHVIEN" onclick="doiLabel()">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-row">
+
+<label id="loginLabel">Login</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+<script>
+
+function doiLabel(){
+
+    const role = document.querySelector('input[name="role"]:checked').value
+    const label = document.getElementById("loginLabel")
+
+    if(role === "SINHVIEN"){
+        label.innerText = "Mã SV"
+    }else{
+        label.innerText = "Login"
+    }
+
+}
+
+// Xử lý submit form
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const role = document.querySelector('input[name="role"]:checked').value;
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+            role: role
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.detail || 'Đăng nhập thất bại');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Lưu thông tin user vào localStorage
+        localStorage.setItem('user', JSON.stringify(data));
+        alert('Đăng nhập thành công!');
+        console.log('Dữ liệu trả về:', data);
+        // Chuyển hướng đến trang info
+        window.location.href = '/user/info';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+
+</script>
+
+</body>
+</html>
+2026-03-18 22:51:50,985 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo tài khoản</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #cfd8dc;
+        }
+
+        .container {
+            width: 800px;
+            margin: 30px auto;
+            background: #d9e3e6;
+            padding: 20px 40px;
+            border: 2px solid #ccc;
+        }
+
+        h1 {
+            color: #d35400;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        label {
+            width: 150px;
+            font-weight: bold;
+        }
+
+        input, select {
+            flex: 1;
+            padding: 6px;
+            border: 1px solid #999;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row input {
+            flex: 1;
+        }
+
+        .buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        button {
+            background-color: #f5b97f;
+            border: none;
+            padding: 12px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #999;
+        }
+
+        button:hover {
+            background-color: #f39c12;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>TẠO TÀI KHOẢN ĐĂNG NHẬP CHƯƠNG TRÌNH</h1>
+
+    <form id="registerForm">
+
+        <div class="form-group">
+            <label>Họ tên nhân viên</label>
+            <select id="gvSelect" name="name" required>
+                <option value="">-- Chọn giảng viên --</option>
+            </select>
+
+            <label style="width: 80px; margin-left: 10px;">MANV</label>
+            <input type="text" id="manvInput" name="manv" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Tài khoản</label>
+            <input type="text" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label>Mật mã</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <div class="form-group">
+            <label>Nhóm quyền</label>
+            <select name="role" required>
+                <option>ADMIN</option>
+                <option>USER</option>
+            </select>
+        </div>
+
+        <div class="buttons">
+            <button type="submit">Tạo tài khoản</button>
+            <button type="reset">Xóa tài khoản</button>
+            <button type="button" onclick="window.location.href='/'">Thoát</button>
+        </div>
+
+    </form>
+</div>
+
+</body>
+
+<script>
+// Lưu danh sách giảng viên toàn cục
+let giaovienData = [];
+
+// Fetch danh sách giảng viên khi trang load
+window.addEventListener('load', function() {
+    fetch('/teacher/GVCHDK')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Lỗi khi lấy danh sách giảng viên');
+            }
+            return response.json();
+        })
+        .then(data => {
+            giaovienData = data;
+            populateCombobox(data);
+        })
+        .catch(error => {
+            alert('Lỗi: ' + error.message);
+            console.error(error);
+        });
+});
+
+// Hàm populate combobox
+function populateCombobox(data) {
+    const gvSelect = document.getElementById('gvSelect');
+    
+    data.forEach(gv => {
+        const option = document.createElement('option');
+        option.value = gv.magv;
+        option.text = gv.ho + ' ' + gv.ten;
+        option.dataset.magv = gv.magv;  // Lưu magv vào data attribute
+        gvSelect.appendChild(option);
+    });
+}
+
+// Xử lý khi chọn giảng viên
+document.getElementById('gvSelect').addEventListener('change', function() {
+    const selectedValue = this.value;
+    const manvInput = document.getElementById('manvInput');
+    
+    if (selectedValue) {
+        // Tìm giảng viên được chọn
+        const selectedGV = giaovienData.find(gv => gv.magv === selectedValue);
+        if (selectedGV) {
+            manvInput.value = selectedGV.magv;
+        }
+    } else {
+        manvInput.value = '';
+    }
+});
+
+// Xử lý submit form
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const manv = document.getElementById('manvInput').value;
+    const role = document.querySelector('select[name="role"]').value;
+    
+    if (!username || !password || !manv) {
+        alert('Vui lòng điền đầy đủ thông tin');
+        return;
+    }
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+            manv: manv,
+            role: role
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.detail || 'Tạo tài khoản thất bại');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert('Tạo tài khoản thành công!');
+        window.location.href = '/user/login';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+</script>
+
+</html>
+2026-03-18 22:51:51,184 - 127.0.0.1 - /teacher/GVCHDK - {} - [{"magv": "TH123   ", "ho": "PHAN VAN ", "ten": "HAI"}, {"magv": "TH657   ", "ho": "PHAN HONG", "ten": "NGOC"}, {"magv": "TH234   ", "ho": "DAO VAN ", "ten": "TUYET"}]
+2026-03-18 23:18:46,795 - 127.0.0.1 - / - {} - {"Message": "World"}
+2026-03-18 23:18:59,681 - 127.0.0.1 - /user/login - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form method="POST" action="/user/login">
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" value="GIANGVIEN" checked onclick="doiLabel()">
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" value="SINHVIEN" onclick="doiLabel()">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-row">
+
+<label id="loginLabel">Login</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+<script>
+
+function doiLabel(){
+
+    const role = document.querySelector('input[name="role"]:checked').value
+    const label = document.getElementById("loginLabel")
+
+    if(role === "SINHVIEN"){
+        label.innerText = "Mã SV"
+    }else{
+        label.innerText = "Login"
+    }
+
+}
+
+// Xử lý submit form
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const role = document.querySelector('input[name="role"]:checked').value;
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+            role: role
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.detail || 'Đăng nhập thất bại');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Lưu thông tin user vào localStorage
+        localStorage.setItem('user', JSON.stringify(data));
+        alert('Đăng nhập thành công!');
+        console.log('Dữ liệu trả về:', data);
+        // Chuyển hướng đến trang info
+        window.location.href = '/user/info';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+
+</script>
+
+</body>
+</html>
+2026-03-18 23:19:06,952 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo tài khoản</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #cfd8dc;
+        }
+
+        .container {
+            width: 800px;
+            margin: 30px auto;
+            background: #d9e3e6;
+            padding: 20px 40px;
+            border: 2px solid #ccc;
+        }
+
+        h1 {
+            color: #d35400;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        label {
+            width: 150px;
+            font-weight: bold;
+        }
+
+        input, select {
+            flex: 1;
+            padding: 6px;
+            border: 1px solid #999;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row input {
+            flex: 1;
+        }
+
+        .buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        button {
+            background-color: #f5b97f;
+            border: none;
+            padding: 12px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #999;
+        }
+
+        button:hover {
+            background-color: #f39c12;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>TẠO TÀI KHOẢN ĐĂNG NHẬP CHƯƠNG TRÌNH</h1>
+
+    <form id="registerForm">
+
+        <div class="form-group">
+            <label>Họ tên nhân viên</label>
+            <select id="gvSelect" name="name" required>
+                <option value="">-- Chọn giảng viên --</option>
+            </select>
+
+            <label style="width: 80px; margin-left: 10px;">MANV</label>
+            <input type="text" id="manvInput" name="manv" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Tài khoản</label>
+            <input type="text" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label>Mật mã</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <div class="form-group">
+            <label>Nhóm quyền</label>
+            <select name="role" required>
+                <option>ADMIN</option>
+                <option>USER</option>
+            </select>
+        </div>
+
+        <div class="buttons">
+            <button type="submit">Tạo tài khoản</button>
+            <button type="reset">Xóa tài khoản</button>
+            <button type="button" onclick="window.location.href='/'">Thoát</button>
+        </div>
+
+    </form>
+</div>
+
+</body>
+
+<script>
+// Lưu danh sách giảng viên toàn cục
+let giaovienData = [];
+
+// Fetch danh sách giảng viên khi trang load
+window.addEventListener('load', function() {
+    fetch('/teacher/GVCHDK')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Lỗi khi lấy danh sách giảng viên');
+            }
+            return response.json();
+        })
+        .then(data => {
+            giaovienData = data;
+            populateCombobox(data);
+        })
+        .catch(error => {
+            alert('Lỗi: ' + error.message);
+            console.error(error);
+        });
+});
+
+// Hàm populate combobox
+function populateCombobox(data) {
+    const gvSelect = document.getElementById('gvSelect');
+    
+    data.forEach(gv => {
+        const option = document.createElement('option');
+        option.value = gv.magv;
+        option.text = gv.ho + ' ' + gv.ten;
+        option.dataset.magv = gv.magv;  // Lưu magv vào data attribute
+        gvSelect.appendChild(option);
+    });
+}
+
+// Xử lý khi chọn giảng viên
+document.getElementById('gvSelect').addEventListener('change', function() {
+    const selectedValue = this.value;
+    const manvInput = document.getElementById('manvInput');
+    
+    if (selectedValue) {
+        // Tìm giảng viên được chọn
+        const selectedGV = giaovienData.find(gv => gv.magv === selectedValue);
+        if (selectedGV) {
+            manvInput.value = selectedGV.magv;
+        }
+    } else {
+        manvInput.value = '';
+    }
+});
+
+// Xử lý submit form
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const manv = document.getElementById('manvInput').value;
+    const role = document.querySelector('select[name="role"]').value;
+    
+    if (!username || !password || !manv) {
+        alert('Vui lòng điền đầy đủ thông tin');
+        return;
+    }
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+            manv: manv,
+            role: role
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.detail || 'Tạo tài khoản thất bại');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert('Tạo tài khoản thành công!');
+        window.location.href = '/user/login';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+</script>
+
+</html>
+2026-03-18 23:19:07,135 - 127.0.0.1 - /teacher/GVCHDK - {} - [{"magv": "TH123   ", "ho": "PHAN VAN ", "ten": "HAI"}, {"magv": "TH657   ", "ho": "PHAN HONG", "ten": "NGOC"}, {"magv": "TH234   ", "ho": "DAO VAN ", "ten": "TUYET"}]
+2026-03-18 23:19:32,594 - 127.0.0.1 - /user/register - {} - {"detail": [{"type": "missing", "loc": ["body", "hoten"], "msg": "Field required", "input": {"username": "tuyet", "password": "123", "manv": "TH234   ", "role": "USER"}}, {"type": "missing", "loc": ["body", "loginname"], "msg": "Field required", "input": {"username": "tuyet", "password": "123", "manv": "TH234   ", "role": "USER"}}, {"type": "enum", "loc": ["body", "role"], "msg": "Input should be 'PGV', 'SINHVIEN' or 'GIANGVIEN'", "input": "USER", "ctx": {"expected": "'PGV', 'SINHVIEN' or 'GIANGVIEN'"}}]}
+2026-03-18 23:19:45,168 - 127.0.0.1 - /user/register - {} - {"detail": [{"type": "missing", "loc": ["body", "hoten"], "msg": "Field required", "input": {"username": "tuyet", "password": "123", "manv": "TH234   ", "role": "USER"}}, {"type": "missing", "loc": ["body", "loginname"], "msg": "Field required", "input": {"username": "tuyet", "password": "123", "manv": "TH234   ", "role": "USER"}}, {"type": "enum", "loc": ["body", "role"], "msg": "Input should be 'PGV', 'SINHVIEN' or 'GIANGVIEN'", "input": "USER", "ctx": {"expected": "'PGV', 'SINHVIEN' or 'GIANGVIEN'"}}]}
+2026-03-18 23:21:14,365 - 127.0.0.1 - / - {} - {"Message": "World"}
+2026-03-18 23:21:18,442 - 127.0.0.1 - /user/login - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form method="POST" action="/user/login">
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" value="GIANGVIEN" checked onclick="doiLabel()">
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" value="SINHVIEN" onclick="doiLabel()">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-row">
+
+<label id="loginLabel">Login</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+<script>
+
+function doiLabel(){
+
+    const role = document.querySelector('input[name="role"]:checked').value
+    const label = document.getElementById("loginLabel")
+
+    if(role === "SINHVIEN"){
+        label.innerText = "Mã SV"
+    }else{
+        label.innerText = "Login"
+    }
+
+}
+
+// Xử lý submit form
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const role = document.querySelector('input[name="role"]:checked').value;
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+            role: role
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.detail || 'Đăng nhập thất bại');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Lưu thông tin user vào localStorage
+        localStorage.setItem('user', JSON.stringify(data));
+        alert('Đăng nhập thành công!');
+        console.log('Dữ liệu trả về:', data);
+        // Chuyển hướng đến trang info
+        window.location.href = '/user/info';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+
+</script>
+
+</body>
+</html>
+2026-03-18 23:21:22,153 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo tài khoản</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #cfd8dc;
+        }
+
+        .container {
+            width: 800px;
+            margin: 30px auto;
+            background: #d9e3e6;
+            padding: 20px 40px;
+            border: 2px solid #ccc;
+        }
+
+        h1 {
+            color: #d35400;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        label {
+            width: 150px;
+            font-weight: bold;
+        }
+
+        input, select {
+            flex: 1;
+            padding: 6px;
+            border: 1px solid #999;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row input {
+            flex: 1;
+        }
+
+        .buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        button {
+            background-color: #f5b97f;
+            border: none;
+            padding: 12px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #999;
+        }
+
+        button:hover {
+            background-color: #f39c12;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>TẠO TÀI KHOẢN ĐĂNG NHẬP CHƯƠNG TRÌNH</h1>
+
+    <form id="registerForm">
+
+        <div class="form-group">
+            <label>Họ tên nhân viên</label>
+            <select id="gvSelect" name="name" required>
+                <option value="">-- Chọn giảng viên --</option>
+            </select>
+
+            <label style="width: 80px; margin-left: 10px;">MANV</label>
+            <input type="text" id="manvInput" name="manv" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Tài khoản</label>
+            <input type="text" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label>Mật mã</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <div class="form-group">
+            <label>Nhóm quyền</label>
+            <select name="role" required>
+                <option>ADMIN</option>
+                <option>USER</option>
+            </select>
+        </div>
+
+        <div class="buttons">
+            <button type="submit">Tạo tài khoản</button>
+            <button type="reset">Xóa tài khoản</button>
+            <button type="button" onclick="window.location.href='/'">Thoát</button>
+        </div>
+
+    </form>
+</div>
+
+</body>
+
+<script>
+// Lưu danh sách giảng viên toàn cục
+let giaovienData = [];
+
+// Fetch danh sách giảng viên khi trang load
+window.addEventListener('load', function() {
+    fetch('/teacher/GVCHDK')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Lỗi khi lấy danh sách giảng viên');
+            }
+            return response.json();
+        })
+        .then(data => {
+            giaovienData = data;
+            populateCombobox(data);
+        })
+        .catch(error => {
+            alert('Lỗi: ' + error.message);
+            console.error(error);
+        });
+});
+
+// Hàm populate combobox
+function populateCombobox(data) {
+    const gvSelect = document.getElementById('gvSelect');
+    
+    data.forEach(gv => {
+        const option = document.createElement('option');
+        option.value = gv.magv;
+        option.text = gv.ho + ' ' + gv.ten;
+        option.dataset.magv = gv.magv;  // Lưu magv vào data attribute
+        gvSelect.appendChild(option);
+    });
+}
+
+// Xử lý khi chọn giảng viên
+document.getElementById('gvSelect').addEventListener('change', function() {
+    const selectedValue = this.value;
+    const manvInput = document.getElementById('manvInput');
+    
+    if (selectedValue) {
+        // Tìm giảng viên được chọn
+        const selectedGV = giaovienData.find(gv => gv.magv === selectedValue);
+        if (selectedGV) {
+            manvInput.value = selectedGV.magv;
+        }
+    } else {
+        manvInput.value = '';
+    }
+});
+
+// Xử lý submit form
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const manv = document.getElementById('manvInput').value;
+    const role = document.querySelector('select[name="role"]').value;
+    
+    if (!username || !password || !manv) {
+        alert('Vui lòng điền đầy đủ thông tin');
+        return;
+    }
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+            manv: manv,
+            role: role
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                let errorMsg = 'Tạo tài khoản thất bại';
+                
+                // Xử lý validation errors (array)
+                if (Array.isArray(data.detail)) {
+                    errorMsg = data.detail.map(err => err.msg).join(', ');
+                }
+                // Xử lý detail message (string)
+                else if (data.detail) {
+                    errorMsg = data.detail;
+                }
+                // Xử lý object error
+                else if (typeof data === 'object') {
+                    errorMsg = JSON.stringify(data);
+                }
+                
+                throw new Error(errorMsg);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert('Tạo tài khoản thành công!');
+        window.location.href = '/user/login';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+</script>
+
+</html>
+2026-03-18 23:21:22,461 - 127.0.0.1 - /teacher/GVCHDK - {} - [{"magv": "TH123   ", "ho": "PHAN VAN ", "ten": "HAI"}, {"magv": "TH657   ", "ho": "PHAN HONG", "ten": "NGOC"}, {"magv": "TH234   ", "ho": "DAO VAN ", "ten": "TUYET"}]
+2026-03-18 23:21:36,428 - 127.0.0.1 - /user/register - {} - {"detail": [{"type": "missing", "loc": ["body", "hoten"], "msg": "Field required", "input": {"username": "tuyet", "password": "123", "manv": "TH234   ", "role": "USER"}}, {"type": "missing", "loc": ["body", "loginname"], "msg": "Field required", "input": {"username": "tuyet", "password": "123", "manv": "TH234   ", "role": "USER"}}, {"type": "enum", "loc": ["body", "role"], "msg": "Input should be 'PGV', 'SINHVIEN' or 'GIANGVIEN'", "input": "USER", "ctx": {"expected": "'PGV', 'SINHVIEN' or 'GIANGVIEN'"}}]}
+2026-03-18 23:23:01,987 - 127.0.0.1 - / - {} - {"Message": "World"}
+2026-03-18 23:23:06,415 - 127.0.0.1 - /user/login - {} - <!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Đăng nhập hệ thống</title>
+
+<style>
+
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+
+<form method="POST" action="/user/login">
+
+<div class="role-area">
+
+<label>
+<input type="radio" name="role" value="GIANGVIEN" checked onclick="doiLabel()">
+GIẢNG VIÊN
+</label>
+
+<label>
+<input type="radio" name="role" value="SINHVIEN" onclick="doiLabel()">
+SINH VIÊN
+</label>
+
+</div>
+
+<div class="form-row">
+
+<label id="loginLabel">Login</label>
+
+<input type="text" name="username">
+
+</div>
+
+<div class="form-row">
+
+<label>Password</label>
+
+<input type="password" name="password">
+
+</div>
+
+<div class="button-area">
+
+<button type="submit">Đăng nhập</button>
+
+<button type="reset">Làm lại</button>
+
+</div>
+
+</form>
+
+</div>
+
+<script>
+
+function doiLabel(){
+
+    const role = document.querySelector('input[name="role"]:checked').value
+    const label = document.getElementById("loginLabel")
+
+    if(role === "SINHVIEN"){
+        label.innerText = "Mã SV"
+    }else{
+        label.innerText = "Login"
+    }
+
+}
+
+// Xử lý submit form
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const role = document.querySelector('input[name="role"]:checked').value;
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+            role: role
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.detail || 'Đăng nhập thất bại');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Lưu thông tin user vào localStorage
+        localStorage.setItem('user', JSON.stringify(data));
+        alert('Đăng nhập thành công!');
+        console.log('Dữ liệu trả về:', data);
+        // Chuyển hướng đến trang info
+        window.location.href = '/user/info';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+
+</script>
+
+</body>
+</html>
+2026-03-18 23:23:08,206 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo tài khoản</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #cfd8dc;
+        }
+
+        .container {
+            width: 800px;
+            margin: 30px auto;
+            background: #d9e3e6;
+            padding: 20px 40px;
+            border: 2px solid #ccc;
+        }
+
+        h1 {
+            color: #d35400;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        label {
+            width: 150px;
+            font-weight: bold;
+        }
+
+        input, select {
+            flex: 1;
+            padding: 6px;
+            border: 1px solid #999;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row input {
+            flex: 1;
+        }
+
+        .buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        button {
+            background-color: #f5b97f;
+            border: none;
+            padding: 12px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #999;
+        }
+
+        button:hover {
+            background-color: #f39c12;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>TẠO TÀI KHOẢN ĐĂNG NHẬP CHƯƠNG TRÌNH</h1>
+
+    <form id="registerForm">
+
+        <div class="form-group">
+            <label>Họ tên nhân viên</label>
+            <select id="gvSelect" name="name" required>
+                <option value="">-- Chọn giảng viên --</option>
+            </select>
+
+            <label style="width: 80px; margin-left: 10px;">MANV</label>
+            <input type="text" id="manvInput" name="manv" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Tài khoản</label>
+            <input type="text" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label>Mật mã</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <div class="form-group">
+            <label>Nhóm quyền</label>
+            <select name="role" required>
+                <option value="GIANGVIEN">Giảng viên</option>
+                <option value="SINHVIEN">Sinh viên</option>
+                <option value="PGV">Phòng giáo vụ</option>
+            </select>
+        </div>
+
+        <div class="buttons">
+            <button type="submit">Tạo tài khoản</button>
+            <button type="reset">Xóa tài khoản</button>
+            <button type="button" onclick="window.location.href='/'">Thoát</button>
+        </div>
+
+    </form>
+</div>
+
+</body>
+
+<script>
+// Lưu danh sách giảng viên toàn cục
+let giaovienData = [];
+
+// Fetch danh sách giảng viên khi trang load
+window.addEventListener('load', function() {
+    fetch('/teacher/GVCHDK')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Lỗi khi lấy danh sách giảng viên');
+            }
+            return response.json();
+        })
+        .then(data => {
+            giaovienData = data;
+            populateCombobox(data);
+        })
+        .catch(error => {
+            alert('Lỗi: ' + error.message);
+            console.error(error);
+        });
+});
+
+// Hàm populate combobox
+function populateCombobox(data) {
+    const gvSelect = document.getElementById('gvSelect');
+    
+    data.forEach(gv => {
+        const option = document.createElement('option');
+        option.value = gv.magv;
+        option.text = gv.ho + ' ' + gv.ten;
+        option.dataset.magv = gv.magv;  // Lưu magv vào data attribute
+        gvSelect.appendChild(option);
+    });
+}
+
+// Xử lý khi chọn giảng viên
+document.getElementById('gvSelect').addEventListener('change', function() {
+    const selectedValue = this.value;
+    const manvInput = document.getElementById('manvInput');
+    
+    if (selectedValue) {
+        // Tìm giảng viên được chọn
+        const selectedGV = giaovienData.find(gv => gv.magv === selectedValue);
+        if (selectedGV) {
+            manvInput.value = selectedGV.magv;
+        }
+    } else {
+        manvInput.value = '';
+    }
+});
+
+// Xử lý submit form
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const gvSelect = document.getElementById('gvSelect');
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const manv = document.getElementById('manvInput').value;
+    const role = document.querySelector('select[name="role"]').value;
+    
+    // Lấy giảng viên được chọn để có họ tên
+    const selectedGV = giaovienData.find(gv => gv.magv === manv);
+    const hoten = selectedGV ? (selectedGV.ho + ' ' + selectedGV.ten) : '';
+    
+    if (!username || !password || !manv || !hoten) {
+        alert('Vui lòng điền đầy đủ thông tin');
+        return;
+    }
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            hoten: hoten,              // Thêm họ tên
+            username: username,
+            manv: manv,
+            password: password,
+            loginname: username,       // Thêm loginname = username
+            role: role                 // role phải là GIANGVIEN, SINHVIEN hoặc PGV
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                let errorMsg = 'Tạo tài khoản thất bại';
+                
+                // Xử lý validation errors (array)
+                if (Array.isArray(data.detail)) {
+                    errorMsg = data.detail.map(err => err.msg).join(', ');
+                }
+                // Xử lý detail message (string)
+                else if (data.detail) {
+                    errorMsg = data.detail;
+                }
+                // Xử lý object error
+                else if (typeof data === 'object') {
+                    errorMsg = JSON.stringify(data);
+                }
+                
+                throw new Error(errorMsg);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert('Tạo tài khoản thành công!');
+        window.location.href = '/user/login';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+</script>
+
+</html>
+2026-03-18 23:23:08,508 - 127.0.0.1 - /teacher/GVCHDK - {} - [{"magv": "TH123   ", "ho": "PHAN VAN ", "ten": "HAI"}, {"magv": "TH657   ", "ho": "PHAN HONG", "ten": "NGOC"}, {"magv": "TH234   ", "ho": "DAO VAN ", "ten": "TUYET"}]
+2026-03-18 23:33:14,563 - 127.0.0.1 - / - {} - {"Message": "World"}
+2026-03-18 23:33:15,940 - 127.0.0.1 - / - {} - {"Message": "World"}
+2026-03-18 23:33:25,884 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo tài khoản</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #cfd8dc;
+        }
+
+        .container {
+            width: 800px;
+            margin: 30px auto;
+            background: #d9e3e6;
+            padding: 20px 40px;
+            border: 2px solid #ccc;
+        }
+
+        h1 {
+            color: #d35400;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        label {
+            width: 150px;
+            font-weight: bold;
+        }
+
+        input, select {
+            flex: 1;
+            padding: 6px;
+            border: 1px solid #999;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row input {
+            flex: 1;
+        }
+
+        .buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        button {
+            background-color: #f5b97f;
+            border: none;
+            padding: 12px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #999;
+        }
+
+        button:hover {
+            background-color: #f39c12;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>TẠO TÀI KHOẢN ĐĂNG NHẬP CHƯƠNG TRÌNH</h1>
+
+    <form id="registerForm">
+
+        <div class="form-group">
+            <label>Họ tên nhân viên</label>
+            <select id="gvSelect" name="name" required>
+                <option value="">-- Chọn giảng viên --</option>
+            </select>
+
+            <label style="width: 80px; margin-left: 10px;">MANV</label>
+            <input type="text" id="manvInput" name="manv" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Tài khoản</label>
+            <input type="text" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label>Mật mã</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <div class="form-group">
+            <label>Quyền hệ thống</label>
+            <select id="systemRole" name="system_role" required>
+                <option value="USER">User</option>
+                <option value="ADMIN">Admin</option>
+            </select>
+        </div>
+
+        <div class="buttons">
+            <button type="submit">Tạo tài khoản</button>
+            <button type="reset">Xóa tài khoản</button>
+            <button type="button" onclick="window.location.href='/'">Thoát</button>
+        </div>
+
+    </form>
+</div>
+
+</body>
+
+<script>
+// Lưu danh sách giảng viên toàn cục
+let giaovienData = [];
+
+// Fetch danh sách giảng viên khi trang load
+window.addEventListener('load', function() {
+    fetch('/teacher/GVCHDK')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Lỗi khi lấy danh sách giảng viên');
+            }
+            return response.json();
+        })
+        .then(data => {
+            giaovienData = data;
+            populateCombobox(data);
+        })
+        .catch(error => {
+            alert('Lỗi: ' + error.message);
+            console.error(error);
+        });
+});
+
+// Hàm populate combobox
+function populateCombobox(data) {
+    const gvSelect = document.getElementById('gvSelect');
+    
+    data.forEach(gv => {
+        const option = document.createElement('option');
+        option.value = gv.magv;
+        option.text = gv.ho + ' ' + gv.ten;
+        option.dataset.magv = gv.magv;  // Lưu magv vào data attribute
+        gvSelect.appendChild(option);
+    });
+}
+
+// Xử lý khi chọn giảng viên
+document.getElementById('gvSelect').addEventListener('change', function() {
+    const selectedValue = this.value;
+    const manvInput = document.getElementById('manvInput');
+    
+    if (selectedValue) {
+        // Tìm giảng viên được chọn
+        const selectedGV = giaovienData.find(gv => gv.magv === selectedValue);
+        if (selectedGV) {
+            manvInput.value = selectedGV.magv;
+        }
+    } else {
+        manvInput.value = '';
+    }
+});
+
+// Xử lý submit form
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const gvSelect = document.getElementById('gvSelect');
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const manv = document.getElementById('manvInput').value;
+    const system_role = document.getElementById('systemRole').value;
+    
+    // Lấy giảng viên được chọn để có họ tên
+    const selectedGV = giaovienData.find(gv => gv.magv === manv);
+    const hoten = selectedGV ? (selectedGV.ho + ' ' + selectedGV.ten) : '';
+    
+    if (!username || !password || !manv || !hoten) {
+        alert('Vui lòng điền đầy đủ thông tin');
+        return;
+    }
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            hoten: hoten,              // Họ tên
+            username: username,        // Tài khoản
+            manv: manv,                // Mã nhân viên
+            password: password,        // Mật khẩu
+            loginname: username,       // Login name
+            system_role: system_role   // Quyền hệ thống (ADMIN, USER)
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                let errorMsg = 'Tạo tài khoản thất bại';
+                
+                // Xử lý validation errors (array)
+                if (Array.isArray(data.detail)) {
+                    errorMsg = data.detail.map(err => err.msg).join(', ');
+                }
+                // Xử lý detail message (string)
+                else if (data.detail) {
+                    errorMsg = data.detail;
+                }
+                // Xử lý object error
+                else if (typeof data === 'object') {
+                    errorMsg = JSON.stringify(data);
+                }
+                
+                throw new Error(errorMsg);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert('Tạo tài khoản thành công!');
+        window.location.href = '/user/login';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+</script>
+
+</html>
+2026-03-18 23:33:26,268 - 127.0.0.1 - /teacher/GVCHDK - {} - [{"magv": "TH123   ", "ho": "PHAN VAN ", "ten": "HAI"}, {"magv": "TH657   ", "ho": "PHAN HONG", "ten": "NGOC"}, {"magv": "TH234   ", "ho": "DAO VAN ", "ten": "TUYET"}]
+2026-03-18 23:33:46,121 - 127.0.0.1 - /user/register - {} - {"detail": "Kh\u00f4ng t\u00ecm th\u1ea5y gi\u1ea3ng vi\u00ean"}
+2026-03-18 23:37:23,858 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo tài khoản</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #cfd8dc;
+        }
+
+        .container {
+            width: 800px;
+            margin: 30px auto;
+            background: #d9e3e6;
+            padding: 20px 40px;
+            border: 2px solid #ccc;
+        }
+
+        h1 {
+            color: #d35400;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        label {
+            width: 150px;
+            font-weight: bold;
+        }
+
+        input, select {
+            flex: 1;
+            padding: 6px;
+            border: 1px solid #999;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row input {
+            flex: 1;
+        }
+
+        .buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        button {
+            background-color: #f5b97f;
+            border: none;
+            padding: 12px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #999;
+        }
+
+        button:hover {
+            background-color: #f39c12;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>TẠO TÀI KHOẢN ĐĂNG NHẬP CHƯƠNG TRÌNH</h1>
+
+    <form id="registerForm">
+
+        <div class="form-group">
+            <label>Họ tên nhân viên</label>
+            <select id="gvSelect" name="name" required>
+                <option value="">-- Chọn giảng viên --</option>
+            </select>
+
+            <label style="width: 80px; margin-left: 10px;">MANV</label>
+            <input type="text" id="manvInput" name="manv" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Tài khoản</label>
+            <input type="text" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label>Mật mã</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <div class="form-group">
+            <label>Quyền hệ thống</label>
+            <select id="systemRole" name="system_role" required>
+                <option value="USER">User</option>
+                <option value="ADMIN">Admin</option>
+            </select>
+        </div>
+
+        <div class="buttons">
+            <button type="submit">Tạo tài khoản</button>
+            <button type="reset">Xóa tài khoản</button>
+            <button type="button" onclick="window.location.href='/'">Thoát</button>
+        </div>
+
+    </form>
+</div>
+
+</body>
+
+<script>
+// Lưu danh sách giảng viên toàn cục
+let giaovienData = [];
+
+// Fetch danh sách giảng viên khi trang load
+window.addEventListener('load', function() {
+    fetch('/teacher/GVCHDK')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Lỗi khi lấy danh sách giảng viên');
+            }
+            return response.json();
+        })
+        .then(data => {
+            giaovienData = data;
+            populateCombobox(data);
+        })
+        .catch(error => {
+            alert('Lỗi: ' + error.message);
+            console.error(error);
+        });
+});
+
+// Hàm populate combobox
+function populateCombobox(data) {
+    const gvSelect = document.getElementById('gvSelect');
+    
+    data.forEach(gv => {
+        const option = document.createElement('option');
+        option.value = gv.magv;
+        option.text = gv.ho + ' ' + gv.ten;
+        option.dataset.magv = gv.magv;  // Lưu magv vào data attribute
+        gvSelect.appendChild(option);
+    });
+}
+
+// Xử lý khi chọn giảng viên
+document.getElementById('gvSelect').addEventListener('change', function() {
+    const selectedValue = this.value;
+    const manvInput = document.getElementById('manvInput');
+    
+    if (selectedValue) {
+        // Tìm giảng viên được chọn
+        const selectedGV = giaovienData.find(gv => gv.magv === selectedValue);
+        if (selectedGV) {
+            manvInput.value = selectedGV.magv;
+        }
+    } else {
+        manvInput.value = '';
+    }
+});
+
+// Xử lý submit form
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const gvSelect = document.getElementById('gvSelect');
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const manv = document.getElementById('manvInput').value;
+    const system_role = document.getElementById('systemRole').value;
+    
+    // Lấy giảng viên được chọn để có họ tên
+    const selectedGV = giaovienData.find(gv => gv.magv === manv);
+    const hoten = selectedGV ? (selectedGV.ho + ' ' + selectedGV.ten) : '';
+    
+    if (!username || !password || !manv || !hoten) {
+        alert('Vui lòng điền đầy đủ thông tin');
+        return;
+    }
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            hoten: hoten,              // Họ tên
+            username: username,        // Tài khoản
+            manv: manv,                // Mã nhân viên
+            password: password,        // Mật khẩu
+            loginname: username,       // Login name
+            system_role: system_role   // Quyền hệ thống (ADMIN, USER)
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                let errorMsg = 'Tạo tài khoản thất bại';
+                
+                // Xử lý validation errors (array)
+                if (Array.isArray(data.detail)) {
+                    errorMsg = data.detail.map(err => err.msg).join(', ');
+                }
+                // Xử lý detail message (string)
+                else if (data.detail) {
+                    errorMsg = data.detail;
+                }
+                // Xử lý object error
+                else if (typeof data === 'object') {
+                    errorMsg = JSON.stringify(data);
+                }
+                
+                throw new Error(errorMsg);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert('Tạo tài khoản thành công!');
+        window.location.href = '/user/login';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+</script>
+
+</html>
+2026-03-18 23:37:24,066 - 127.0.0.1 - /teacher/GVCHDK - {} - [{"magv": "TH123   ", "ho": "PHAN VAN ", "ten": "HAI"}, {"magv": "TH657   ", "ho": "PHAN HONG", "ten": "NGOC"}, {"magv": "TH234   ", "ho": "DAO VAN ", "ten": "TUYET"}]
+2026-03-18 23:37:40,749 - 127.0.0.1 - /user/register - {} - {"detail": "Kh\u00f4ng t\u00ecm th\u1ea5y gi\u1ea3ng vi\u00ean"}
+2026-03-18 23:38:18,693 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo tài khoản</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #cfd8dc;
+        }
+
+        .container {
+            width: 800px;
+            margin: 30px auto;
+            background: #d9e3e6;
+            padding: 20px 40px;
+            border: 2px solid #ccc;
+        }
+
+        h1 {
+            color: #d35400;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        label {
+            width: 150px;
+            font-weight: bold;
+        }
+
+        input, select {
+            flex: 1;
+            padding: 6px;
+            border: 1px solid #999;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row input {
+            flex: 1;
+        }
+
+        .buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        button {
+            background-color: #f5b97f;
+            border: none;
+            padding: 12px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #999;
+        }
+
+        button:hover {
+            background-color: #f39c12;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>TẠO TÀI KHOẢN ĐĂNG NHẬP CHƯƠNG TRÌNH</h1>
+
+    <form id="registerForm">
+
+        <div class="form-group">
+            <label>Họ tên nhân viên</label>
+            <select id="gvSelect" name="name" required>
+                <option value="">-- Chọn giảng viên --</option>
+            </select>
+
+            <label style="width: 80px; margin-left: 10px;">MANV</label>
+            <input type="text" id="manvInput" name="manv" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Tài khoản</label>
+            <input type="text" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label>Mật mã</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <div class="form-group">
+            <label>Quyền hệ thống</label>
+            <select id="systemRole" name="system_role" required>
+                <option value="USER">User</option>
+                <option value="ADMIN">Admin</option>
+            </select>
+        </div>
+
+        <div class="buttons">
+            <button type="submit">Tạo tài khoản</button>
+            <button type="reset">Xóa tài khoản</button>
+            <button type="button" onclick="window.location.href='/'">Thoát</button>
+        </div>
+
+    </form>
+</div>
+
+</body>
+
+<script>
+// Lưu danh sách giảng viên toàn cục
+let giaovienData = [];
+
+// Fetch danh sách giảng viên khi trang load
+window.addEventListener('load', function() {
+    fetch('/teacher/GVCHDK')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Lỗi khi lấy danh sách giảng viên');
+            }
+            return response.json();
+        })
+        .then(data => {
+            giaovienData = data;
+            populateCombobox(data);
+        })
+        .catch(error => {
+            alert('Lỗi: ' + error.message);
+            console.error(error);
+        });
+});
+
+// Hàm populate combobox
+function populateCombobox(data) {
+    const gvSelect = document.getElementById('gvSelect');
+    
+    data.forEach(gv => {
+        const option = document.createElement('option');
+        option.value = gv.magv;
+        option.text = gv.ho + ' ' + gv.ten;
+        option.dataset.magv = gv.magv;  // Lưu magv vào data attribute
+        gvSelect.appendChild(option);
+    });
+}
+
+// Xử lý khi chọn giảng viên
+document.getElementById('gvSelect').addEventListener('change', function() {
+    const selectedValue = this.value;
+    const manvInput = document.getElementById('manvInput');
+    
+    if (selectedValue) {
+        // Tìm giảng viên được chọn
+        const selectedGV = giaovienData.find(gv => gv.magv === selectedValue);
+        if (selectedGV) {
+            manvInput.value = selectedGV.magv;
+        }
+    } else {
+        manvInput.value = '';
+    }
+});
+
+// Xử lý submit form
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const gvSelect = document.getElementById('gvSelect');
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const manv = document.getElementById('manvInput').value;
+    const system_role = document.getElementById('systemRole').value;
+    
+    // Lấy giảng viên được chọn để có họ tên
+    const selectedGV = giaovienData.find(gv => gv.magv === manv);
+    const hoten = selectedGV ? (selectedGV.ho + ' ' + selectedGV.ten) : '';
+    
+    if (!username || !password || !manv || !hoten) {
+        alert('Vui lòng điền đầy đủ thông tin');
+        return;
+    }
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            hoten: hoten,              // Họ tên
+            username: username,        // Tài khoản
+            manv: manv,                // Mã nhân viên
+            password: password,        // Mật khẩu
+            loginname: username,       // Login name
+            system_role: system_role   // Quyền hệ thống (ADMIN, USER)
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                let errorMsg = 'Tạo tài khoản thất bại';
+                
+                // Xử lý validation errors (array)
+                if (Array.isArray(data.detail)) {
+                    errorMsg = data.detail.map(err => err.msg).join(', ');
+                }
+                // Xử lý detail message (string)
+                else if (data.detail) {
+                    errorMsg = data.detail;
+                }
+                // Xử lý object error
+                else if (typeof data === 'object') {
+                    errorMsg = JSON.stringify(data);
+                }
+                
+                throw new Error(errorMsg);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert('Tạo tài khoản thành công!');
+        window.location.href = '/user/login';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+</script>
+
+</html>
+2026-03-18 23:38:18,810 - 127.0.0.1 - /teacher/GVCHDK - {} - [{"magv": "TH123   ", "ho": "PHAN VAN ", "ten": "HAI"}, {"magv": "TH657   ", "ho": "PHAN HONG", "ten": "NGOC"}, {"magv": "TH234   ", "ho": "DAO VAN ", "ten": "TUYET"}]
+2026-03-18 23:38:31,782 - 127.0.0.1 - /user/register - {} - {"detail": "Kh\u00f4ng t\u00ecm th\u1ea5y gi\u1ea3ng vi\u00ean"}
+2026-03-18 23:42:13,498 - 127.0.0.1 - / - {} - {"Message": "World"}
+2026-03-18 23:42:19,124 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo tài khoản</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #cfd8dc;
+        }
+
+        .container {
+            width: 800px;
+            margin: 30px auto;
+            background: #d9e3e6;
+            padding: 20px 40px;
+            border: 2px solid #ccc;
+        }
+
+        h1 {
+            color: #d35400;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        label {
+            width: 150px;
+            font-weight: bold;
+        }
+
+        input, select {
+            flex: 1;
+            padding: 6px;
+            border: 1px solid #999;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row input {
+            flex: 1;
+        }
+
+        .buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        button {
+            background-color: #f5b97f;
+            border: none;
+            padding: 12px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #999;
+        }
+
+        button:hover {
+            background-color: #f39c12;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>TẠO TÀI KHOẢN ĐĂNG NHẬP CHƯƠNG TRÌNH</h1>
+
+    <form id="registerForm">
+
+        <div class="form-group">
+            <label>Họ tên nhân viên</label>
+            <select id="gvSelect" name="name" required>
+                <option value="">-- Chọn giảng viên --</option>
+            </select>
+
+            <label style="width: 80px; margin-left: 10px;">MANV</label>
+            <input type="text" id="manvInput" name="manv" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Tài khoản</label>
+            <input type="text" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label>Mật mã</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <div class="form-group">
+            <label>Quyền hệ thống</label>
+            <select id="systemRole" name="system_role" required>
+                <option value="USER">User</option>
+                <option value="ADMIN">Admin</option>
+            </select>
+        </div>
+
+        <div class="buttons">
+            <button type="submit">Tạo tài khoản</button>
+            <button type="reset">Xóa tài khoản</button>
+            <button type="button" onclick="window.location.href='/'">Thoát</button>
+        </div>
+
+    </form>
+</div>
+
+</body>
+
+<script>
+// Lưu danh sách giảng viên toàn cục
+let giaovienData = [];
+
+// Fetch danh sách giảng viên khi trang load
+window.addEventListener('load', function() {
+    fetch('/teacher/GVCHDK')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Lỗi khi lấy danh sách giảng viên');
+            }
+            return response.json();
+        })
+        .then(data => {
+            giaovienData = data;
+            populateCombobox(data);
+        })
+        .catch(error => {
+            alert('Lỗi: ' + error.message);
+            console.error(error);
+        });
+});
+
+// Hàm populate combobox
+function populateCombobox(data) {
+    const gvSelect = document.getElementById('gvSelect');
+    
+    data.forEach(gv => {
+        const option = document.createElement('option');
+        option.value = gv.magv;
+        option.text = gv.ho + ' ' + gv.ten;
+        option.dataset.magv = gv.magv;  // Lưu magv vào data attribute
+        gvSelect.appendChild(option);
+    });
+}
+
+// Xử lý khi chọn giảng viên
+document.getElementById('gvSelect').addEventListener('change', function() {
+    const selectedValue = this.value;
+    const manvInput = document.getElementById('manvInput');
+    
+    if (selectedValue) {
+        // Tìm giảng viên được chọn
+        const selectedGV = giaovienData.find(gv => gv.magv === selectedValue);
+        if (selectedGV) {
+            manvInput.value = selectedGV.magv;
+        }
+    } else {
+        manvInput.value = '';
+    }
+});
+
+// Xử lý submit form
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const gvSelect = document.getElementById('gvSelect');
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const manv = document.getElementById('manvInput').value;
+    const system_role = document.getElementById('systemRole').value;
+    
+    // Lấy giảng viên được chọn để có họ tên
+    const selectedGV = giaovienData.find(gv => gv.magv === manv);
+    const hoten = selectedGV ? (selectedGV.ho + ' ' + selectedGV.ten) : '';
+    
+    if (!username || !password || !manv || !hoten) {
+        alert('Vui lòng điền đầy đủ thông tin');
+        return;
+    }
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            hoten: hoten,              // Họ tên
+            username: username,        // Tài khoản
+            manv: manv,                // Mã nhân viên
+            password: password,        // Mật khẩu
+            loginname: username,       // Login name
+            system_role: system_role   // Quyền hệ thống (ADMIN, USER)
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                let errorMsg = 'Tạo tài khoản thất bại';
+                
+                // Xử lý validation errors (array)
+                if (Array.isArray(data.detail)) {
+                    errorMsg = data.detail.map(err => err.msg).join(', ');
+                }
+                // Xử lý detail message (string)
+                else if (data.detail) {
+                    errorMsg = data.detail;
+                }
+                // Xử lý object error
+                else if (typeof data === 'object') {
+                    errorMsg = JSON.stringify(data);
+                }
+                
+                throw new Error(errorMsg);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert('Tạo tài khoản thành công!');
+        window.location.href = '/user/login';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+</script>
+
+</html>
+2026-03-18 23:42:19,466 - 127.0.0.1 - /teacher/GVCHDK - {} - [{"magv": "TH123   ", "ho": "PHAN VAN ", "ten": "HAI"}, {"magv": "TH657   ", "ho": "PHAN HONG", "ten": "NGOC"}, {"magv": "TH234   ", "ho": "DAO VAN ", "ten": "TUYET"}]
+2026-03-18 23:43:00,239 - 127.0.0.1 - /user/register - {} - {"detail": "Kh\u00f4ng t\u00ecm th\u1ea5y gi\u1ea3ng vi\u00ean"}
+2026-03-18 23:45:31,532 - 127.0.0.1 - / - {} - {"Message": "World"}
+2026-03-18 23:45:35,103 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo tài khoản</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #cfd8dc;
+        }
+
+        .container {
+            width: 800px;
+            margin: 30px auto;
+            background: #d9e3e6;
+            padding: 20px 40px;
+            border: 2px solid #ccc;
+        }
+
+        h1 {
+            color: #d35400;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        label {
+            width: 150px;
+            font-weight: bold;
+        }
+
+        input, select {
+            flex: 1;
+            padding: 6px;
+            border: 1px solid #999;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row input {
+            flex: 1;
+        }
+
+        .buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        button {
+            background-color: #f5b97f;
+            border: none;
+            padding: 12px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #999;
+        }
+
+        button:hover {
+            background-color: #f39c12;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>TẠO TÀI KHOẢN ĐĂNG NHẬP CHƯƠNG TRÌNH</h1>
+
+    <form id="registerForm">
+
+        <div class="form-group">
+            <label>Họ tên nhân viên</label>
+            <select id="gvSelect" name="name" required>
+                <option value="">-- Chọn giảng viên --</option>
+            </select>
+
+            <label style="width: 80px; margin-left: 10px;">MANV</label>
+            <input type="text" id="manvInput" name="manv" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Tài khoản</label>
+            <input type="text" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label>Mật mã</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <div class="form-group">
+            <label>Quyền hệ thống</label>
+            <select id="systemRole" name="system_role" required>
+                <option value="USER">User</option>
+                <option value="ADMIN">Admin</option>
+            </select>
+        </div>
+
+        <div class="buttons">
+            <button type="submit">Tạo tài khoản</button>
+            <button type="reset">Xóa tài khoản</button>
+            <button type="button" onclick="window.location.href='/'">Thoát</button>
+        </div>
+
+    </form>
+</div>
+
+</body>
+
+<script>
+// Lưu danh sách giảng viên toàn cục
+let giaovienData = [];
+
+// Fetch danh sách giảng viên khi trang load
+window.addEventListener('load', function() {
+    fetch('/teacher/GVCHDK')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Lỗi khi lấy danh sách giảng viên');
+            }
+            return response.json();
+        })
+        .then(data => {
+            giaovienData = data;
+            populateCombobox(data);
+        })
+        .catch(error => {
+            alert('Lỗi: ' + error.message);
+            console.error(error);
+        });
+});
+
+// Hàm populate combobox
+function populateCombobox(data) {
+    const gvSelect = document.getElementById('gvSelect');
+    
+    data.forEach(gv => {
+        const option = document.createElement('option');
+        option.value = gv.magv;
+        option.text = gv.ho + ' ' + gv.ten;
+        option.dataset.magv = gv.magv;  // Lưu magv vào data attribute
+        gvSelect.appendChild(option);
+    });
+}
+
+// Xử lý khi chọn giảng viên
+document.getElementById('gvSelect').addEventListener('change', function() {
+    const selectedValue = this.value;
+    const manvInput = document.getElementById('manvInput');
+    
+    if (selectedValue) {
+        // Tìm giảng viên được chọn
+        const selectedGV = giaovienData.find(gv => gv.magv === selectedValue);
+        if (selectedGV) {
+            manvInput.value = selectedGV.magv;
+        }
+    } else {
+        manvInput.value = '';
+    }
+});
+
+// Xử lý submit form
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const gvSelect = document.getElementById('gvSelect');
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const manv = document.getElementById('manvInput').value;
+    const system_role = document.getElementById('systemRole').value;
+    
+    // Lấy giảng viên được chọn để có họ tên
+    const selectedGV = giaovienData.find(gv => gv.magv === manv);
+    const hoten = selectedGV ? (selectedGV.ho + ' ' + selectedGV.ten) : '';
+    
+    if (!username || !password || !manv || !hoten) {
+        alert('Vui lòng điền đầy đủ thông tin');
+        return;
+    }
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            hoten: hoten,              // Họ tên
+            username: username,        // Tài khoản
+            manv: manv,                // Mã nhân viên
+            password: password,        // Mật khẩu
+            loginname: username,       // Login name
+            system_role: system_role   // Quyền hệ thống (ADMIN, USER)
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                let errorMsg = 'Tạo tài khoản thất bại';
+                
+                // Xử lý validation errors (array)
+                if (Array.isArray(data.detail)) {
+                    errorMsg = data.detail.map(err => err.msg).join(', ');
+                }
+                // Xử lý detail message (string)
+                else if (data.detail) {
+                    errorMsg = data.detail;
+                }
+                // Xử lý object error
+                else if (typeof data === 'object') {
+                    errorMsg = JSON.stringify(data);
+                }
+                
+                throw new Error(errorMsg);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert('Tạo tài khoản thành công!');
+        window.location.href = '/user/login';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+</script>
+
+</html>
+2026-03-18 23:45:35,388 - 127.0.0.1 - /teacher/GVCHDK - {} - [{"magv": "TH123   ", "ho": "PHAN VAN ", "ten": "HAI"}, {"magv": "TH657   ", "ho": "PHAN HONG", "ten": "NGOC"}, {"magv": "TH234   ", "ho": "DAO VAN ", "ten": "TUYET"}]
+2026-03-18 23:45:52,800 - 127.0.0.1 - /user/register - {} - {"detail": "Kh\u00f4ng t\u00ecm th\u1ea5y gi\u1ea3ng vi\u00ean"}
+2026-03-18 23:47:17,683 - 127.0.0.1 - / - {} - {"Message": "World"}
+2026-03-18 23:47:24,887 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo tài khoản</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #cfd8dc;
+        }
+
+        .container {
+            width: 800px;
+            margin: 30px auto;
+            background: #d9e3e6;
+            padding: 20px 40px;
+            border: 2px solid #ccc;
+        }
+
+        h1 {
+            color: #d35400;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        label {
+            width: 150px;
+            font-weight: bold;
+        }
+
+        input, select {
+            flex: 1;
+            padding: 6px;
+            border: 1px solid #999;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row input {
+            flex: 1;
+        }
+
+        .buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        button {
+            background-color: #f5b97f;
+            border: none;
+            padding: 12px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #999;
+        }
+
+        button:hover {
+            background-color: #f39c12;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>TẠO TÀI KHOẢN ĐĂNG NHẬP CHƯƠNG TRÌNH</h1>
+
+    <form id="registerForm">
+
+        <div class="form-group">
+            <label>Họ tên nhân viên</label>
+            <select id="gvSelect" name="name" required>
+                <option value="">-- Chọn giảng viên --</option>
+            </select>
+
+            <label style="width: 80px; margin-left: 10px;">MANV</label>
+            <input type="text" id="manvInput" name="manv" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Tài khoản</label>
+            <input type="text" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label>Mật mã</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <div class="form-group">
+            <label>Quyền hệ thống</label>
+            <select id="systemRole" name="system_role" required>
+                <option value="USER">User</option>
+                <option value="ADMIN">Admin</option>
+            </select>
+        </div>
+
+        <div class="buttons">
+            <button type="submit">Tạo tài khoản</button>
+            <button type="reset">Xóa tài khoản</button>
+            <button type="button" onclick="window.location.href='/'">Thoát</button>
+        </div>
+
+    </form>
+</div>
+
+</body>
+
+<script>
+// Lưu danh sách giảng viên toàn cục
+let giaovienData = [];
+
+// Fetch danh sách giảng viên khi trang load
+window.addEventListener('load', function() {
+    fetch('/teacher/GVCHDK')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Lỗi khi lấy danh sách giảng viên');
+            }
+            return response.json();
+        })
+        .then(data => {
+            giaovienData = data;
+            populateCombobox(data);
+        })
+        .catch(error => {
+            alert('Lỗi: ' + error.message);
+            console.error(error);
+        });
+});
+
+// Hàm populate combobox
+function populateCombobox(data) {
+    const gvSelect = document.getElementById('gvSelect');
+    
+    data.forEach(gv => {
+        const option = document.createElement('option');
+        option.value = gv.magv;
+        option.text = gv.ho + ' ' + gv.ten;
+        option.dataset.magv = gv.magv;  // Lưu magv vào data attribute
+        gvSelect.appendChild(option);
+    });
+}
+
+// Xử lý khi chọn giảng viên
+document.getElementById('gvSelect').addEventListener('change', function() {
+    const selectedValue = this.value;
+    const manvInput = document.getElementById('manvInput');
+    
+    if (selectedValue) {
+        // Tìm giảng viên được chọn
+        const selectedGV = giaovienData.find(gv => gv.magv === selectedValue);
+        if (selectedGV) {
+            manvInput.value = selectedGV.magv;
+        }
+    } else {
+        manvInput.value = '';
+    }
+});
+
+// Xử lý submit form
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const gvSelect = document.getElementById('gvSelect');
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const manv = document.getElementById('manvInput').value;
+    const system_role = document.getElementById('systemRole').value;
+    
+    // Lấy giảng viên được chọn để có họ tên
+    const selectedGV = giaovienData.find(gv => gv.magv === manv);
+    const hoten = selectedGV ? (selectedGV.ho + ' ' + selectedGV.ten) : '';
+    
+    if (!username || !password || !manv || !hoten) {
+        alert('Vui lòng điền đầy đủ thông tin');
+        return;
+    }
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            hoten: hoten,              // Họ tên
+            username: username,        // Tài khoản
+            manv: manv,                // Mã nhân viên
+            password: password,        // Mật khẩu
+            loginname: username,       // Login name
+            system_role: system_role   // Quyền hệ thống (ADMIN, USER)
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                let errorMsg = 'Tạo tài khoản thất bại';
+                
+                // Xử lý validation errors (array)
+                if (Array.isArray(data.detail)) {
+                    errorMsg = data.detail.map(err => err.msg).join(', ');
+                }
+                // Xử lý detail message (string)
+                else if (data.detail) {
+                    errorMsg = data.detail;
+                }
+                // Xử lý object error
+                else if (typeof data === 'object') {
+                    errorMsg = JSON.stringify(data);
+                }
+                
+                throw new Error(errorMsg);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert('Tạo tài khoản thành công!');
+        window.location.href = '/user/login';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+</script>
+
+</html>
+2026-03-18 23:47:25,199 - 127.0.0.1 - /teacher/GVCHDK - {} - [{"magv": "TH123   ", "ho": "PHAN VAN ", "ten": "HAI"}, {"magv": "TH657   ", "ho": "PHAN HONG", "ten": "NGOC"}, {"magv": "TH234   ", "ho": "DAO VAN ", "ten": "TUYET"}]
+2026-03-18 23:56:57,742 - 127.0.0.1 - / - {} - {"Message": "World"}
+2026-03-18 23:57:05,270 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo tài khoản</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #cfd8dc;
+        }
+
+        .container {
+            width: 800px;
+            margin: 30px auto;
+            background: #d9e3e6;
+            padding: 20px 40px;
+            border: 2px solid #ccc;
+        }
+
+        h1 {
+            color: #d35400;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        label {
+            width: 150px;
+            font-weight: bold;
+        }
+
+        input, select {
+            flex: 1;
+            padding: 6px;
+            border: 1px solid #999;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row input {
+            flex: 1;
+        }
+
+        .buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        button {
+            background-color: #f5b97f;
+            border: none;
+            padding: 12px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #999;
+        }
+
+        button:hover {
+            background-color: #f39c12;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>TẠO TÀI KHOẢN ĐĂNG NHẬP CHƯƠNG TRÌNH</h1>
+
+    <form id="registerForm">
+
+        <div class="form-group">
+            <label>Họ tên nhân viên</label>
+            <select id="gvSelect" name="name" required>
+                <option value="">-- Chọn giảng viên --</option>
+            </select>
+
+            <label style="width: 80px; margin-left: 10px;">MANV</label>
+            <input type="text" id="manvInput" name="manv" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Tài khoản</label>
+            <input type="text" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label>Mật mã</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <div class="form-group">
+            <label>Quyền hệ thống</label>
+            <select id="systemRole" name="system_role" required>
+                <option value="USER">User</option>
+                <option value="ADMIN">Admin</option>
+            </select>
+        </div>
+
+        <div class="buttons">
+            <button type="submit">Tạo tài khoản</button>
+            <button type="reset">Xóa tài khoản</button>
+            <button type="button" onclick="window.location.href='/'">Thoát</button>
+        </div>
+
+    </form>
+</div>
+
+</body>
+
+<script>
+// Lưu danh sách giảng viên toàn cục
+let giaovienData = [];
+
+// Fetch danh sách giảng viên khi trang load
+window.addEventListener('load', function() {
+    fetch('/teacher/GVCHDK')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Lỗi khi lấy danh sách giảng viên');
+            }
+            return response.json();
+        })
+        .then(data => {
+            giaovienData = data;
+            populateCombobox(data);
+        })
+        .catch(error => {
+            alert('Lỗi: ' + error.message);
+            console.error(error);
+        });
+});
+
+// Hàm populate combobox
+function populateCombobox(data) {
+    const gvSelect = document.getElementById('gvSelect');
+    
+    data.forEach(gv => {
+        const option = document.createElement('option');
+        option.value = gv.magv;
+        option.text = gv.ho + ' ' + gv.ten;
+        option.dataset.magv = gv.magv;  // Lưu magv vào data attribute
+        gvSelect.appendChild(option);
+    });
+}
+
+// Xử lý khi chọn giảng viên
+document.getElementById('gvSelect').addEventListener('change', function() {
+    const selectedValue = this.value;
+    const manvInput = document.getElementById('manvInput');
+    
+    if (selectedValue) {
+        // Tìm giảng viên được chọn
+        const selectedGV = giaovienData.find(gv => gv.magv === selectedValue);
+        if (selectedGV) {
+            manvInput.value = selectedGV.magv;
+        }
+    } else {
+        manvInput.value = '';
+    }
+});
+
+// Xử lý submit form
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const gvSelect = document.getElementById('gvSelect');
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const manv = document.getElementById('manvInput').value;
+    const system_role = document.getElementById('systemRole').value;
+    
+    // Lấy giảng viên được chọn để có họ tên
+    const selectedGV = giaovienData.find(gv => gv.magv === manv);
+    const hoten = selectedGV ? (selectedGV.ho + ' ' + selectedGV.ten) : '';
+    
+    if (!username || !password || !manv || !hoten) {
+        alert('Vui lòng điền đầy đủ thông tin');
+        return;
+    }
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            hoten: hoten,              // Họ tên
+            username: username,        // Tài khoản
+            manv: manv,                // Mã nhân viên
+            password: password,        // Mật khẩu
+            loginname: username,       // Login name
+            system_role: system_role   // Quyền hệ thống (ADMIN, USER)
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                let errorMsg = 'Tạo tài khoản thất bại';
+                
+                // Xử lý validation errors (array)
+                if (Array.isArray(data.detail)) {
+                    errorMsg = data.detail.map(err => err.msg).join(', ');
+                }
+                // Xử lý detail message (string)
+                else if (data.detail) {
+                    errorMsg = data.detail;
+                }
+                // Xử lý object error
+                else if (typeof data === 'object') {
+                    errorMsg = JSON.stringify(data);
+                }
+                
+                throw new Error(errorMsg);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert('Tạo tài khoản thành công!');
+        window.location.href = '/user/login';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+</script>
+
+</html>
+2026-03-18 23:57:06,540 - 127.0.0.1 - /teacher/GVCHDK - {} - [{"magv": "TH123   ", "ho": "PHAN VAN ", "ten": "HAI"}, {"magv": "TH657   ", "ho": "PHAN HONG", "ten": "NGOC"}]
+2026-03-18 23:57:40,124 - 127.0.0.1 - /user/register - {} - {"detail": [{"type": "enum", "loc": ["body", "system_role"], "msg": "Input should be 'db_owner' or 'db_datareader'", "input": "USER", "ctx": {"expected": "'db_owner' or 'db_datareader'"}}]}
+2026-03-18 23:59:09,464 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo tài khoản</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #cfd8dc;
+        }
+
+        .container {
+            width: 800px;
+            margin: 30px auto;
+            background: #d9e3e6;
+            padding: 20px 40px;
+            border: 2px solid #ccc;
+        }
+
+        h1 {
+            color: #d35400;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        label {
+            width: 150px;
+            font-weight: bold;
+        }
+
+        input, select {
+            flex: 1;
+            padding: 6px;
+            border: 1px solid #999;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row input {
+            flex: 1;
+        }
+
+        .buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        button {
+            background-color: #f5b97f;
+            border: none;
+            padding: 12px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #999;
+        }
+
+        button:hover {
+            background-color: #f39c12;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>TẠO TÀI KHOẢN ĐĂNG NHẬP CHƯƠNG TRÌNH</h1>
+
+    <form id="registerForm">
+
+        <div class="form-group">
+            <label>Họ tên nhân viên</label>
+            <select id="gvSelect" name="name" required>
+                <option value="">-- Chọn giảng viên --</option>
+            </select>
+
+            <label style="width: 80px; margin-left: 10px;">MANV</label>
+            <input type="text" id="manvInput" name="manv" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Tài khoản</label>
+            <input type="text" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label>Mật mã</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <div class="form-group">
+            <label>Quyền hệ thống</label>
+            <select id="systemRole" name="system_role" required>
+                <option value="USER">User</option>
+                <option value="ADMIN">Admin</option>
+            </select>
+        </div>
+
+        <div class="buttons">
+            <button type="submit">Tạo tài khoản</button>
+            <button type="reset">Xóa tài khoản</button>
+            <button type="button" onclick="window.location.href='/'">Thoát</button>
+        </div>
+
+    </form>
+</div>
+
+</body>
+
+<script>
+// Lưu danh sách giảng viên toàn cục
+let giaovienData = [];
+
+// Fetch danh sách giảng viên khi trang load
+window.addEventListener('load', function() {
+    fetch('/teacher/GVCHDK')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Lỗi khi lấy danh sách giảng viên');
+            }
+            return response.json();
+        })
+        .then(data => {
+            giaovienData = data;
+            populateCombobox(data);
+        })
+        .catch(error => {
+            alert('Lỗi: ' + error.message);
+            console.error(error);
+        });
+});
+
+// Hàm populate combobox
+function populateCombobox(data) {
+    const gvSelect = document.getElementById('gvSelect');
+    
+    data.forEach(gv => {
+        const option = document.createElement('option');
+        option.value = gv.magv;
+        option.text = gv.ho + ' ' + gv.ten;
+        option.dataset.magv = gv.magv;  // Lưu magv vào data attribute
+        gvSelect.appendChild(option);
+    });
+}
+
+// Xử lý khi chọn giảng viên
+document.getElementById('gvSelect').addEventListener('change', function() {
+    const selectedValue = this.value;
+    const manvInput = document.getElementById('manvInput');
+    
+    if (selectedValue) {
+        // Tìm giảng viên được chọn
+        const selectedGV = giaovienData.find(gv => gv.magv === selectedValue);
+        if (selectedGV) {
+            manvInput.value = selectedGV.magv;
+        }
+    } else {
+        manvInput.value = '';
+    }
+});
+
+// Xử lý submit form
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const gvSelect = document.getElementById('gvSelect');
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const manv = document.getElementById('manvInput').value;
+    const system_role = document.getElementById('systemRole').value;
+    
+    // Lấy giảng viên được chọn để có họ tên
+    const selectedGV = giaovienData.find(gv => gv.magv === manv);
+    const hoten = selectedGV ? (selectedGV.ho + ' ' + selectedGV.ten) : '';
+    
+    if (!username || !password || !manv || !hoten) {
+        alert('Vui lòng điền đầy đủ thông tin');
+        return;
+    }
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            hoten: hoten,              // Họ tên
+            username: username,        // Tài khoản
+            manv: manv,                // Mã nhân viên
+            password: password,        // Mật khẩu
+            loginname: username,       // Login name
+            system_role: system_role   // Quyền hệ thống (ADMIN, USER)
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                let errorMsg = 'Tạo tài khoản thất bại';
+                
+                // Xử lý validation errors (array)
+                if (Array.isArray(data.detail)) {
+                    errorMsg = data.detail.map(err => err.msg).join(', ');
+                }
+                // Xử lý detail message (string)
+                else if (data.detail) {
+                    errorMsg = data.detail;
+                }
+                // Xử lý object error
+                else if (typeof data === 'object') {
+                    errorMsg = JSON.stringify(data);
+                }
+                
+                throw new Error(errorMsg);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert('Tạo tài khoản thành công!');
+        window.location.href = '/user/login';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+</script>
+
+</html>
+2026-03-18 23:59:09,562 - 127.0.0.1 - /teacher/GVCHDK - {} - [{"magv": "TH123   ", "ho": "PHAN VAN ", "ten": "HAI"}, {"magv": "TH657   ", "ho": "PHAN HONG", "ten": "NGOC"}]
+2026-03-18 23:59:09,675 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo tài khoản</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #cfd8dc;
+        }
+
+        .container {
+            width: 800px;
+            margin: 30px auto;
+            background: #d9e3e6;
+            padding: 20px 40px;
+            border: 2px solid #ccc;
+        }
+
+        h1 {
+            color: #d35400;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        label {
+            width: 150px;
+            font-weight: bold;
+        }
+
+        input, select {
+            flex: 1;
+            padding: 6px;
+            border: 1px solid #999;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row input {
+            flex: 1;
+        }
+
+        .buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        button {
+            background-color: #f5b97f;
+            border: none;
+            padding: 12px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #999;
+        }
+
+        button:hover {
+            background-color: #f39c12;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>TẠO TÀI KHOẢN ĐĂNG NHẬP CHƯƠNG TRÌNH</h1>
+
+    <form id="registerForm">
+
+        <div class="form-group">
+            <label>Họ tên nhân viên</label>
+            <select id="gvSelect" name="name" required>
+                <option value="">-- Chọn giảng viên --</option>
+            </select>
+
+            <label style="width: 80px; margin-left: 10px;">MANV</label>
+            <input type="text" id="manvInput" name="manv" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Tài khoản</label>
+            <input type="text" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label>Mật mã</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <div class="form-group">
+            <label>Quyền hệ thống</label>
+            <select id="systemRole" name="system_role" required>
+                <option value="USER">User</option>
+                <option value="ADMIN">Admin</option>
+            </select>
+        </div>
+
+        <div class="buttons">
+            <button type="submit">Tạo tài khoản</button>
+            <button type="reset">Xóa tài khoản</button>
+            <button type="button" onclick="window.location.href='/'">Thoát</button>
+        </div>
+
+    </form>
+</div>
+
+</body>
+
+<script>
+// Lưu danh sách giảng viên toàn cục
+let giaovienData = [];
+
+// Fetch danh sách giảng viên khi trang load
+window.addEventListener('load', function() {
+    fetch('/teacher/GVCHDK')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Lỗi khi lấy danh sách giảng viên');
+            }
+            return response.json();
+        })
+        .then(data => {
+            giaovienData = data;
+            populateCombobox(data);
+        })
+        .catch(error => {
+            alert('Lỗi: ' + error.message);
+            console.error(error);
+        });
+});
+
+// Hàm populate combobox
+function populateCombobox(data) {
+    const gvSelect = document.getElementById('gvSelect');
+    
+    data.forEach(gv => {
+        const option = document.createElement('option');
+        option.value = gv.magv;
+        option.text = gv.ho + ' ' + gv.ten;
+        option.dataset.magv = gv.magv;  // Lưu magv vào data attribute
+        gvSelect.appendChild(option);
+    });
+}
+
+// Xử lý khi chọn giảng viên
+document.getElementById('gvSelect').addEventListener('change', function() {
+    const selectedValue = this.value;
+    const manvInput = document.getElementById('manvInput');
+    
+    if (selectedValue) {
+        // Tìm giảng viên được chọn
+        const selectedGV = giaovienData.find(gv => gv.magv === selectedValue);
+        if (selectedGV) {
+            manvInput.value = selectedGV.magv;
+        }
+    } else {
+        manvInput.value = '';
+    }
+});
+
+// Xử lý submit form
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const gvSelect = document.getElementById('gvSelect');
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const manv = document.getElementById('manvInput').value;
+    const system_role = document.getElementById('systemRole').value;
+    
+    // Lấy giảng viên được chọn để có họ tên
+    const selectedGV = giaovienData.find(gv => gv.magv === manv);
+    const hoten = selectedGV ? (selectedGV.ho + ' ' + selectedGV.ten) : '';
+    
+    if (!username || !password || !manv || !hoten) {
+        alert('Vui lòng điền đầy đủ thông tin');
+        return;
+    }
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            hoten: hoten,              // Họ tên
+            username: username,        // Tài khoản
+            manv: manv,                // Mã nhân viên
+            password: password,        // Mật khẩu
+            loginname: username,       // Login name
+            system_role: system_role   // Quyền hệ thống (ADMIN, USER)
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                let errorMsg = 'Tạo tài khoản thất bại';
+                
+                // Xử lý validation errors (array)
+                if (Array.isArray(data.detail)) {
+                    errorMsg = data.detail.map(err => err.msg).join(', ');
+                }
+                // Xử lý detail message (string)
+                else if (data.detail) {
+                    errorMsg = data.detail;
+                }
+                // Xử lý object error
+                else if (typeof data === 'object') {
+                    errorMsg = JSON.stringify(data);
+                }
+                
+                throw new Error(errorMsg);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert('Tạo tài khoản thành công!');
+        window.location.href = '/user/login';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+</script>
+
+</html>
+2026-03-18 23:59:09,731 - 127.0.0.1 - /teacher/GVCHDK - {} - [{"magv": "TH123   ", "ho": "PHAN VAN ", "ten": "HAI"}, {"magv": "TH657   ", "ho": "PHAN HONG", "ten": "NGOC"}]
+2026-03-18 23:59:09,851 - 127.0.0.1 - /user/register - {} - <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo tài khoản</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #cfd8dc;
+        }
+
+        .container {
+            width: 800px;
+            margin: 30px auto;
+            background: #d9e3e6;
+            padding: 20px 40px;
+            border: 2px solid #ccc;
+        }
+
+        h1 {
+            color: #d35400;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        label {
+            width: 150px;
+            font-weight: bold;
+        }
+
+        input, select {
+            flex: 1;
+            padding: 6px;
+            border: 1px solid #999;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row input {
+            flex: 1;
+        }
+
+        .buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        button {
+            background-color: #f5b97f;
+            border: none;
+            padding: 12px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #999;
+        }
+
+        button:hover {
+            background-color: #f39c12;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>TẠO TÀI KHOẢN ĐĂNG NHẬP CHƯƠNG TRÌNH</h1>
+
+    <form id="registerForm">
+
+        <div class="form-group">
+            <label>Họ tên nhân viên</label>
+            <select id="gvSelect" name="name" required>
+                <option value="">-- Chọn giảng viên --</option>
+            </select>
+
+            <label style="width: 80px; margin-left: 10px;">MANV</label>
+            <input type="text" id="manvInput" name="manv" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Tài khoản</label>
+            <input type="text" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label>Mật mã</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <div class="form-group">
+            <label>Quyền hệ thống</label>
+            <select id="systemRole" name="system_role" required>
+                <option value="USER">User</option>
+                <option value="ADMIN">Admin</option>
+            </select>
+        </div>
+
+        <div class="buttons">
+            <button type="submit">Tạo tài khoản</button>
+            <button type="reset">Xóa tài khoản</button>
+            <button type="button" onclick="window.location.href='/'">Thoát</button>
+        </div>
+
+    </form>
+</div>
+
+</body>
+
+<script>
+// Lưu danh sách giảng viên toàn cục
+let giaovienData = [];
+
+// Fetch danh sách giảng viên khi trang load
+window.addEventListener('load', function() {
+    fetch('/teacher/GVCHDK')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Lỗi khi lấy danh sách giảng viên');
+            }
+            return response.json();
+        })
+        .then(data => {
+            giaovienData = data;
+            populateCombobox(data);
+        })
+        .catch(error => {
+            alert('Lỗi: ' + error.message);
+            console.error(error);
+        });
+});
+
+// Hàm populate combobox
+function populateCombobox(data) {
+    const gvSelect = document.getElementById('gvSelect');
+    
+    data.forEach(gv => {
+        const option = document.createElement('option');
+        option.value = gv.magv;
+        option.text = gv.ho + ' ' + gv.ten;
+        option.dataset.magv = gv.magv;  // Lưu magv vào data attribute
+        gvSelect.appendChild(option);
+    });
+}
+
+// Xử lý khi chọn giảng viên
+document.getElementById('gvSelect').addEventListener('change', function() {
+    const selectedValue = this.value;
+    const manvInput = document.getElementById('manvInput');
+    
+    if (selectedValue) {
+        // Tìm giảng viên được chọn
+        const selectedGV = giaovienData.find(gv => gv.magv === selectedValue);
+        if (selectedGV) {
+            manvInput.value = selectedGV.magv;
+        }
+    } else {
+        manvInput.value = '';
+    }
+});
+
+// Xử lý submit form
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const gvSelect = document.getElementById('gvSelect');
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const manv = document.getElementById('manvInput').value;
+    const system_role = document.getElementById('systemRole').value;
+    
+    // Lấy giảng viên được chọn để có họ tên
+    const selectedGV = giaovienData.find(gv => gv.magv === manv);
+    const hoten = selectedGV ? (selectedGV.ho + ' ' + selectedGV.ten) : '';
+    
+    if (!username || !password || !manv || !hoten) {
+        alert('Vui lòng điền đầy đủ thông tin');
+        return;
+    }
+    
+    // Gửi dữ liệu đến endpoint POST
+    fetch('/user/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            hoten: hoten,              // Họ tên
+            username: username,        // Tài khoản
+            manv: manv,                // Mã nhân viên
+            password: password,        // Mật khẩu
+            loginname: username,       // Login name
+            system_role: system_role   // Quyền hệ thống (ADMIN, USER)
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                let errorMsg = 'Tạo tài khoản thất bại';
+                
+                // Xử lý validation errors (array)
+                if (Array.isArray(data.detail)) {
+                    errorMsg = data.detail.map(err => err.msg).join(', ');
+                }
+                // Xử lý detail message (string)
+                else if (data.detail) {
+                    errorMsg = data.detail;
+                }
+                // Xử lý object error
+                else if (typeof data === 'object') {
+                    errorMsg = JSON.stringify(data);
+                }
+                
+                throw new Error(errorMsg);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert('Tạo tài khoản thành công!');
+        window.location.href = '/user/login';
+    })
+    .catch(error => {
+        alert('Lỗi: ' + error.message);
+        console.error('Chi tiết lỗi:', error);
+    });
+});
+</script>
+
+</html>
+2026-03-18 23:59:09,941 - 127.0.0.1 - /teacher/GVCHDK - {} - [{"magv": "TH123   ", "ho": "PHAN VAN ", "ten": "HAI"}, {"magv": "TH657   ", "ho": "PHAN HONG", "ten": "NGOC"}]
+2026-03-18 23:59:21,857 - 127.0.0.1 - /user/register - {} - {"detail": [{"type": "enum", "loc": ["body", "system_role"], "msg": "Input should be 'db_owner' or 'db_datareader'", "input": "USER", "ctx": {"expected": "'db_owner' or 'db_datareader'"}}]}
