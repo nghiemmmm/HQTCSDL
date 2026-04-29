@@ -13,7 +13,7 @@ from fastapi_cache import FastAPICache
 from fastapi.middleware.cors import CORSMiddleware
 from db.database import engine
 from db import model
-from router import user_router, giangvien_router
+from router import user_router, giangvien_router, monHoc_router, lophoc_router,sinhvien_router
 from logs.logging_config import logger
 
 app = FastAPI(
@@ -117,6 +117,9 @@ async def on_startup() -> None:
 # app.include_router(employee_router.router)
 app.include_router(user_router.router)
 app.include_router(giangvien_router.router)
+app.include_router(monHoc_router.router)
+app.include_router(lophoc_router.router)
+app.include_router(sinhvien_router.router)
 # app.include_router(authentication.router)
 # app.include_router(license_plate_router.router)
 # app.include_router(vehicles_router.router)
@@ -154,7 +157,7 @@ Mặc định các api trên cùng 1 máy không thể chia sẻ tài nguyên ch
 
 app.add_middleware(
     CORSMiddleware,
-    # allow_origins = origins,
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\\d+)?$",
     allow_credentials = True,
     allow_methods = ["*"],
     allow_headers = ["*"]

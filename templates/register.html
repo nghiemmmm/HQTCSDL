@@ -1,240 +1,193 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <title>Tạo tài khoản</title>
-
-    <style>
-        body {
-            font-family: Arial;
-            background-color: #cfd8dc;
-        }
-
-        .container {
-            width: 800px;
-            margin: 30px auto;
-            background: #d9e3e6;
-            padding: 20px 40px;
-            border: 2px solid #ccc;
-        }
-
-        h1 {
-            color: #d35400;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        label {
-            width: 150px;
-            font-weight: bold;
-        }
-
-        input, select {
-            flex: 1;
-            padding: 6px;
-            border: 1px solid #999;
-        }
-
-        .row {
-            display: flex;
-            gap: 10px;
-        }
-
-        .row input {
-            flex: 1;
-        }
-
-        .buttons {
-            margin-top: 30px;
-            display: flex;
-            justify-content: space-around;
-        }
-
-        button {
-            background-color: #f5b97f;
-            border: none;
-            padding: 12px 25px;
-            font-weight: bold;
-            cursor: pointer;
-            border: 2px solid #999;
-        }
-
-        button:hover {
-            background-color: #f39c12;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/css/register.css">
 </head>
 
 <body>
 
-<div class="container">
-    <h1>TẠO TÀI KHOẢN ĐĂNG NHẬP CHƯƠNG TRÌNH</h1>
+    <div class="container">
+        <h1>TẠO TÀI KHOẢN ĐĂNG NHẬP CHƯƠNG TRÌNH</h1>
 
-    <form id="registerForm">
+        <form id="registerForm">
 
-        <div class="form-group">
-            <label>Họ tên nhân viên</label>
-            <select id="gvSelect" name="name" required>
-                <option value="">-- Chọn giảng viên --</option>
-            </select>
+            <!-- GIẢNG VIÊN -->
+            <div class="form-group">
+                <label>Họ tên nhân viên</label>
 
-            <label style="width: 80px; margin-left: 10px;">MANV</label>
-            <input type="text" id="manvInput" name="manv" readonly>
-        </div>
+                <select id="gvSelect" required>
+                    <option value="">-- Chọn giảng viên --</option>
 
-        <div class="form-group">
-            <label>Tài khoản</label>
-            <input type="text" name="username" required>
-        </div>
+                    {% for gv in giang_viens %}
+                    <option value="{{ gv.magv }}" data-hoten="{{ gv.hoten }}" data-trangthai="{{ gv.trangthai }}">
+                        {{ gv.hoten }}
+                    </option>
+                    {% endfor %}
+                </select>
 
-        <div class="form-group">
-            <label>Mật mã</label>
-            <input type="password" name="password" required>
-        </div>
+                <label style="width: 80px; margin-left: 10px;">MANV</label>
+                <input type="text" id="manvInput" readonly>
+            </div>
 
-        <div class="form-group">
-            <label>Quyền hệ thống</label>
-            <select id="systemRole" name="system_role" required>
-                <option value="USER">User</option>
-                <option value="ADMIN">Admin</option>
-            </select>
-        </div>
+            <!-- USERNAME -->
+            <div class="form-group">
+                <label>Tài khoản</label>
+                <input type="text" id="username" placeholder="(không bắt buộc)">
+            </div>
 
-        <div class="buttons">
-            <button type="submit">Tạo tài khoản</button>
-            <button type="reset">Xóa tài khoản</button>
-            <button type="button" onclick="window.location.href='/'">Thoát</button>
-        </div>
+            <!-- PASSWORD -->
+            <div class="form-group">
+                <label>Mật mã</label>
+                <input type="password" id="password">
+            </div>
 
-    </form>
-</div>
+            <!-- ROLE -->
+            <div class="form-group">
+                <label>Quyền hệ thống</label>
+                <select id="systemRole">
+                    <option value="USER">User</option>
+                    <option value="ADMIN">Admin</option>
+                </select>
+            </div>
+
+            <p id="error-message" style="color:red;"></p>
+
+            <div class="buttons">
+                <button type="submit">Tạo tài khoản</button>
+                <button type="button" id="btnClearForm">Xóa</button>
+                <button type="button" onclick="window.location.href='/'">Thoát</button>
+            </div>
+
+        </form>
+    </div>
+
+    <script>
+
+        // =============================
+        // INIT
+        // =============================
+        const gvSelect = document.getElementById("gvSelect");
+        const manvInput = document.getElementById("manvInput");
+
+        const btnSubmit = document.querySelector('button[type="submit"]');
+        const inputUsername = document.getElementById("username");
+        const inputPassword = document.getElementById("password");
+        const selectRole = document.getElementById("systemRole");
+        const errorMsg = document.getElementById("error-message");
+
+
+        // =============================
+        // CHỌN GIẢNG VIÊN
+        // =============================
+        gvSelect.addEventListener("change", function () {
+
+            const selectedOption = this.options[this.selectedIndex];
+
+            if (this.value) {
+                manvInput.value = this.value;
+                inputUsername.value = this.value; // Tự động điền tài khoản bằng MANV
+
+                const trangthai = selectedOption.dataset.trangthai;
+
+                // 🔥 Nếu đã có tài khoản
+                if (trangthai == "1") {
+                    btnSubmit.style.display = "none";
+
+                    inputUsername.disabled = true;
+                    inputPassword.disabled = true;
+                    selectRole.disabled = true;
+
+                } else {
+                    btnSubmit.style.display = "";
+
+                    inputUsername.disabled = false;
+                    inputPassword.disabled = false;
+                    selectRole.disabled = false;
+                }
+
+            } else {
+                manvInput.value = "";
+                inputUsername.value = "";
+
+                btnSubmit.style.display = "";
+                inputUsername.disabled = false;
+                inputPassword.disabled = false;
+                selectRole.disabled = false;
+            }
+        });
+
+
+        // =============================
+        // SUBMIT FORM
+        // =============================
+        document.getElementById('registerForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            errorMsg.innerText = "";
+
+            const password = inputPassword.value;
+            const manv = manvInput.value;
+            const system_role = selectRole.value;
+
+            const selectedOption = gvSelect.options[gvSelect.selectedIndex];
+            const hoten = selectedOption?.dataset?.hoten;
+
+            if (!password || !manv || !hoten) {
+                errorMsg.innerText = "❌ Vui lòng nhập đầy đủ thông tin";
+                return;
+            }
+
+            // 🔥 LẤY TÊN (không họ)
+            const ten = hoten.trim().split(" ").pop();
+
+            fetch('/user/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    loginname: manv,
+                    password: password,
+                    username: ten.toLowerCase(),
+                    system_role: system_role
+                })
+            })
+                .then(res => {
+    if (!res.ok) {
+        return res.json().then(data => {
+            throw new Error(data.detail || "Tạo tài khoản thất bại");
+        });
+    }
+    return res.json();
+})
+.then(data => {
+    alert("✅ " + data.message);  // 🔥 dùng message từ backend
+    window.location.href = "/user/login";
+})
+                .catch(err => {
+                    errorMsg.innerText = "❌ " + err.message;
+                });
+        });
+
+
+        // =============================
+        // RESET FORM
+        // =============================
+        document.getElementById('btnClearForm').addEventListener('click', function () {
+            document.getElementById('registerForm').reset();
+
+            manvInput.value = "";
+            errorMsg.innerText = "";
+
+            btnSubmit.style.display = "";
+            inputUsername.disabled = false;
+            inputPassword.disabled = false;
+            selectRole.disabled = false;
+        });
+
+    </script>
 
 </body>
-
-<script>
-// Lưu danh sách giảng viên toàn cục
-let giaovienData = [];
-
-// Fetch danh sách giảng viên khi trang load
-window.addEventListener('load', function() {
-    fetch('/teacher/GVCHDK')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Lỗi khi lấy danh sách giảng viên');
-            }
-            return response.json();
-        })
-        .then(data => {
-            giaovienData = data;
-            populateCombobox(data);
-        })
-        .catch(error => {
-            alert('Lỗi: ' + error.message);
-            console.error(error);
-        });
-});
-
-// Hàm populate combobox
-function populateCombobox(data) {
-    const gvSelect = document.getElementById('gvSelect');
-    
-    data.forEach(gv => {
-        const option = document.createElement('option');
-        option.value = gv.magv;
-        option.text = gv.ho + ' ' + gv.ten;
-        option.dataset.magv = gv.magv;  // Lưu magv vào data attribute
-        gvSelect.appendChild(option);
-    });
-}
-
-// Xử lý khi chọn giảng viên
-document.getElementById('gvSelect').addEventListener('change', function() {
-    const selectedValue = this.value;
-    const manvInput = document.getElementById('manvInput');
-    
-    if (selectedValue) {
-        // Tìm giảng viên được chọn
-        const selectedGV = giaovienData.find(gv => gv.magv === selectedValue);
-        if (selectedGV) {
-            manvInput.value = selectedGV.magv;
-        }
-    } else {
-        manvInput.value = '';
-    }
-});
-
-// Xử lý submit form
-document.getElementById('registerForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const gvSelect = document.getElementById('gvSelect');
-    const username = document.querySelector('input[name="username"]').value;
-    const password = document.querySelector('input[name="password"]').value;
-    const manv = document.getElementById('manvInput').value;
-    const system_role = document.getElementById('systemRole').value;
-    
-    // Lấy giảng viên được chọn để có họ tên
-    const selectedGV = giaovienData.find(gv => gv.magv === manv);
-    const hoten = selectedGV ? (selectedGV.ho + ' ' + selectedGV.ten) : '';
-    
-    if (!username || !password || !manv || !hoten) {
-        alert('Vui lòng điền đầy đủ thông tin');
-        return;
-    }
-    
-    // Gửi dữ liệu đến endpoint POST
-    fetch('/user/register', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            hoten: hoten,              // Họ tên
-            username: username,        // Tài khoản
-            manv: manv,                // Mã nhân viên
-            password: password,        // Mật khẩu
-            loginname: username,       // Login name
-            system_role: system_role   // Quyền hệ thống (ADMIN, USER)
-        })
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(data => {
-                let errorMsg = 'Tạo tài khoản thất bại';
-                
-                // Xử lý validation errors (array)
-                if (Array.isArray(data.detail)) {
-                    errorMsg = data.detail.map(err => err.msg).join(', ');
-                }
-                // Xử lý detail message (string)
-                else if (data.detail) {
-                    errorMsg = data.detail;
-                }
-                // Xử lý object error
-                else if (typeof data === 'object') {
-                    errorMsg = JSON.stringify(data);
-                }
-                
-                throw new Error(errorMsg);
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        alert('Tạo tài khoản thành công!');
-        window.location.href = '/user/login';
-    })
-    .catch(error => {
-        alert('Lỗi: ' + error.message);
-        console.error('Chi tiết lỗi:', error);
-    });
-});
-</script>
 
 </html>

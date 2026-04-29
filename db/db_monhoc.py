@@ -1,28 +1,46 @@
 from sqlalchemy.orm.session import Session
 from fastapi import HTTPException, status
-from sqlalchemy import text
-from sqlalchemy.engine import URL
-from sqlalchemy import create_engine
-from db.database import engine
-from schemas.schemas import DangNhapBase,SinhVienBase,MonHocBase
-from db.model import MonHoc
-from sqlalchemy import exc
-from db.model import DbMonHoc
+from sqlalchemy import exc, or_
+from schemas.schemas import MonHocBase
+from db.model import DbMonHoc, DbGiaoVienDangKy
 
 
-def taoMonHoc(db: Session, request: MonHocBase):
-    '''
-    Tao mon hoc moi vao CSDL 
-    cac thong tin yeu cau dung cung cap nhu khai bao DbMonHoc
-    200:
-    _ new_mh : thong tin mon hoc da duoc tao 
-    500:
-    - `"message":f"them du lieu moi khong thanh :{e}"`
-    '''
-    new_mh = DbMonHoc(
-        mamh = request.mamh,
-        tenmh = request.tenmh
-    )
+def get_all(db: Session):
+    try:
+        return db.query(DbMonHoc).all()
+    except exc.SQLAlchemyError as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={"message": f"Xay ra loi khi truy van danh sach mon hoc: {str(e)}"},
+        )
+
+def get_by_id(db: Session, mamh: str):
+    monhoc = db.query(DbMonHoc).filter(DbMonHoc.mamh == mamh).first()
+    if not monhoc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"message": f"Khong tim thay mon hoc co ma: {mamh}"},
+        )
+    return monhoc
+
+
+
+def create(db: Session, request: MonHocBase):
+    duplicate = check_duplicate_monhoc(db, request.mamh, request.tenmh)
+
+    if duplicate["duplicate_mamh"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"message": f"Ma mon hoc da ton tai: {request.mamh}"},
+        )
+
+    if duplicate["duplicate_tenmh"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"message": f"Ten mon hoc da ton tai: {request.tenmh}"},
+        )
+
+    new_mh = DbMonHoc(mamh=request.mamh, tenmh=request.tenmh)
     try:
         db.add(new_mh)
         db.commit()
@@ -31,105 +49,122 @@ def taoMonHoc(db: Session, request: MonHocBase):
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={
-                "message":f"them du lieu moi khong thanh"
-            }
+            detail={"message": f"Them mon hoc that bai: {str(e)}"},
         )
     return new_mh
 
+def update(db: Session, mamh: str, request: MonHocBase):
+    monhoc = get_by_id(db, mamh)
 
-def getAllMonHoc(db: Session):
-    '''
-    truy van tat ca các mon hoc trong bang MONHOC 
-    200:  
-    - `monhoc`: Danh sách tất cả mon hoc   
-    500:  
-    - `"message": f"Xảy ra lỗi trong quá trình truy vấn thông tin mon hoc: {e}"`
-    '''
-    try:
-        monhoc = db.query(DbMonHoc).all()
-    except Exception as e:
+    check_result = check_monhoc_da_dk(db, mamh)
+    if check_result["da_dangky_thi"]:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER,
-            detail={
-                'message': f"Xảy ra lỗi trong quá trình truy vấn thông tin mon hoc: {e}"
-            }
-        )
-    return monhoc
-
-def getMonHocById(db: Session,mamh: str):
-    '''
-    truy van mon hoc co ma mamh = mamh trong bang MONHOC 
-    404:  
-    - `monhoc`: khong tim thay mon hoc co mamh = mamh  
-    '''
-    monhoc = db.query(DbMonHoc).filter(DbMonHoc.mamh == mamh).first()
-    if not monhoc:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "message": f"Không tìm thấy môn học có mã môn học: {mamh}"
-            }
-        )
-    return monhoc
-
-def updateMonHoc(mamh: str, request: MonHocBase, db: Session):
-
-    monhoc = db.query(DbMonHoc).filter(DbMonHoc.mamh == mamh)
-
-    if not monhoc.first():
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Không tìm thấy môn học để cập nhật"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"message": "Mon hoc da dang ky thi, khong duoc phep sua"},
         )
 
     try:
-        monhoc.update({
-            MonHoc.tenmh: request.tenmh
-        })
-
+        monhoc.tenmh = request.tenmh
         db.commit()
-
+        db.refresh(monhoc)
     except exc.SQLAlchemyError as e:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Cập nhật thất bại: {str(e)}"
+            detail={"message": f"Cap nhat mon hoc that bai: {str(e)}"},
         )
 
-    return {"message": "Cập nhật môn học thành công"}
+    return monhoc
 
-def deleteMonHoc(db: Session,mamh: str, current_admin: str):
-    """
-    Xóa thông tin một MonHoc dựa vào mã MonHoc `(MAMH)`  
-    Việc xóa thông tin MonHoc chỉ được phép thức thi với một số người nhất định, gọi là `admin`.  
-    Kết quả trả về:  
-    200:  
-    - `"message": f"{current_admin} Đã xóa thành công MonHoc: {MAMH}"`  
-    404:   
-    - `"message": f"{current_admin}: Không tìm thấy MonHoc có mã MonHoc: {MAMH}"`  
-    500:  
-    - `"message": f"Có lỗi trong quá trình xóa MonHoc {MAHH}: {e}"`
-    """
-    monhoc = db.query(MonHoc).filter(MonHoc.mamh == mamh).first()
+def delete(db: Session, mamh: str):
+    monhoc = get_by_id(db, mamh)
 
-    if not monhoc:
+    check_result = check_monhoc_da_dk(db, mamh)
+    if check_result["da_dangky_thi"]:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "message": f"{current_admin}: Không tìm thấy môn học có mã môn học: {mamh}"
-            }
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"message": "Mon hoc da dang ky thi, khong duoc phep xoa"},
         )
 
     try:
-        db.delete()
+        db.delete(monhoc)
         db.commit()
-
     except exc.SQLAlchemyError as e:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"co loi trong qua trinh xoa mon hoc {mamh}: {str(e)}"
+            detail={"message": f"Xoa mon hoc that bai: {str(e)}"},
         )
 
-    return {"message": f"{current_admin} da xoa môn học thành công : {mamh}"}
+    return {"message": f"Da xoa mon hoc: {mamh}"}
+
+
+def search(db: Session, keyword: str):
+    kw = (keyword or "").strip()
+    if not kw:
+        return get_all(db)
+
+    pattern = f"%{kw}%"
+    try:
+        return (
+            db.query(DbMonHoc)
+            .filter(or_(DbMonHoc.mamh.ilike(pattern), DbMonHoc.tenmh.ilike(pattern)))
+            .all()
+        )
+    except exc.SQLAlchemyError as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={"message": f"Tim kiem mon hoc that bai: {str(e)}"},
+        )
+
+def check_monhoc_da_dk(db: Session, mamh: str):
+    ma = (mamh or "").strip()
+    if not ma:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"message": "Ma mon hoc khong duoc de trong"},
+        )
+
+    monhoc = db.query(DbMonHoc).filter(DbMonHoc.mamh == ma).first()
+    if not monhoc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"message": f"Khong tim thay mon hoc co ma: {ma}"},
+        )
+
+    try:
+        da_dang_ky = (
+            db.query(DbGiaoVienDangKy)
+            .filter(DbGiaoVienDangKy.mamh == ma)
+            .first()
+            is not None
+        )
+        return {
+            "mamh": ma,
+            "da_dangky_thi": da_dang_ky,
+            "thong_bao": (
+                "Mon hoc da duoc dang ky thi"
+                if da_dang_ky
+                else "Mon hoc chua duoc dang ky thi"
+            ),
+        }
+    except exc.SQLAlchemyError as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={"message": f"Kiem tra mon hoc dang ky thi that bai: {str(e)}"},
+        )
+def check_duplicate_monhoc(db: Session, mamh: str, tenmh: str, exclude_mamh: str = None):
+    ma_query = db.query(DbMonHoc).filter(DbMonHoc.mamh == mamh)
+    ten_query = db.query(DbMonHoc).filter(DbMonHoc.tenmh == tenmh)
+
+    if exclude_mamh:
+        ma_query = ma_query.filter(DbMonHoc.mamh != exclude_mamh)
+        ten_query = ten_query.filter(DbMonHoc.mamh != exclude_mamh)
+
+    existed_ma = ma_query.first() is not None
+    existed_ten = ten_query.first() is not None
+
+    return {
+        "duplicate_mamh": existed_ma,
+        "duplicate_tenmh": existed_ten,
+    }

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nhập môn học để thi trắc nghiệm</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/monhoc.css">
+</head>
+
+<body>
+  <main class="wrap">
+
+    <section class="hero">
+      <h2>Nhập Môn Học Để Thi Trắc Nghiệm</h2>
+      <p>Chọn một dòng để sửa hoặc xóa. Dữ liệu đang xử lý trực tiếp trên form.</p>
+    </section>
+
+    <section class="content">
+      
+      <!-- FORM -->
+      <div class="form-grid">
+        <label for="maMH">Mã môn học</label>
+        <div class="inline-search">
+          <input type="text" id="maMH" placeholder="Ví dụ: CTDL" maxlength="5">
+          <button type="button" onclick="tim()">Tìm</button>
+        </div>
+
+        <label for="tenMH">Tên môn học</label>
+        <input type="text" id="tenMH" placeholder="Nhập tên môn học" maxlength="50">
+      </div>
+
+      <!-- BUTTON -->
+      <div class="toolbar">
+        <button class="btn-main" onclick="them()">Thêm</button>
+        <button class="btn-edit" onclick="sua()">Sửa</button>
+        <button class="btn-danger" onclick="xoa()">Xóa</button>
+        <button class="btn-save" onclick="ghi()">Ghi</button>
+        <button class="btn-ghost" onclick="huy()">Hủy</button>
+        <button class="btn-ghost" onclick="undo()">Undo</button>
+        <button class="btn-ghost" onclick="redo()">Redo</button>
+      </div>
+
+      <!-- TRẠNG THÁI -->
+      <div class="state" id="stateText"></div>
+
+      <!-- TABLE -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Mã MH</th>
+              <th>Tên MH</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- JS -->
+  <script src="/static/js/monhoc.js"></script>
+
+</body>
+</html>

@@ -1,29 +1,26 @@
 from pydantic import BaseModel, ConfigDict, Field
 from datetime import date, datetime
 from typing import Optional, List
-from schemas.roles import UserRoleEnum, SystemRoleEnum
+from db.roles import quyen
 
 
 
+# thao tac dang ki dang nhap 
+class DangNhap(BaseModel):
+    username: str
+    password: str = "1234"
+    role: quyen
+    
+class DangKy(BaseModel):   
+    loginname: str 
+    password: str
+    username: str
+    role: quyen
 
 # --- MON HOC SCHEMAS ---
-
-class DangNhapBase(BaseModel):
-    username: str
-    password: str
-    role: UserRoleEnum  # Role người dùng: SINHVIEN, GIANGVIEN, PGV
-    
-class DangKyBase(BaseModel):
-    hoten: str 
-    username: str
-    manv: str 
-    password: str
-    loginname: str 
-    system_role: SystemRoleEnum = SystemRoleEnum.user  # Quyền hệ thống: ADMIN, USER (mặc định USER)
-
 class MonHocBase(BaseModel):
     mamh: str = Field(..., max_length=5)
-    tenmh: Optional[str] = Field(None, max_length=50)
+    tenmh: str = Field(..., max_length=50)
 
 class MonHocDisplay(MonHocBase):
     model_config = ConfigDict(from_attributes=True)
@@ -46,13 +43,41 @@ class UserBase(BaseModel):
     ho: Optional[str] = Field(None, max_length=50)
     ten: Optional[str] = Field(None, max_length=10)
     role: Optional[str] = Field(None, max_length=10)
-class SinhVienDisplay(UserBase):
-    """Hiển thị thông tin sinh viên kèm tên lớp nếu cần qua join"""
-    ten_lop_day_du: Optional[str] = None
+
+
+class SinhVienBase(BaseModel):
+    masv: str = Field(..., max_length=8)
+    ho: Optional[str] = Field(None, max_length=50)
+    ten: Optional[str] = Field(None, max_length=10)
+    ngaysinh: Optional[date] = None
+    diachi: Optional[str] = Field(None, max_length=100)
+    malop: Optional[str] = Field(None, max_length=15)
+    password: str = Field(default="123456", max_length=255)
+
+
+class SinhVienDisplay(BaseModel):
+    """Hiển thị thông tin sinh viên: mã SV, họ, tên, ngày sinh"""
+    masv: str
+    ho: Optional[str] = None
+    ten: Optional[str] = None
+    ngaysinh: Optional[date] = None
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SinhVienWithLopDisplay(BaseModel):
+    """Hiển thị thông tin sinh viên kèm mã lớp"""
+    masv: str
+    ho: Optional[str] = None
+    ten: Optional[str] = None
+    ngaysinh: Optional[date] = None
+    malop: Optional[str] = None
+    
+    model_config = ConfigDict(from_attributes=True)
 
 
 # --- GIAO VIEN SCHEMAS ---
-class GiaoVienChuaDK(BaseModel):
+class GiaoVien(BaseModel):
     magv: str = Field(..., max_length=8)
     ho: Optional[str] = Field(None, max_length=50)
     ten: Optional[str] = Field(None, max_length=10)
@@ -63,8 +88,8 @@ class GiaoVienChuaDK(BaseModel):
 class SystemUserBase(BaseModel):
     """Thông tin người dùng hệ thống"""
     username: str
-    user_role: UserRoleEnum  # Role người dùng (SINHVIEN, GIANGVIEN, PGV)
-    system_role: SystemRoleEnum  # Role hệ thống (ADMIN, USER)
+    user_role: quyen # Role người dùng (SINHVIEN, GIANGVIEN, PGV)
+    system_role: quyen  # Role hệ thống (ADMIN, USER)
 
 class SystemUserDisplay(SystemUserBase):
     """Hiển thị thông tin người dùng hệ thống"""
@@ -73,14 +98,14 @@ class SystemUserDisplay(SystemUserBase):
 
 # --- GIAO VIEN SCHEMAS ---
 
-class GiaoVienBase(BaseModel):
+class GiaoVien(BaseModel):
     magv: str = Field(..., max_length=8)
     ho: Optional[str] = Field(None, max_length=50)
     ten: Optional[str] = Field(None, max_length=10)
     diachi: Optional[str] = Field(None, max_length=50)
     sodtll: Optional[str] = Field(None, max_length=15)
 
-class GiaoVienDisplay(GiaoVienBase):
+class GiaoVienDisplay(GiaoVien):
     model_config = ConfigDict(from_attributes=True)
 
 class GiaoVienChuaDK(BaseModel):
@@ -121,7 +146,7 @@ class BangDiemDisplay(BangDiemBase):
 
 # --- GIAO VIEN DANG KY THI SCHEMAS ---
 
-class GiaoVienDangKyBase(BaseModel):
+class GiaoVienDangNhap(BaseModel):
     magv: Optional[str] = Field(None, max_length=8)
     mamh: str
     malop: str
@@ -131,7 +156,7 @@ class GiaoVienDangKyBase(BaseModel):
     socauthi: Optional[int] = Field(None, ge=10, le=100)
     thoigian: Optional[int] = Field(None, ge=15, le=60)
 
-class GiaoVienDangKyDisplay(GiaoVienDangKyBase):
+class GiaoVienDangKyDisplay(GiaoVienDangNhap):
     model_config = ConfigDict(from_attributes=True)
 
 class ModeBase(BaseModel):

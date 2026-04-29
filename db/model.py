@@ -10,22 +10,22 @@ class DbMonHoc(Base):
     mamh = Column(NCHAR(5), primary_key=True)
     tenmh = Column(Unicode(40), unique=True, nullable=False)
 
-    bangdiem = relationship("BangDiem", back_populates="monhoc")
-    bode = relationship("BoDe", back_populates="monhoc")
-    giao_vien_dang_ky = relationship("GiaoVienDangKy", back_populates="monhoc")
+    bangdiem = relationship("DbBangDiem", back_populates="monhoc")
+    bode = relationship("DbBoDe", back_populates="monhoc")
+    giao_vien_dang_ky = relationship("DbGiaoVienDangKy", back_populates="monhoc")
 
 
-class Lop(Base):
+class DbLop(Base):
     __tablename__ = "LOP"
 
-    malop = Column(NCHAR(8), primary_key=True)
+    malop = Column(NCHAR(15), primary_key=True)
     tenlop = Column(Unicode(40), unique=True, nullable=False)
 
-    sinhvien = relationship("SinhVien", back_populates="lop")
-    giao_vien_dang_ky = relationship("GiaoVienDangKy", back_populates="lop")
+    sinhvien = relationship("DbSinhVien", back_populates="lop")
+    giao_vien_dang_ky = relationship("DbGiaoVienDangKy", back_populates="lop")
 
 
-class SinhVien(Base):
+class DbSinhVien(Base):
     __tablename__ = "SINHVIEN"
 
     masv = Column(NCHAR(8), primary_key=True)
@@ -33,13 +33,14 @@ class SinhVien(Base):
     ten = Column(Unicode(10))
     ngaysinh = Column(Date)
     diachi = Column(Unicode(100))
-    malop = Column(NCHAR(8), ForeignKey("LOP.malop"))
+    malop = Column(NCHAR(15), ForeignKey("LOP.malop"))
+    password = Column(Unicode(255), nullable=False, default="123456")
 
-    lop = relationship("Lop", back_populates="sinhvien")
-    bangdiem = relationship("BangDiem", back_populates="sinhvien")
+    lop = relationship("DbLop", back_populates="sinhvien")
+    bangdiem = relationship("DbBangDiem", back_populates="sinhvien")
 
 
-class GiaoVien(Base):
+class DbGiaoVien(Base):
     __tablename__ = "GIAOVIEN"
 
     magv = Column(NCHAR(8), primary_key=True)
@@ -48,11 +49,11 @@ class GiaoVien(Base):
     sodtll = Column(NCHAR(15))
     diachi = Column(Unicode(50))
 
-    bode = relationship("BoDe", back_populates="giaovien")
-    giao_vien_dang_ky = relationship("GiaoVienDangKy", back_populates="giaovien")
+    bode = relationship("DbBoDe", back_populates="giaovien")
+    giao_vien_dang_ky = relationship("DbGiaoVienDangKy", back_populates="giaovien")
 
 
-class BoDe(Base):
+class DbBoDe(Base):
     __tablename__ = "BODE"
 
     cauhoi = Column(Integer, primary_key=True, autoincrement=True)
@@ -71,11 +72,11 @@ class BoDe(Base):
         CheckConstraint("dap_an IN ('A','B','C','D')"),
     )
 
-    monhoc = relationship("MonHoc", back_populates="bode")
-    giaovien = relationship("GiaoVien", back_populates="bode")
+    monhoc = relationship("DbMonHoc", back_populates="bode")
+    giaovien = relationship("DbGiaoVien", back_populates="bode")
 
 
-class BangDiem(Base):
+class DbBangDiem(Base):
     __tablename__ = "BANGDIEM"
 
     masv = Column(NCHAR(8), ForeignKey("SINHVIEN.masv"), primary_key=True)
@@ -89,14 +90,14 @@ class BangDiem(Base):
         CheckConstraint("diem BETWEEN 0 AND 10"),
     )
 
-    sinhvien = relationship("SinhVien", back_populates="bangdiem")
-    monhoc = relationship("MonHoc", back_populates="bangdiem")
+    sinhvien = relationship("DbSinhVien", back_populates="bangdiem")
+    monhoc = relationship("DbMonHoc", back_populates="bangdiem")
 
 
-class GiaoVienDangKy(Base):
+class DbGiaoVienDangKy(Base):
     __tablename__ = "GIAOVIEN_DANGKY"
 
-    malop = Column(NCHAR(8), ForeignKey("LOP.malop"), primary_key=True)
+    malop = Column(NCHAR(15), ForeignKey("LOP.malop"), primary_key=True)
     mamh = Column(NCHAR(5), ForeignKey("MONHOC.mamh"), primary_key=True)
     lan = Column(SmallInteger, primary_key=True)
 
@@ -110,9 +111,9 @@ class GiaoVienDangKy(Base):
         CheckConstraint("trinhdo IN ('A','B','C')"),
         CheckConstraint("lan BETWEEN 1 AND 2"),
         CheckConstraint("socauthi BETWEEN 10 AND 100"),
-        CheckConstraint("thoigian BETWEEN 5 AND 60"),
+        CheckConstraint("thoigian BETWEEN 15 AND 60"),
     )
 
-    giaovien = relationship("GiaoVien", back_populates="giao_vien_dang_ky")
-    monhoc = relationship("MonHoc", back_populates="giao_vien_dang_ky")
-    lop = relationship("Lop", back_populates="giao_vien_dang_ky")
+    giaovien = relationship("DbGiaoVien", back_populates="giao_vien_dang_ky")
+    monhoc = relationship("DbMonHoc", back_populates="giao_vien_dang_ky")
+    lop = relationship("DbLop", back_populates="giao_vien_dang_ky")

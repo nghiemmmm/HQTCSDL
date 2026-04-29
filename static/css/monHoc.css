@@ -1,0 +1,153 @@
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg-soft: #f3efe4;
+  --bg-accent: #d7e3ee;
+  --panel: #fffef9;
+  --text-main: #1f2a36;
+  --text-muted: #556070;
+  --brand: #0f766e;
+  --brand-strong: #0b5f59;
+  --warn: #b45309;
+  --danger: #b91c1c;
+  --line: #d8dde4;
+  --selected: #d4f3ea;
+  --shadow: 0 18px 38px rgba(31, 42, 54, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Be Vietnam Pro", sans-serif;
+  color: var(--text-main);
+  background:
+    radial-gradient(circle at 8% 18%, rgba(15, 118, 110, 0.16), transparent 24%),
+    radial-gradient(circle at 86% 8%, rgba(180, 83, 9, 0.12), transparent 30%),
+    linear-gradient(140deg, var(--bg-soft), var(--bg-accent));
+  padding: 28px;
+}
+
+.wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  background: var(--panel);
+  border: 1px solid rgba(31, 42, 54, 0.08);
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  animation: slideIn 420ms ease-out;
+}
+
+.hero {
+  padding: 24px 28px 18px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.7));
+}
+
+.hero h2 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.25;
+}
+
+.hero p {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.content {
+  padding: 22px 28px 28px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 12px 16px;
+  align-items: center;
+}
+
+.form-grid label {
+  font-weight: 600;
+}
+
+.form-grid input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.inline-search {
+  display: flex;
+  gap: 8px;
+}
+
+.inline-search button {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  background: #e8edf3;
+}
+
+.toolbar {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.toolbar button {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.btn-main { background: var(--brand); color: #fff; }
+.btn-edit { background: #1d4ed8; color: #fff; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-save { background: #15803d; color: #fff; }
+.btn-ghost { background: #e8edf3; }
+
+.table-wrap {
+  margin-top: 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  background: #eef3f9;
+  padding: 12px;
+}
+
+tbody td {
+  padding: 11px 12px;
+  border-top: 1px solid #eef2f7;
+}
+
+tr.selected {
+  background-color: var(--selected);
+}
+
+.state {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--warn);
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}

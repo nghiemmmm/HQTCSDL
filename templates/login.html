@@ -2,185 +2,140 @@
 <html lang="vi">
 
 <head>
-<meta charset="UTF-8">
-<title>Đăng nhập hệ thống</title>
+    <meta charset="UTF-8">
+    <title>Đăng nhập hệ thống</title>
 
-<style>
-
-body{
-    background:#dfe9ea;
-    font-family: Arial;
-}
-
-.container{
-    width:600px;
-    margin:60px auto;
-    background:#d9e4e6;
-    border:1px solid #cfcfcf;
-    padding:30px 40px;
-}
-
-h2{
-    color:#d35400;
-    margin-bottom:40px;
-}
-
-.form-row{
-    display:flex;
-    align-items:center;
-    margin-bottom:25px;
-}
-
-label{
-    width:120px;
-    font-size:16px;
-}
-
-input[type="text"], input[type="password"]{
-    padding:6px;
-    font-size:15px;
-    border:1px solid #999;
-    width:250px;
-}
-
-.role-area{
-    margin-bottom:30px;
-}
-
-.role-area label{
-    width:auto;
-    margin-right:20px;
-}
-
-.button-area{
-    margin-top:40px;
-}
-
-button{
-    background:#f3b37c;
-    border:1px solid #cfa074;
-    padding:10px 25px;
-    font-size:15px;
-    margin-right:20px;
-    cursor:pointer;
-}
-
-button:hover{
-    background:#f0a968;
-}
-
-</style>
-
+    <link rel="stylesheet" href="/static/css/login.css">
 </head>
 
 <body>
 
-<div class="container">
+    <div class="container">
 
-<h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
+        <h2>ĐĂNG NHẬP HỆ THỐNG THI TRẮC NGHIỆM</h2>
 
-<form method="POST" action="/user/login">
+        <form id="loginForm">
 
-<div class="role-area">
+            <!-- ROLE -->
+            <div class="role-area">
+                <label>
+                    <input type="radio" name="role" value="GIANGVIEN" checked onclick="doiLabel()">
+                    GIẢNG VIÊN
+                </label>
 
-<label>
-<input type="radio" name="role" value="GIANGVIEN" checked onclick="doiLabel()">
-GIẢNG VIÊN
-</label>
+                <label>
+                    <input type="radio" name="role" value="SINHVIEN" onclick="doiLabel()">
+                    SINH VIÊN
+                </label>
+            </div>
 
-<label>
-<input type="radio" name="role" value="SINHVIEN" onclick="doiLabel()">
-SINH VIÊN
-</label>
+            <!-- USERNAME -->
+            <div class="form-row">
+                <label id="loginLabel">Login</label>
+                <input type="text" name="username">
+                <p id="error-username" class="error"></p>
+            </div>
 
-</div>
+            <!-- PASSWORD -->
+            <div class="form-row">
+                <label>Password</label>
+                <input type="password" name="password">
+                <p id="error-password" class="error"></p>
+            </div>
 
-<div class="form-row">
+            <div class="button-area">
+                <button type="submit">Đăng nhập</button>
+                <button type="reset">Làm lại</button>
+            </div>
 
-<label id="loginLabel">Login</label>
+        </form>
 
-<input type="text" name="username">
+    </div>
 
-</div>
+    <script>
 
-<div class="form-row">
-
-<label>Password</label>
-
-<input type="password" name="password">
-
-</div>
-
-<div class="button-area">
-
-<button type="submit">Đăng nhập</button>
-
-<button type="reset">Làm lại</button>
-
-</div>
-
-</form>
-
-</div>
-
-<script>
-
-function doiLabel(){
-
-    const role = document.querySelector('input[name="role"]:checked').value
-    const label = document.getElementById("loginLabel")
-
-    if(role === "SINHVIEN"){
-        label.innerText = "Mã SV"
-    }else{
-        label.innerText = "Login"
-    }
-
-}
-
-// Xử lý submit form
-document.querySelector('form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const username = document.querySelector('input[name="username"]').value;
-    const password = document.querySelector('input[name="password"]').value;
-    const role = document.querySelector('input[name="role"]:checked').value;
-    
-    // Gửi dữ liệu đến endpoint POST
-    fetch('/user/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            username: username,
-            password: password,
-            role: role
-        })
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(data => {
-                throw new Error(data.detail || 'Đăng nhập thất bại');
-            });
+        function doiLabel() {
+            const role = document.querySelector('input[name="role"]:checked').value;
+            document.getElementById("loginLabel").innerText =
+                role === "SINHVIEN" ? "Mã SV" : "Login";
         }
-        return response.json();
-    })
-    .then(data => {
-        // Lưu thông tin user vào localStorage
-        localStorage.setItem('user', JSON.stringify(data));
-        alert('Đăng nhập thành công!');
-        console.log('Dữ liệu trả về:', data);
-        // Chuyển hướng đến trang info
-        window.location.href = '/user/info';
-    })
-    .catch(error => {
-        alert('Lỗi: ' + error.message);
-        console.error('Chi tiết lỗi:', error);
-    });
-});
 
-</script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const form = document.getElementById("loginForm");
+
+            const errUser = document.getElementById("error-username");
+            const errPass = document.getElementById("error-password");
+
+            form.addEventListener("submit", async function (e) {
+                e.preventDefault();
+
+                // reset lỗi
+                errUser.innerText = "";
+                errPass.innerText = "";
+
+                const username = document.querySelector('input[name="username"]').value.trim();
+                const password = document.querySelector('input[name="password"]').value.trim();
+                const role = document.querySelector('input[name="role"]:checked').value;
+
+                let hasError = false;
+
+                // ================= FRONTEND VALIDATION =================
+                if (!username) {
+                    if (role === "SINHVIEN") {
+                        errUser.innerText = "❌ Vui lòng nhập mã sinh viên";
+                    } else {
+                        errUser.innerText = "❌ Vui lòng nhập login name";
+                    }
+                    hasError = true;
+                }
+
+                if (!password) {
+                    errPass.innerText = "❌ Vui lòng nhập password";
+                    hasError = true;
+                }
+
+                if (hasError) return;
+
+                // ================= FETCH LOGIN =================
+                try {
+                    const res = await fetch('/user/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username, password, role })
+                    });
+
+                    const data = await res.json();
+
+                    if (!res.ok) {
+                        throw data;
+                    }
+
+                    // success
+                    localStorage.setItem("user", JSON.stringify(data));
+                    window.location.href = "/user/info";
+
+                } catch (error) {
+
+
+                    const data = error.detail;
+
+                    if (data?.field === "username") {
+                        errUser.innerText = data.message;
+                    }
+
+                    if (data?.field === "password") {
+                        errPass.innerText = data.message;
+                    }
+                }
+            });
+
+        });
+
+    </script>
 
 </body>
+
 </html>

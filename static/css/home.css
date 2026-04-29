@@ -1,0 +1,61 @@
+body{
+    background:#dfe9ea;
+    font-family: Arial;
+}
+
+.container{
+    width:600px;
+    margin:60px auto;
+    background:#d9e4e6;
+    border:1px solid #cfcfcf;
+    padding:30px 40px;
+}
+
+h2{
+    color:#d35400;
+    margin-bottom:40px;
+}
+
+.form-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+label{
+    width:120px;
+    font-size:16px;
+}
+
+input[type="text"], input[type="password"]{
+    padding:6px;
+    font-size:15px;
+    border:1px solid #999;
+    width:250px;
+}
+
+.role-area{
+    margin-bottom:30px;
+}
+
+.role-area label{
+    width:auto;
+    margin-right:20px;
+}
+
+.button-area{
+    margin-top:40px;
+}
+
+button{
+    background:#f3b37c;
+    border:1px solid #cfa074;
+    padding:10px 25px;
+    font-size:15px;
+    margin-right:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f0a968;
+}
