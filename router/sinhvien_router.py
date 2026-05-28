@@ -7,6 +7,8 @@ from sqlalchemy.orm.session import Session
 from schemas.schemas import SinhVienDisplay, SinhVienBase, SinhVienWithLopDisplay
 from db.database import get_db
 from db import db_lop, db_monhoc, db_sinhvien
+from core.auth import require_permission
+from db.roles import Permission
 
 router = APIRouter(
     prefix="/sinhvien",
@@ -16,17 +18,28 @@ templates = Jinja2Templates(directory="templates")
 
 
 @router.get("/", response_class=HTMLResponse)
-def hienThiMonHoc(request: Request):
+def hienThiMonHoc(
+    request: Request,
+    user=Depends(require_permission(Permission.VIEW_STUDENT)),
+):
     return templates.TemplateResponse("formSinhVien.html", {"request": request})
 
 
 @router.get("/lop/{malop}", response_model=List[SinhVienWithLopDisplay])
-def get_sinh_vien_by_lop(malop: str, db: Session = Depends(get_db)):
+def get_sinh_vien_by_lop(
+    malop: str,
+    db: Session = Depends(get_db),
+    user=Depends(require_permission(Permission.VIEW_STUDENT)),
+):
     return db_sinhvien.lay_ds_sinh_vien_mot_lop(db, malop=malop)
 
 
 @router.post("/", response_model=SinhVienDisplay)
-def create_sinh_vien(sinhvien: SinhVienBase, db: Session = Depends(get_db)):
+def create_sinh_vien(
+    sinhvien: SinhVienBase,
+    db: Session = Depends(get_db),
+    user=Depends(require_permission(Permission.CREATE_STUDENT)),
+):
 	"""
 	Thêm sinh viên mới
 	"""
@@ -34,7 +47,12 @@ def create_sinh_vien(sinhvien: SinhVienBase, db: Session = Depends(get_db)):
 
 
 @router.put("/{masv}", response_model=SinhVienDisplay)
-def update_sinh_vien(masv: str, sinhvien: SinhVienBase, db: Session = Depends(get_db)):
+def update_sinh_vien(
+    masv: str,
+    sinhvien: SinhVienBase,
+    db: Session = Depends(get_db),
+    user=Depends(require_permission(Permission.UPDATE_STUDENT)),
+):
 	"""
 	Cập nhật thông tin sinh viên
 	"""
@@ -42,7 +60,11 @@ def update_sinh_vien(masv: str, sinhvien: SinhVienBase, db: Session = Depends(ge
 
 
 @router.delete("/{masv}")
-def delete_sinh_vien(masv: str, db: Session = Depends(get_db)):
+def delete_sinh_vien(
+    masv: str,
+    db: Session = Depends(get_db),
+    user=Depends(require_permission(Permission.DELETE_STUDENT)),
+):
 	"""
 	Xóa sinh viên
 	"""

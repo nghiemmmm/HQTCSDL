@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Start Exam</title>
+  <link rel="stylesheet" href="/static/css/batDauThi.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">
+    🎓 ExamCore
+  </div>
+
+  <nav class="nav desktop">
+    <a class="active">Kỳ thi</a>
+    <a>Kết quả</a>
+    <a>Lịch thi</a>
+  </nav>
+
+  <div class="right">
+    <span>Support</span>
+    <div class="avatar">ST</div>
+    <button id="menuBtn">☰</button>
+  </div>
+</header>
+
+<!-- MOBILE NAV -->
+<nav id="mobileNav" class="mobile hidden">
+  <a>Kỳ thi</a>
+  <a>Kết quả</a>
+  <a>Lịch thi</a>
+</nav>
+
+<main class="main">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div>
+      <p id="studentInfo">Thông tin sinh viên</p>
+      <h2 id="className">Đang tải tên lớp...</h2>
+      <p id="classCode">Mã lớp: Đang tải...</p>
+    </div>
+    <div>
+      <p>Ngày hôm nay</p>
+      <p>24/05/2024</p>
+    </div>
+  </section>
+
+  <div class="grid">
+
+    <!-- FORM -->
+    <div class="card">
+      <h3>Cấu hình bài thi</h3>
+
+      <form>
+        <label>Môn học</label>
+        <select id="monhocSelect">
+          <option value="">Chọn môn</option>
+        </select>
+
+        <div class="row">
+          <div>
+            <label>Ngày thi</label>
+            <input type="date" id="ngaythiInput">
+          </div>
+          <div>
+            <label>Lần thi</label>
+            <select id="lanthiSelect">
+              <option value="">Chọn lần thi</option>
+              <option value="1">Lần 1</option>
+              <option value="2">Lần 2</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="note">
+          ⚠ Kiểm tra kỹ trước khi bắt đầu thi
+        </div>
+      </form>
+    </div>
+
+    <!-- DETAILS -->
+    <aside class="card">
+      <h3>Chi tiết bài thi</h3>
+
+      <div class="item">
+        <span>Số câu</span>
+        <b id="socauDisplay">...</b>
+      </div>
+
+      <div class="item">
+        <span>Thời gian</span>
+        <b id="thoigianDisplay">...</b>
+      </div>
+
+      <div class="item">
+        <span>Trình độ</span>
+        <b id="trinhdoDisplay">...</b>
+      </div>
+
+      <button class="startBtn">▶ Bắt đầu thi</button>
+    </aside>
+
+  </div>
+
+</main>
+
+<footer class="footer">
+  © 2024 ExamCore
+</footer>
+
+<script src="/static/js/batDauThi.js?v=5"></script>
+</body>
+</html>

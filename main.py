@@ -6,20 +6,22 @@ import uvicorn
 import os
 import datetime
 import json
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
 from starlette.concurrency import iterate_in_threadpool
 from fastapi_cache.backends.inmemory import InMemoryBackend
 from fastapi_cache import FastAPICache
 from fastapi.middleware.cors import CORSMiddleware
 from db.database import engine
 from db import model
-from router import user_router, giangvien_router, monHoc_router, lophoc_router,sinhvien_router
+from router import user_router, giaovien_router, monHoc_router, lophoc_router,sinhvien_router, bode_router, dangKyThi_router, thi_router    
 from logs.logging_config import logger
 
 app = FastAPI(
     docs_url="/myapi",  # Đặt đường dẫn Swagger UI thành "/myapi"
     redoc_url=None  # Tắt Redoc UI
 )
+
+templates = Jinja2Templates(directory="templates")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -112,14 +114,16 @@ async def log_requests(request: Request, call_next):
 async def on_startup() -> None:
     in_memory_cache = InMemoryBackend()
     FastAPICache.init(in_memory_cache)
-    print("Thông báo: FastAPI đã khởi chạy thành công!")
+    print("Thong bao: FastAPI da khoi chay thanh cong!")
 
 # app.include_router(employee_router.router)
 app.include_router(user_router.router)
-app.include_router(giangvien_router.router)
+app.include_router(giaovien_router.router)
 app.include_router(monHoc_router.router)
 app.include_router(lophoc_router.router)
+app.include_router(dangKyThi_router.router)
 app.include_router(sinhvien_router.router)
+app.include_router(bode_router.router)
 # app.include_router(authentication.router)
 # app.include_router(license_plate_router.router)
 # app.include_router(vehicles_router.router)
@@ -129,10 +133,16 @@ app.include_router(sinhvien_router.router)
 # app.include_router(get_file_router.router)
 # app.include_router(update_app.router)
 
+app.include_router(thi_router.router)
 
-@app.get("/")
-def read_root():
-    return {"Message": "World"}
+@app.get("/", response_class=HTMLResponse)
+async def read_root(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+
+
+@app.get("/home", response_class=HTMLResponse)
+async def home(request: Request):
+    return templates.TemplateResponse("home.html", {"request": request})
 
 # Tạo icon cho trang web api, nó sẽ hiển thị hình ảnh favicon ở thư mục `static/favicon.ico`
 @app.get('/favicon.ico')

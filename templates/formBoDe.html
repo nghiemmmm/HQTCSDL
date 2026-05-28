@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Quản lý Bộ đề</title>
+  <link rel="stylesheet" href="/static/css/boDe.css">
+</head>
+<body>
+  <main class="wrap">
+    <h2>QUẢN LÝ BỘ ĐỀ (CÂU HỎI THI)</h2>
+
+    <!-- FORM -->
+    <div class="form-grid">
+      <div class="form-row" style="grid-column: span 2;">
+        <label>Nội dung câu hỏi</label>
+        <textarea id="noiDung" rows="3" maxlength="500" placeholder="VD: Thủ đô của Việt Nam là gì?" disabled style="width: 100%;"></textarea>
+      </div>
+
+      <label>Đáp án A</label>
+      <input id="dapAnA" maxlength="200" placeholder="VD: Hà Nội" disabled>
+
+      <label>Đáp án B</label>
+      <input id="dapAnB" maxlength="200" placeholder="VD: Hồ Chí Minh" disabled>
+
+      <label>Đáp án C</label>
+      <input id="dapAnC" maxlength="200" placeholder="VD: Đà Nẵng" disabled>
+
+      <label>Đáp án D</label>
+      <input id="dapAnD" maxlength="200" placeholder="VD: Hải Phòng" disabled>
+
+      <label>Đáp án Đúng</label>
+      <select id="dapAnDung" disabled>
+        <option value="">-- Chọn đáp án đúng --</option>
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="D">D</option>
+      </select>
+
+      <label>Trình độ</label>
+      <select id="trinhDo" disabled>
+        <option value="">-- Chọn trình độ --</option>
+        <option value="A">Trình độ A</option>
+        <option value="B">Trình độ B</option>
+        <option value="C">Trình độ C</option>
+      </select>
+
+      <label>Mã môn học</label>
+      <input id="maMH" maxlength="5" placeholder="VD: MH001" disabled>
+
+      <label>Giáo viên</label>
+      <input id="searchGV" list="listGV" placeholder="Nhập tên hoặc mã GV..." disabled>
+    </div>
+
+    <datalist id="listGV">
+      {% for gv in giaoviens %}
+      <option value="{{ gv.magv }} - {{ gv.hoten }}"></option>
+      {% endfor %}
+    </datalist>
+    <input type="hidden" id="maGV">
+    <input type="hidden" id="cauHoiId">
+
+    <!-- BUTTON -->
+    <div class="toolbar">
+      <button id="btnThem" onclick="them()">Thêm</button>
+      <button id="btnSua" onclick="sua()">Sửa</button>
+      <button id="btnXoa" onclick="xoa()">Xóa</button>
+      <button id="btnGhi" onclick="ghi()" style="display: none;">Ghi</button>
+      <button id="btnHuy" onclick="huy()" style="display: none;">Hủy</button>
+      <button id="btnUndo" onclick="undo()">Undo</button>
+    </div>
+
+    <div id="errorText" style="color: #dc2626; font-weight: 500; font-size: 14px; margin-top: 10px; text-align: center; min-height: 20px;"></div>
+
+    <!-- SEARCH & TABLE -->
+    <div style="margin: 15px 0; display: flex; align-items: center; gap: 10px;">
+      <label style="font-weight: 600; color: #6b7280; font-size: 13px;">Tìm nhanh:</label>
+      <input id="searchBoDe" placeholder="Nhập nội dung, mã môn, hoặc mã GV để lọc..." style="flex: 1;">
+    </div>
+    
+    <div style="overflow-x: auto;">
+      <table border="1">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nội dung</th>
+            <th>Mã MH</th>
+            <th>Trình độ</th>
+            <th>Đáp án Đúng</th>
+            <th>Mã GV</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    window.initialBodes = JSON.parse(`{{ bodes | tojson }}`);
+    window.listGiaoViens = JSON.parse(`{{ giaoviens | tojson }}`);
+  </script>
+  <script src="/static/js/boDe.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+2026-05-18 14:37:52,070 - uvicorn.error - ERROR - Application startup failed. Exiting.
+2026-05-18 14:37:52,070 - uvicorn.error - ERROR - Application startup failed. Exiting.

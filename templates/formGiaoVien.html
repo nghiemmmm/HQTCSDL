@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Quản lý giáo viên</title>
+  <link rel="stylesheet" href="/static/css/giaoVien.css">
+</head>
+<body>
+  <main class="wrap">
+    <h2>QUẢN LÝ GIÁO VIÊN</h2>
+
+    <!-- FORM -->
+    <div class="form-grid">
+      <label>Mã giáo viên</label>
+      <input id="maGV" maxlength="8" placeholder="VD: GV001" disabled>
+
+      <label>Họ</label>
+      <input id="hoGV" maxlength="40" placeholder="VD: Nguyễn Văn" disabled>
+
+      <label>Tên</label>
+      <input id="tenGV" maxlength="10" placeholder="VD: A" disabled>
+
+      <label>Địa chỉ</label>
+      <input id="diaChiGV" maxlength="50" placeholder="VD: Hà Nội" disabled>
+
+      <label>Số điện thoại</label>
+      <input id="sdtGV" maxlength="15" placeholder="VD: 0987654321" disabled>
+    </div>
+
+    <!-- BUTTON -->
+    <div class="toolbar">
+      <button id="btnThem" onclick="them()">Thêm</button>
+      <button id="btnSua" onclick="sua()">Sửa</button>
+      <button id="btnXoa" onclick="xoa()">Xóa</button>
+      <button id="btnGhi" onclick="ghi()" style="display: none;">Ghi</button>
+      <button id="btnHuy" onclick="huy()" style="display: none;">Hủy</button>
+      <button id="btnUndo" onclick="undo()">Undo</button>
+    </div>
+
+    <div id="errorText" style="color: #dc2626; font-weight: 500; font-size: 14px; margin-top: 10px; text-align: center; min-height: 20px;"></div>
+
+    <!-- SEARCH & TABLE -->
+    <div style="margin: 15px 0; display: flex; align-items: center; gap: 10px;">
+      <label style="font-weight: 600; color: #6b7280; font-size: 13px;">Tìm nhanh:</label>
+      <input id="searchGV" placeholder="Nhập tên hoặc mã để lọc..." style="flex: 1;">
+    </div>
+    
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Mã GV</th>
+          <th>Họ</th>
+          <th>Tên</th>
+          <th>Địa chỉ</th>
+          <th>SĐT</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </main>
+
+  <script>
+    window.initialGiaoViens = JSON.parse(`{{ giao_viens | tojson }}`);
+  </script>
+  <script src="/static/js/giaoVien.js?v=2"></script>
+</body>
+</html>

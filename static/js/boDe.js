@@ -1,0 +1,424 @@
+let data = [];
+if (window.initialBodes) {
+  data = window.initialBodes;
+}
+
+let selectedIndex = -1;
+let isThem = false;
+let isSua = false;
+let editingCauHoiId = null;
+let stackUndo = [];
+
+// DOM Elements
+const cauHoiIdInput = document.getElementById("cauHoiId");
+const noiDungInput = document.getElementById("noiDung");
+const dapAnAInput = document.getElementById("dapAnA");
+const dapAnBInput = document.getElementById("dapAnB");
+const dapAnCInput = document.getElementById("dapAnC");
+const dapAnDInput = document.getElementById("dapAnD");
+const dapAnDungSelect = document.getElementById("dapAnDung");
+const trinhDoSelect = document.getElementById("trinhDo");
+const maMHInput = document.getElementById("maMH");
+const searchGVInput = document.getElementById("searchGV");
+const maGVInput = document.getElementById("maGV");
+const searchBoDeInput = document.getElementById("searchBoDe");
+const errorText = document.getElementById("errorText");
+
+const btnThem = document.getElementById("btnThem");
+const btnSua = document.getElementById("btnSua");
+const btnXoa = document.getElementById("btnXoa");
+const btnGhi = document.getElementById("btnGhi");
+const btnHuy = document.getElementById("btnHuy");
+const btnUndo = document.getElementById("btnUndo");
+
+function setButtonState(state) {
+  if (state === "default") {
+    if (btnThem) btnThem.style.display = "inline-block";
+    if (btnSua) btnSua.style.display = "inline-block";
+    if (btnXoa) btnXoa.style.display = "inline-block";
+    if (btnUndo) btnUndo.style.display = "inline-block";
+    if (btnGhi) btnGhi.style.display = "none";
+    if (btnHuy) btnHuy.style.display = "none";
+  } else if (state === "editing") {
+    if (btnThem) btnThem.style.display = "none";
+    if (btnSua) btnSua.style.display = "none";
+    if (btnXoa) btnXoa.style.display = "none";
+    if (btnUndo) btnUndo.style.display = "none";
+    if (btnGhi) btnGhi.style.display = "inline-block";
+    if (btnHuy) btnHuy.style.display = "inline-block";
+  }
+}
+
+function showError(msg) {
+  if (errorText) {
+    errorText.style.color = "#dc2626";
+    errorText.innerText = msg;
+  }
+}
+function showSuccess(msg) {
+  if (errorText) {
+    errorText.style.color = "#16a34a";
+    errorText.innerText = msg;
+  }
+}
+function clearError() {
+  if (errorText) {
+    errorText.innerText = "";
+    errorText.style.color = "#dc2626";
+  }
+}
+
+async function parseResponse(res) {
+  let resData = {};
+  try {
+    resData = await res.json();
+  } catch {
+    resData = {};
+  }
+  if (!res.ok) {
+    throw new Error(resData.detail || resData.message || "Lỗi không xác định");
+  }
+  return resData;
+}
+
+function render() {
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = "";
+
+  const keyword = searchBoDeInput ? searchBoDeInput.value.trim().toLowerCase() : "";
+
+  data.forEach((item, index) => {
+    if (keyword) {
+      const matchNoidung = (item.noidung || "").toLowerCase().includes(keyword);
+      const matchMaMH = (item.mamh || "").toLowerCase().includes(keyword);
+      const matchMaGV = (item.magv || "").toLowerCase().includes(keyword);
+      if (!matchNoidung && !matchMaMH && !matchMaGV) return;
+    }
+
+    const row = document.createElement("tr");
+
+    if (index === selectedIndex) {
+      row.style.background = "#d1e7ff";
+    }
+
+    row.innerHTML = `
+      <td>${item.cauhoi}</td>
+      <td>${item.noidung && item.noidung.length > 50 ? item.noidung.substring(0, 50) + '...' : item.noidung}</td>
+      <td>${item.mamh}</td>
+      <td>${item.trinhdo}</td>
+      <td>${item.dap_an}</td>
+      <td>${item.magv}</td>
+    `;
+
+    row.onclick = () => selectRow(index);
+    tbody.appendChild(row);
+  });
+}
+
+function selectRow(index) {
+  if (isSua || isThem) {
+    showError("Vui lòng Ghi hoặc Hủy trước khi chọn câu hỏi khác!");
+    return;
+  }
+  clearError();
+
+  selectedIndex = index;
+  const item = data[index];
+  
+  cauHoiIdInput.value = item.cauhoi;
+  noiDungInput.value = item.noidung;
+  dapAnAInput.value = item.a;
+  dapAnBInput.value = item.b;
+  dapAnCInput.value = item.c;
+  dapAnDInput.value = item.d;
+  dapAnDungSelect.value = item.dap_an;
+  trinhDoSelect.value = item.trinhdo;
+  maMHInput.value = item.mamh;
+  
+  // Ánh xạ magv sang định dạng "MAGV - Tên" cho ô search
+  const gvInfo = window.listGiaoViens ? window.listGiaoViens.find(g => g.magv === item.magv) : null;
+  searchGVInput.value = gvInfo ? `${gvInfo.magv} - ${gvInfo.hoten}` : item.magv;
+  maGVInput.value = item.magv;
+
+  render();
+}
+
+function disableAllInputs(disabled) {
+  noiDungInput.disabled = disabled;
+  dapAnAInput.disabled = disabled;
+  dapAnBInput.disabled = disabled;
+  dapAnCInput.disabled = disabled;
+  dapAnDInput.disabled = disabled;
+  dapAnDungSelect.disabled = disabled;
+  trinhDoSelect.disabled = disabled;
+  maMHInput.disabled = disabled;
+  searchGVInput.disabled = disabled;
+}
+
+function clearForm() {
+  cauHoiIdInput.value = "";
+  noiDungInput.value = "";
+  dapAnAInput.value = "";
+  dapAnBInput.value = "";
+  dapAnCInput.value = "";
+  dapAnDInput.value = "";
+  dapAnDungSelect.value = "";
+  trinhDoSelect.value = "";
+  maMHInput.value = "";
+  searchGVInput.value = "";
+  maGVInput.value = "";
+}
+
+function them() {
+  clearError();
+  isThem = true;
+  isSua = false;
+  selectedIndex = -1;
+  setButtonState("editing");
+  
+  clearForm();
+  disableAllInputs(false);
+  noiDungInput.focus();
+
+  render();
+}
+
+function sua() {
+  clearError();
+  if (selectedIndex < 0) return showError("Vui lòng chọn dòng cần sửa");
+
+  isSua = true;
+  isThem = false;
+  editingCauHoiId = data[selectedIndex].cauhoi;
+  setButtonState("editing");
+
+  disableAllInputs(false);
+  noiDungInput.focus();
+}
+
+async function ghi() {
+  clearError();
+
+  const obj = {
+    noidung: noiDungInput.value.trim(),
+    a: dapAnAInput.value.trim(),
+    b: dapAnBInput.value.trim(),
+    c: dapAnCInput.value.trim(),
+    d: dapAnDInput.value.trim(),
+    dap_an: dapAnDungSelect.value,
+    trinhdo: trinhDoSelect.value,
+    mamh: maMHInput.value.trim(),
+    magv: searchGVInput.value.split(" - ")[0].trim()
+  };
+
+  if (!obj.noidung) return showError("Nội dung câu hỏi không được để trống!");
+  if (!obj.a) return showError("Đáp án A không được để trống!");
+  if (!obj.b) return showError("Đáp án B không được để trống!");
+  if (!obj.c) return showError("Đáp án C không được để trống!");
+  if (!obj.d) return showError("Đáp án D không được để trống!");
+  if (!obj.dap_an) return showError("Vui lòng chọn đáp án đúng!");
+  if (!obj.trinhdo) return showError("Vui lòng chọn trình độ!");
+  if (!obj.mamh) return showError("Mã môn học không được để trống!");
+  if (!obj.magv) return showError("Mã giáo viên không được để trống!");
+
+  try {
+    let res, resData;
+
+    if (isThem) {
+      res = await fetch("/bode", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(obj)
+      });
+
+      resData = await parseResponse(res);
+      const result = resData.data;
+      data.push(result);
+      stackUndo.push({ type: "ADD", data: result });
+
+      isThem = false;
+      showSuccess(resData.message);
+    } 
+    else if (isSua) {
+      const old = { ...data[selectedIndex] };
+
+      res = await fetch(`/bode/${editingCauHoiId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(obj)
+      });
+
+      resData = await parseResponse(res);
+      const result = resData.data;
+      data[selectedIndex] = result;
+
+      stackUndo.push({ type: "UPDATE", old, new: result, index: selectedIndex });
+
+      isSua = false;
+      showSuccess(resData.message);
+    }
+
+  } catch (err) {
+    return showError(err.message);
+  }
+
+  disableAllInputs(true);
+  clearForm();
+  selectedIndex = -1;
+  setButtonState("default");
+
+  render();
+}
+
+function huy() {
+  clearError();
+  isSua = false;
+  isThem = false;
+  editingCauHoiId = null;
+
+  clearForm();
+  disableAllInputs(true);
+  
+  selectedIndex = -1;
+  setButtonState("default");
+  render();
+}
+
+function xoa() {
+  clearError();
+  if (selectedIndex < 0) return showError("Vui lòng chọn dòng cần xóa");
+
+  const rowData = data[selectedIndex];
+  
+  errorText.innerHTML = `
+    <div style="background: #fee2e2; border: 1px solid #f87171; padding: 10px; border-radius: 4px; display: inline-block; color: #991b1b;">
+      Bạn có chắc muốn xóa câu hỏi ID <b>${rowData.cauhoi}</b> ?
+      <div style="margin-top: 8px;">
+        <button onclick="thucHienXoa()" style="background: #ef4444; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Xóa</button>
+        <button onclick="huyXoa()" style="background: #e5e7eb; color: #374151; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer;">Hủy</button>
+      </div>
+    </div>
+  `;
+}
+
+function huyXoa() {
+  clearError();
+}
+
+async function thucHienXoa() {
+  const itemToDel = data[selectedIndex];
+  try {
+    const res = await fetch(`/bode/${itemToDel.cauhoi}`, { method: "DELETE" });
+    const resData = await parseResponse(res);
+
+    stackUndo.push({ type: "DELETE", data: itemToDel });
+    data.splice(selectedIndex, 1);
+
+    selectedIndex = -1;
+    clearForm();
+    disableAllInputs(true);
+    clearError();
+    showSuccess(resData.message);
+
+    render();
+
+  } catch (err) {
+    showError(err.message);
+  }
+}
+
+async function undo() {
+  clearError();
+  if (stackUndo.length === 0) return showError("Không có thao tác nào để Undo!");
+  if (isThem || isSua) return showError("Vui lòng Ghi hoặc Hủy thao tác hiện tại trước khi Undo!");
+
+  const action = stackUndo.pop();
+
+  try {
+    if (action.type === "ADD") {
+      const res = await fetch(`/bode/${action.data.cauhoi}`, { method: "DELETE" });
+      const resData = await parseResponse(res);
+      showSuccess("Undo: " + resData.message);
+      
+      // Remove from data array
+      const idToRemove = action.data.cauhoi;
+      data = data.filter(item => item.cauhoi !== idToRemove);
+    }
+
+    if (action.type === "DELETE") {
+      // Create body for POST without 'cauhoi' since it's auto-increment
+      // However, to correctly undo a delete and keep the same ID, some DBs require specific logic.
+      // Since we just call standard POST API, the ID might change.
+      // Alternatively, we recreate it and get the new ID back.
+      const postData = {
+        noidung: action.data.noidung,
+        a: action.data.a,
+        b: action.data.b,
+        c: action.data.c,
+        d: action.data.d,
+        dap_an: action.data.dap_an,
+        trinhdo: action.data.trinhdo,
+        mamh: action.data.mamh,
+        magv: action.data.magv
+      };
+
+      const res = await fetch("/bode", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(postData)
+      });
+      const resData = await parseResponse(res);
+      showSuccess("Undo: Đã khôi phục câu hỏi");
+      data.push(resData.data);
+    }
+
+    if (action.type === "UPDATE") {
+      const putData = {
+        noidung: action.old.noidung,
+        a: action.old.a,
+        b: action.old.b,
+        c: action.old.c,
+        d: action.old.d,
+        dap_an: action.old.dap_an,
+        trinhdo: action.old.trinhdo,
+        mamh: action.old.mamh,
+        magv: action.old.magv
+      };
+
+      const res = await fetch(`/bode/${action.old.cauhoi}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(putData)
+      });
+      const resData = await parseResponse(res);
+      showSuccess("Undo: Khôi phục nội dung cũ thành công");
+      
+      // Find and update in data array
+      const index = data.findIndex(item => item.cauhoi === action.old.cauhoi);
+      if(index !== -1) {
+          data[index] = resData.data;
+      }
+    }
+
+    selectedIndex = -1;
+    clearForm();
+    disableAllInputs(true);
+    render();
+  } catch (err) {
+    showError("Undo thất bại: " + err.message);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  setButtonState("default");
+  render();
+
+  if (searchBoDeInput) {
+    searchBoDeInput.addEventListener("input", () => {
+      selectedIndex = -1;
+      clearForm();
+      disableAllInputs(true);
+      render();
+    });
+  }
+});

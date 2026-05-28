@@ -1,3 +1,6 @@
+from urllib import response
+
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm.session import Session
 from fastapi import HTTPException
 from sqlalchemy import text
@@ -5,7 +8,10 @@ from sqlalchemy.engine import URL
 from sqlalchemy import create_engine
 from db.database import engine
 from schemas.schemas import DangNhap, DangKy
+from core.session import create_session
+from fastapi.responses import Response
 
+templates = Jinja2Templates(directory="templates")
 
 # def dang_nhap(db: Session, request: DangNhap):
 #     print(f"Đăng nhập với username: {request.username}, role: {request.role}")
@@ -230,12 +236,14 @@ def dang_nhap(db: Session, request: DangNhap):
         ho = " ".join(hoten[:-1]) if len(hoten) > 1 else ""
         ten = hoten[-1] if hoten else ""
 
-        return {
+        user_data = {
+            # "user_id": result.Username,
             "ma": result.Username,
             "ho": ho,
             "ten": ten,
             "role": result.Rolename
         }
+        return user_data
 
     # ================= SINH VIEN =================
     elif request.role == "SINHVIEN":
@@ -285,12 +293,19 @@ def dang_nhap(db: Session, request: DangNhap):
                 }
             )
 
-        return {
+        # return {
+        #     "ma": sv.MASV,
+        #     "ho": sv.HO,
+        #     "ten": sv.TEN,
+        #     "role": "SINHVIEN"
+        # 
+        user_data = {
             "ma": sv.MASV,
             "ho": sv.HO,
             "ten": sv.TEN,
-            "role": "SINHVIEN"
+            "role": "SINHVIEN",
         }
+        return user_data
 
     # ================= ROLE INVALID =================
     else:

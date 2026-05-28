@@ -1,170 +1,141 @@
-from sqlalchemy.orm.session import Session
-from fastapi import HTTPException, status
+from sqlalchemy.orm import Session
 from sqlalchemy import exc, or_
-from schemas.schemas import MonHocBase
+from fastapi import HTTPException, status
+
 from db.model import DbMonHoc, DbGiaoVienDangKy
+from schemas.schemas import MonHocBase,MonHocDisplay
 
-
+# ======================
+# GET ALL
+# ======================
 def get_all(db: Session):
     try:
-        return db.query(DbMonHoc).all()
+        mon_hocs = db.query(DbMonHoc).all()
     except exc.SQLAlchemyError as e:
+        db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={"message": f"Xay ra loi khi truy van danh sach mon hoc: {str(e)}"},
+            detail=f"Lỗi cơ sở dữ liệu khi truy xuất môn học: {str(e)}"
         )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Lỗi hệ thống không xác định: {str(e)}"
+        )
+    return mon_hocs
 
+
+# ======================
+# GET BY ID
+# ======================
 def get_by_id(db: Session, mamh: str):
     monhoc = db.query(DbMonHoc).filter(DbMonHoc.mamh == mamh).first()
     if not monhoc:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={"message": f"Khong tim thay mon hoc co ma: {mamh}"},
-        )
+        raise HTTPException(404, "Không tìm thấy môn học")
     return monhoc
 
 
-
+# ======================
+# CREATE
+# ======================
 def create(db: Session, request: MonHocBase):
-    duplicate = check_duplicate_monhoc(db, request.mamh, request.tenmh)
+    dup = check_duplicate_monhoc(db, request.mamh, request.tenmh)
 
-    if duplicate["duplicate_mamh"]:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"message": f"Ma mon hoc da ton tai: {request.mamh}"},
-        )
+    if dup["duplicate_mamh"]:
+        raise HTTPException(400, "Mã môn học đã tồn tại")
 
-    if duplicate["duplicate_tenmh"]:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"message": f"Ten mon hoc da ton tai: {request.tenmh}"},
-        )
+    if dup["duplicate_tenmh"]:
+        raise HTTPException(400, "Tên môn học đã tồn tại")
 
-    new_mh = DbMonHoc(mamh=request.mamh, tenmh=request.tenmh)
+    obj = DbMonHoc(**request.dict())
+
     try:
-        db.add(new_mh)
+        db.add(obj)
         db.commit()
-        db.refresh(new_mh)
-    except exc.SQLAlchemyError as e:
-        db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={"message": f"Them mon hoc that bai: {str(e)}"},
-        )
-    return new_mh
-
-def update(db: Session, mamh: str, request: MonHocBase):
-    monhoc = get_by_id(db, mamh)
-
-    check_result = check_monhoc_da_dk(db, mamh)
-    if check_result["da_dangky_thi"]:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"message": "Mon hoc da dang ky thi, khong duoc phep sua"},
-        )
-
-    try:
-        monhoc.tenmh = request.tenmh
-        db.commit()
-        db.refresh(monhoc)
-    except exc.SQLAlchemyError as e:
-        db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={"message": f"Cap nhat mon hoc that bai: {str(e)}"},
-        )
-
-    return monhoc
-
-def delete(db: Session, mamh: str):
-    monhoc = get_by_id(db, mamh)
-
-    check_result = check_monhoc_da_dk(db, mamh)
-    if check_result["da_dangky_thi"]:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"message": "Mon hoc da dang ky thi, khong duoc phep xoa"},
-        )
-
-    try:
-        db.delete(monhoc)
-        db.commit()
-    except exc.SQLAlchemyError as e:
-        db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={"message": f"Xoa mon hoc that bai: {str(e)}"},
-        )
-
-    return {"message": f"Da xoa mon hoc: {mamh}"}
-
-
-def search(db: Session, keyword: str):
-    kw = (keyword or "").strip()
-    if not kw:
-        return get_all(db)
-
-    pattern = f"%{kw}%"
-    try:
-        return (
-            db.query(DbMonHoc)
-            .filter(or_(DbMonHoc.mamh.ilike(pattern), DbMonHoc.tenmh.ilike(pattern)))
-            .all()
-        )
-    except exc.SQLAlchemyError as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={"message": f"Tim kiem mon hoc that bai: {str(e)}"},
-        )
-
-def check_monhoc_da_dk(db: Session, mamh: str):
-    ma = (mamh or "").strip()
-    if not ma:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"message": "Ma mon hoc khong duoc de trong"},
-        )
-
-    monhoc = db.query(DbMonHoc).filter(DbMonHoc.mamh == ma).first()
-    if not monhoc:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={"message": f"Khong tim thay mon hoc co ma: {ma}"},
-        )
-
-    try:
-        da_dang_ky = (
-            db.query(DbGiaoVienDangKy)
-            .filter(DbGiaoVienDangKy.mamh == ma)
-            .first()
-            is not None
-        )
+        db.refresh(obj)
         return {
-            "mamh": ma,
-            "da_dangky_thi": da_dang_ky,
-            "thong_bao": (
-                "Mon hoc da duoc dang ky thi"
-                if da_dang_ky
-                else "Mon hoc chua duoc dang ky thi"
-            ),
+            "message": f"Thêm thành công môn học: {obj.tenmh}",
+            "data": {"mamh": obj.mamh, "tenmh": obj.tenmh}
         }
     except exc.SQLAlchemyError as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={"message": f"Kiem tra mon hoc dang ky thi that bai: {str(e)}"},
+        db.rollback()
+        raise HTTPException(500, str(e))
+
+
+# ======================
+# UPDATE
+# ======================
+def update(db: Session, mamh: str, request: MonHocBase):
+    obj = get_by_id(db, mamh)
+
+    if check_monhoc_da_dk(db, mamh)["da_dangky_thi"]:
+        raise HTTPException(400, "Đã đăng ký thi không được sửa")
+
+    try:
+        obj.tenmh = request.tenmh
+        db.commit()
+        db.refresh(obj)
+        return {
+            "message": f"Sửa thành công môn học: {obj.tenmh}",
+            "data": {"mamh": obj.mamh, "tenmh": obj.tenmh}
+        }
+    except exc.SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(500, str(e))
+
+
+# ======================
+# DELETE
+# ======================
+def delete(db: Session, mamh: str):
+    obj = get_by_id(db, mamh)
+
+    if check_monhoc_da_dk(db, mamh)["da_dangky_thi"]:
+        raise HTTPException(400, "Đã đăng ký thi không được xóa")
+
+    try:
+        db.delete(obj)
+        db.commit()
+        return {"message": f"Xóa thành công môn học: {obj.tenmh}"}
+    except exc.SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(500, str(e))
+
+
+# ======================
+# SEARCH
+# ======================
+def search(db: Session, keyword: str):
+    if not keyword:
+        return get_all(db)
+
+    return db.query(DbMonHoc).filter(
+        or_(
+            DbMonHoc.mamh.ilike(f"%{keyword}%"),
+            DbMonHoc.tenmh.ilike(f"%{keyword}%")
         )
-def check_duplicate_monhoc(db: Session, mamh: str, tenmh: str, exclude_mamh: str = None):
-    ma_query = db.query(DbMonHoc).filter(DbMonHoc.mamh == mamh)
-    ten_query = db.query(DbMonHoc).filter(DbMonHoc.tenmh == tenmh)
+    ).all()
 
-    if exclude_mamh:
-        ma_query = ma_query.filter(DbMonHoc.mamh != exclude_mamh)
-        ten_query = ten_query.filter(DbMonHoc.mamh != exclude_mamh)
 
-    existed_ma = ma_query.first() is not None
-    existed_ten = ten_query.first() is not None
+# ======================
+# CHECK REGISTER
+# ======================
+def check_monhoc_da_dk(db: Session, mamh: str):
+    exists = db.query(DbGiaoVienDangKy).filter(
+        DbGiaoVienDangKy.mamh == mamh
+    ).first() is not None
 
     return {
-        "duplicate_mamh": existed_ma,
-        "duplicate_tenmh": existed_ten,
+        "mamh": mamh,
+        "da_dangky_thi": exists
+    }
+
+
+# ======================
+# CHECK DUPLICATE
+# ======================
+def check_duplicate_monhoc(db: Session, mamh: str, tenmh: str):
+    return {
+        "duplicate_mamh": db.query(DbMonHoc).filter(DbMonHoc.mamh == mamh).first() is not None,
+        "duplicate_tenmh": db.query(DbMonHoc).filter(DbMonHoc.tenmh == tenmh).first() is not None,
     }

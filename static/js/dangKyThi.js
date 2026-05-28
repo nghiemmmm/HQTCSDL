@@ -1,0 +1,114 @@
+function clearErrors() {
+  const errorSpans = document.querySelectorAll('span[id$="Error"]');
+  errorSpans.forEach(span => {
+    span.classList.add('hidden');
+    span.innerText = "";
+  });
+}
+
+function showError(fieldId, message) {
+  const errorSpan = document.getElementById(fieldId + "Error");
+  if (errorSpan) {
+    errorSpan.innerText = message;
+    errorSpan.classList.remove('hidden');
+  }
+}
+
+// Load danh sách lớp khi trang vừa tải xong
+document.addEventListener("DOMContentLoaded", async function() {
+  try {
+    const response = await fetch("/lop/lophoc");
+    if (!response.ok) throw new Error("Lỗi khi tải danh sách lớp");
+    
+    const classes = await response.json();
+    const classSelect = document.getElementById("class");
+    
+    // Giữ lại option mặc định đầu tiên
+    classSelect.innerHTML = '<option value="">Chọn lớp</option>';
+    
+    classes.forEach(lop => {
+      const option = document.createElement("option");
+      option.value = lop.malop;
+      option.textContent = lop.malop + " - " + lop.tenlop;
+      classSelect.appendChild(option);
+    });
+
+    // Tải danh sách môn học theo magv (Giả sử mặc định là GV01, anh/chị tự thay thế bằng magv đang đăng nhập)
+    const magv = "TH101"; 
+    const resMonHoc = await fetch(`/dangkythi/monhocdk?magv=${magv}`);
+    if (!resMonHoc.ok) throw new Error("Lỗi khi tải danh sách môn học");
+
+    const subjects = await resMonHoc.json();
+    const subjectSelect = document.getElementById("subject");
+    subjectSelect.innerHTML = '<option value="">Chọn môn</option>';
+    subjects.forEach(mh => {
+      const option = document.createElement("option");
+      option.value = mh.mamh;
+      option.textContent = mh.mamh + " - " + mh.tenmh;
+      subjectSelect.appendChild(option);
+    });
+
+  } catch (error) {
+    console.error("Lỗi:", error);
+    showError("class", "Không thể tải danh sách dữ liệu từ máy chủ.");
+  }
+});
+
+document.getElementById("examForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  clearErrors();
+
+  const classId = document.getElementById("class").value.trim();
+  const subjectId = document.getElementById("subject").value.trim();
+  const level = document.getElementById("level").value.trim();
+  const attempt = document.getElementById("attempt").value.trim();
+  const date = document.getElementById("date").value.trim();
+  const duration = document.getElementById("duration").value.trim();
+  const questionCount = document.getElementById("questionCount").value.trim();
+
+  let hasError = false;
+
+  if (!classId) { showError("class", "Vui lòng chọn lớp."); hasError = true; }
+  if (!subjectId) { showError("subject", "Vui lòng chọn môn."); hasError = true; }
+  if (!level) { showError("level", "Vui lòng chọn trình độ."); hasError = true; }
+  if (!attempt) { showError("attempt", "Vui lòng chọn lần thi."); hasError = true; }
+  if (!date) { showError("date", "Vui lòng chọn ngày thi."); hasError = true; }
+  
+  if (!duration) { 
+    showError("duration", "Vui lòng nhập thời gian."); 
+    hasError = true; 
+  } else {
+    const durationNum = parseInt(duration, 10);
+    if (isNaN(durationNum) || durationNum < 15 || durationNum > 60) {
+      showError("duration", "Thời gian thi phải từ 15 đến 60 phút.");
+      hasError = true;
+    }
+  }
+
+  if (!questionCount) { 
+    showError("questionCount", "Vui lòng nhập số câu."); 
+    hasError = true; 
+  } else {
+    const questionCountNum = parseInt(questionCount, 10);
+    if (isNaN(questionCountNum) || questionCountNum <= 0) {
+      showError("questionCount", "Số câu hỏi phải lớn hơn 0.");
+      hasError = true;
+    }
+  }
+
+  if (hasError) return;
+
+  const data = {
+    malop: classId,
+    mamh: subjectId,
+    trinhdo: level,
+    lan: parseInt(attempt, 10),
+    ngaythi: date, // Pydantic sẽ tự động parse string 'YYYY-MM-DD' sang datetime
+    thoigian: parseInt(duration, 10),
+    socauthi: parseInt(questionCount, 10),
+    magv: "TH101" // Tạm thời hardcode magv giống ở trên
+  };
+
+  console.log("Submit:", data);
+  alert("Đã ghi thành công!");
+});

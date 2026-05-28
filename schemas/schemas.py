@@ -76,13 +76,6 @@ class SinhVienWithLopDisplay(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-# --- GIAO VIEN SCHEMAS ---
-class GiaoVien(BaseModel):
-    magv: str = Field(..., max_length=8)
-    ho: Optional[str] = Field(None, max_length=50)
-    ten: Optional[str] = Field(None, max_length=10)
-    model_config = ConfigDict(from_attributes=True)
-
 
 # --- SYSTEM USER SCHEMAS ---
 class SystemUserBase(BaseModel):
@@ -100,7 +93,7 @@ class SystemUserDisplay(SystemUserBase):
 
 class GiaoVien(BaseModel):
     magv: str = Field(..., max_length=8)
-    ho: Optional[str] = Field(None, max_length=50)
+    ho: Optional[str] = Field(None, max_length=40)
     ten: Optional[str] = Field(None, max_length=10)
     diachi: Optional[str] = Field(None, max_length=50)
     sodtll: Optional[str] = Field(None, max_length=15)
@@ -116,18 +109,24 @@ class GiaoVienChuaDK(BaseModel):
 # --- BO DE (Cau Hoi) SCHEMAS ---
 
 class BoDeBase(BaseModel):
-    cauhoi: int
-    mamh: Optional[str] = Field(None, max_length=5)
-    trinhdo: Optional[str] = Field(None, pattern="^[ABC]$")
-    noidung: Optional[str] = Field(None, max_length=500)
-    a: Optional[str] = Field(None, max_length=200)
-    b: Optional[str] = Field(None, max_length=200)
-    c: Optional[str] = Field(None, max_length=200)
-    d: Optional[str] = Field(None, max_length=200)
-    dap_an: Optional[str] = Field(None, pattern="^[ABCD]$")
-    magv: Optional[str] = Field(None, max_length=8)
+    mamh: str = Field(..., max_length=5)
+    trinhdo: str = Field(..., pattern="^[ABC]$")
+    noidung: str = Field(..., max_length=500)
+    a: str = Field(..., max_length=200)
+    b: str = Field(..., max_length=200)
+    c: str = Field(..., max_length=200)
+    d: str = Field(..., max_length=200)
+    dap_an: str = Field(..., pattern="^[ABCD]$")
+    magv: str = Field(..., max_length=8)
+
+class CauHoiCreate(BoDeBase):
+    pass
+
+class CauHoiUpdate(BoDeBase):
+    pass
 
 class BoDeDisplay(BoDeBase):
+    cauhoi: int
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -146,7 +145,7 @@ class BangDiemDisplay(BangDiemBase):
 
 # --- GIAO VIEN DANG KY THI SCHEMAS ---
 
-class GiaoVienDangNhap(BaseModel):
+class DangKyThi(BaseModel):
     magv: Optional[str] = Field(None, max_length=8)
     mamh: str
     malop: str
@@ -155,8 +154,14 @@ class GiaoVienDangNhap(BaseModel):
     lan: int = Field(..., ge=1, le=2)
     socauthi: Optional[int] = Field(None, ge=10, le=100)
     thoigian: Optional[int] = Field(None, ge=15, le=60)
+class ThongTinThi(DangKyThi):
+    trinhdo: Optional[str] = Field(None, pattern="^[ABC]$")
+    lan: int = Field(..., ge=1, le=2)
+    socauthi: Optional[int] = Field(None, ge=10, le=100)
+    thoigian: Optional[int] = Field(None, ge=15, le=60)
+    model_config = ConfigDict(from_attributes=True)
 
-class GiaoVienDangKyDisplay(GiaoVienDangNhap):
+class GiaoVienDangKyThiDisplay(DangKyThi):
     model_config = ConfigDict(from_attributes=True)
 
 class ModeBase(BaseModel):

@@ -1,0 +1,110 @@
+body {
+  font-family: Arial;
+  margin: 0;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  border-bottom: 1px solid #ccc;
+}
+
+.logo {
+  font-weight: bold;
+}
+
+.nav a {
+  margin: 0 10px;
+}
+
+.right {
+  display: flex;
+  gap: 10px;
+}
+
+.avatar {
+  background: gray;
+  color: white;
+  padding: 5px;
+  border-radius: 50%;
+}
+
+/* MOBILE */
+.mobile {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.hidden {
+  display: none;
+}
+
+/* HERO */
+.hero {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+/* GRID */
+.grid {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+}
+
+/* CARD */
+.card {
+  border: 1px solid #ccc;
+  padding: 20px;
+  flex: 1;
+}
+
+/* FORM */
+form label {
+  display: block;
+  margin-top: 10px;
+}
+
+form input, form select {
+  width: 100%;
+  padding: 8px;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+}
+
+/* NOTE */
+.note {
+  margin-top: 10px;
+  background: #eef;
+  padding: 10px;
+}
+
+/* ITEM */
+.item {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+/* BUTTON */
+.startBtn {
+  width: 100%;
+  padding: 10px;
+  background: blue;
+  color: white;
+}
+
+/* FOOTER */
+.footer {
+  text-align: center;
+  padding: 20px;
+  border-top: 1px solid #ccc;
+}

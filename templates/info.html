@@ -130,11 +130,14 @@ if (!userJson) {
 }
 
 function logout() {
-    // Xóa dữ liệu khỏi localStorage
-    localStorage.removeItem('user');
-    alert('Đã đăng xuất!');
-    // Quay về trang login
-    window.location.href = '/user/login';
+    // Gọi API logout để xóa session trên server và cookie
+    fetch('/user/logout', { method: 'GET', credentials: 'same-origin' })
+        .catch(() => {})
+        .finally(() => {
+            localStorage.removeItem('user');
+            // Quay về trang login
+            window.location.href = '/user/login';
+        });
 }
 
 function goBack() {

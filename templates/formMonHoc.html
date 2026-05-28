@@ -1,69 +1,101 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nhập môn học để thi trắc nghiệm</title>
+<!-- templates/partials/monhoc.html -->
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/monhoc.css">
-</head>
+<link rel="stylesheet" href="/static/css/monHoc.css?v=3">
 
-<body>
-  <main class="wrap">
+<main class="wrap">
 
-    <section class="hero">
-      <h2>Nhập Môn Học Để Thi Trắc Nghiệm</h2>
-      <p>Chọn một dòng để sửa hoặc xóa. Dữ liệu đang xử lý trực tiếp trên form.</p>
-    </section>
+  <h2>QUẢN LÝ MÔN HỌC</h2>
 
-    <section class="content">
-      
-      <!-- FORM -->
-      <div class="form-grid">
-        <label for="maMH">Mã môn học</label>
-        <div class="inline-search">
-          <input type="text" id="maMH" placeholder="Ví dụ: CTDL" maxlength="5">
-          <button type="button" onclick="tim()">Tìm</button>
-        </div>
+  <!-- FORM -->
+  <div class="form-grid">
 
-        <label for="tenMH">Tên môn học</label>
-        <input type="text" id="tenMH" placeholder="Nhập tên môn học" maxlength="50">
-      </div>
+    <label>Mã môn học</label>
+    <input id="maMH" maxlength="5" placeholder="VD: CTDL">
 
-      <!-- BUTTON -->
-      <div class="toolbar">
-        <button class="btn-main" onclick="them()">Thêm</button>
-        <button class="btn-edit" onclick="sua()">Sửa</button>
-        <button class="btn-danger" onclick="xoa()">Xóa</button>
-        <button class="btn-save" onclick="ghi()">Ghi</button>
-        <button class="btn-ghost" onclick="huy()">Hủy</button>
-        <button class="btn-ghost" onclick="undo()">Undo</button>
-        <button class="btn-ghost" onclick="redo()">Redo</button>
-      </div>
+    <label>Tên môn học</label>
+    <input id="tenMH" maxlength="50" placeholder="VD: Cấu trúc dữ liệu">
 
-      <!-- TRẠNG THÁI -->
-      <div class="state" id="stateText"></div>
+  </div>
 
-      <!-- TABLE -->
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Mã MH</th>
-              <th>Tên MH</th>
-            </tr>
-          </thead>
-          <tbody id="tbody"></tbody>
-        </table>
-      </div>
+  <!-- BUTTON -->
+  <div class="toolbar">
 
-    </section>
+    <button id="btnThem" onclick="them()">
+      Thêm
+    </button>
 
-  </main>
+    <button id="btnSua" onclick="sua()">
+      Sửa
+    </button>
 
-  <!-- JS -->
-  <script src="/static/js/monhoc.js"></script>
+    <button id="btnXoa" onclick="xoa()">
+      Xóa
+    </button>
 
-</body>
-</html>
+    <button id="btnGhi" onclick="ghi()" style="display:none;">
+      Ghi
+    </button>
+
+    <button id="btnHuy" onclick="huy()" style="display:none;">
+      Hủy
+    </button>
+
+    <button id="btnUndo" onclick="undo()">
+      Undo
+    </button>
+
+  </div>
+
+  <!-- ERROR -->
+  <div id="errorText" style="
+            color:#dc2626;
+            font-weight:500;
+            font-size:14px;
+            margin-top:10px;
+            text-align:center;
+            min-height:20px;
+        "></div>
+
+  <!-- STATE -->
+  <div id="stateText"></div>
+
+  <!-- SEARCH -->
+  <div style="
+            margin:15px 0;
+            display:flex;
+            align-items:center;
+            gap:10px;
+        ">
+
+    <label style="
+                font-weight:600;
+                color:#6b7280;
+                font-size:13px;
+            ">
+      Tìm nhanh theo tên:
+    </label>
+
+    <input id="searchTenMH" placeholder="Nhập tên môn học để lọc..." style="flex:1;">
+
+  </div>
+
+  <!-- TABLE -->
+  <table border="1">
+
+    <thead>
+      <tr>
+        <th>Mã MH</th>
+        <th>Tên MH</th>
+      </tr>
+    </thead>
+
+    <tbody id="tbody"></tbody>
+
+  </table>
+
+</main>
+
+
+
+<!-- JS -->
+<script src="/static/js/monHoc.js?v=3"></script>

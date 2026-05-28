@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Exam UI</title>
+  <link rel="stylesheet" href="/static/css/thi.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <h1>Certification Exam</h1>
+    <div>
+      <p id="studentName">Student: Nguyen Van An</p>
+      <p id="className">Class: Đang tải...</p>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <div id="timer" class="timer">00:00</div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h3>Navigator</h3>
+    <p id="progress"></p>
+    <div id="navGrid" class="grid"></div>
+    <p>Flagged: <span id="flagCount">0</span></p>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <h2 id="questionTitle"></h2>
+    <p id="questionText"></p>
+    <div id="options"></div>
+
+    <button onclick="toggleFlag()">🚩 Flag</button>
+  </main>
+
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <button id="prevBtn" onclick="prevQuestion()">← Previous</button>
+
+  <div>
+    <button id="nextBtn" onclick="nextQuestion()">Next →</button>
+    <button onclick="submitExam()">Submit</button>
+  </div>
+</footer>
+
+<script src="/static/js/thi.js"></script>
+</body>
+</html>

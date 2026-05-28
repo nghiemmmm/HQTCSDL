@@ -3,142 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý sinh viên</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/sinhVien.css">
+    <title>Hệ Thống Quản Lý Thi Trắc Nghiệm Dashboard</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* RESET */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: #0f172a;
+        }
+
+        /* LAYOUT CHÍNH */
+        .app {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 240px;
+            background: linear-gradient(180deg, #0f172a, #111827);
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+
+        .menu a {
+            display: block;
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+
+        .menu a:hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .menu .active {
+            background: #1e293b;
+            color: white;
+            border-left: 4px solid #3b82f6;
+        }
+
+        /* MAIN */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* TOPBAR */
+        .topbar {
+            background: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .user-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #3b82f6;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        /* CONTENT */
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .welcome p {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .welcome h3 {
+            margin-top: 5px;
+            font-size: 18px;
+        }
+
+        /* CARDS */
+        .cards {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            text-align: center;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+
+        /* FOOTER */
+        .footer {
+            background: white;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #e5e7eb;
+            font-size: 13px;
+        }
+
+        .footer-links a {
+            margin-left: 15px;
+            text-decoration: none;
+            color: #64748b;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1200px) {
+            .cards {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                display: none;
+            }
+
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
+
 <body>
-    <main class="page-wrap">
-        <header class="hero">
-            <p class="hero-kicker">Hệ thống quản lý học vụ</p>
-            <h1>Quản lý sinh viên</h1>
-            <p>Theo dõi lớp học và cập nhật thông tin sinh viên nhanh chóng, trực quan.</p>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo">📘 Academic</div>
+
+        <nav class="menu">
+            <a class="active" href="#">🏠 Dashboard</a>
+            <a href="#">📚 Môn học</a>
+            <a href="#">🏫 Lớp học</a>
+            <a href="#">👨‍🏫 Giáo viên</a>
+            <a href="#">🎓 Sinh viên</a>
+            <a href="#">📝 Bộ đề</a>
+        </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <h2>Bảng Điều Khiển</h2>
+
+            <div class="user-box">
+                <div class="avatar">GV</div>
+                <span>Giảng viên</span>
+            </div>
         </header>
 
-        <!-- Menu thao tác lớp -->
-        <section class="card" aria-label="Thao tác với lớp">
-            <div class="card-head">
-                <h3>Thao tác với lớp</h3>
-                <span class="chip">Điều khiển</span>
+        <!-- CONTENT -->
+        <section class="content">
+
+            <div class="welcome">
+                <p>XIN CHÀO TRỞ LẠI, GIẢNG VIÊN</p>
+                <h3>Tổng quan hệ thống</h3>
             </div>
-            <p id="selectedClassInfo" class="selection-note">Chưa chọn lớp</p>
-            <div id="toolbar">
-                <button id="btnClassAdd" type="button">Thêm</button>
-                <button id="btnClassDelete" type="button">Xóa</button>
-                <button id="btnClassEdit" type="button">Hiệu chỉnh</button>
-                <button id="btnClassRestore" type="button">Phục hồi</button>
-                <button id="btnClassSearch" type="button">Tìm</button>
-                <button id="btnClassSave" type="button">Ghi</button>
+
+            <div class="cards">
+                <div class="card">📚 Môn học</div>
+                <div class="card">🏫 Lớp học</div>
+                <div class="card">👨‍🏫 Giáo viên</div>
+                <div class="card">🎓 Sinh viên</div>
             </div>
+
         </section>
 
-        <section class="grid-layout">
-            <div class="card data-card">
-                <div class="card-head">
-                    <h3>Danh sách lớp</h3>
-                    <span class="chip">Lớp học</span>
-                </div>
-                <div class="table-wrap">
-                    <table id="gridLop">
-                        <thead>
-                            <tr>
-                                <th>Mã lớp</th>
-                                <th>Tên lớp</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+        <!-- FOOTER -->
+        <footer class="footer">
+            <div>© 2024 Hệ Thống Quản Lý Thi Trắc Nghiệm</div>
+
+            <div class="footer-links">
+                <a href="#">Hướng dẫn</a>
+                <a href="#">Bảo mật</a>
+                <a href="#">Hỗ trợ</a>
             </div>
+        </footer>
 
-            <div class="card data-card">
-                <div class="card-head">
-                    <h3>Danh sách sinh viên</h3>
-                    <span class="chip">Sinh viên</span>
-                </div>
-                <div class="table-wrap">
-                    <table id="gridSV">
-                        <thead>
-                            <tr>
-                                <th>Mã SV</th>
-                                <th>Họ tên</th>
-                                <th>Ngày sinh</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
+    </div>
 
-        <!-- Form nhập liệu lớp -->
-        <section class="card form-card" id="formLop" style="display: none;">
-            <h3>Nhập thông tin lớp</h3>
-            <label for="txtMaLop">Mã lớp</label>
-            <input type="text" id="txtMaLop" placeholder="Ví dụ: DA22TT01">
+</div>
 
-            <label for="txtTenLop">Tên lớp</label>
-            <input type="text" id="txtTenLop" placeholder="Ví dụ: Lớp A - Đại học">
-
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button id="btnLopSave" type="button">Lưu lớp</button>
-                <button id="btnLopCancel" type="button">Hủy</button>
-            </div>
-
-            <div class="class-detail" aria-live="polite" style="margin-top: 20px;">
-                <div class="class-detail-head">
-                    <h4>Thông tin lớp đang chọn</h4>
-                    <span class="chip">Chi tiết</span>
-                </div>
-                <div class="class-detail-body">
-                    <p><span>Mã lớp:</span> <strong id="viewClassMa">Chưa chọn</strong></p>
-                    <p><span>Tên lớp:</span> <strong id="viewClassTen">Chưa chọn</strong></p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Form nhập liệu sinh viên -->
-        <section class="card form-card" id="formSinhVien" style="display: none;">
-            <h3>Nhập thông tin sinh viên</h3>
-            <label for="txtMaSV">Mã SV</label>
-            <input type="text" id="txtMaSV" placeholder="Ví dụ: B22DCCN001">
-
-            <label for="txtHoTen">Họ tên</label>
-            <input type="text" id="txtHoTen" placeholder="Ví dụ: Nguyễn Văn A">
-
-            <label for="txtNgaySinh">Ngày sinh</label>
-            <input type="date" id="txtNgaySinh">
-
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button id="btnDetailSaveForm" type="button">Lưu sinh viên</button>
-                <button id="btnDetailCancel" type="button">Hủy</button>
-            </div>
-
-            <div class="student-detail" aria-live="polite" style="margin-top: 20px;">
-                <div class="student-detail-head">
-                    <h4>Thông tin sinh viên đang chọn</h4>
-                    <span class="chip">Chi tiết</span>
-                </div>
-                <div class="student-detail-body">
-                    <p><span>Mã SV:</span> <strong id="viewMaSV">Chưa chọn</strong></p>
-                    <p><span>Họ tên:</span> <strong id="viewHoTen">Chưa chọn</strong></p>
-                    <p><span>Ngày sinh:</span> <strong id="viewNgaySinh">Chưa chọn</strong></p>
-                    <p><span>Lớp:</span> <strong id="viewMaLop">Chưa chọn</strong></p>
-                </div>
-                <div class="student-detail-actions" aria-label="Thao tác sinh viên">
-                    <button id="btnDetailAdd" type="button">Thêm</button>
-                    <button id="btnDetailDelete" type="button">Xóa</button>
-                    <button id="btnDetailEdit" type="button">Hiệu chỉnh</button>
-                    <button id="btnDetailRestore" type="button">Phục hồi</button>
-                    <button id="btnDetailSearch" type="button">Tìm</button>
-                    <button id="btnDetailSave" type="button">Ghi</button>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <script src="/static/js/sinhVien.js"></script>
 </body>
 </html>
