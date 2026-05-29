@@ -76,17 +76,6 @@ ROLE_PERMISSIONS = {
         Permission.UPDATE_TEACHER,
         Permission.DELETE_TEACHER,
 
-        Permission.VIEW_QUESTION,
-        Permission.CREATE_QUESTION,
-        Permission.UPDATE_QUESTION,
-        Permission.DELETE_QUESTION,
-
-        Permission.VIEW_EXAM_REGISTRATION,
-        Permission.CREATE_EXAM_REGISTRATION,
-        Permission.UPDATE_EXAM_REGISTRATION,
-        Permission.DELETE_EXAM_REGISTRATION,
-
-        Permission.PRACTICE_EXAM,
         Permission.VIEW_STUDENT_SCORE,
         Permission.VIEW_SCORE_REPORT,
         Permission.VIEW_STUDENT_EXAM,
@@ -100,6 +89,8 @@ ROLE_PERMISSIONS = {
         Permission.DELETE_QUESTION,
 
         Permission.VIEW_EXAM_REGISTRATION,
+        Permission.CREATE_EXAM_REGISTRATION,
+        Permission.UPDATE_EXAM_REGISTRATION,
         Permission.PRACTICE_EXAM,
         Permission.VIEW_STUDENT_SCORE,
         Permission.VIEW_SCORE_REPORT,

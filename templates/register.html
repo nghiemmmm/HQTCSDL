@@ -1,193 +1,155 @@
-<!DOCTYPE html>
-<html lang="vi">
+{% extends "base_dashboard.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Tạo tài khoản</title>
-    <link rel="stylesheet" href="/static/css/register.css">
-</head>
+{% block title %}Tai khoan{% endblock %}
+{% block page_kicker %}Quan ly nguoi dung{% endblock %}
+{% block page_title %}Tao tai khoan{% endblock %}
 
-<body>
+{% block page_css %}
+<link rel="stylesheet" href="/static/css/register.css">
+{% endblock %}
 
-    <div class="container">
-        <h1>TẠO TÀI KHOẢN ĐĂNG NHẬP CHƯƠNG TRÌNH</h1>
+{% block content %}
+<main class="container">
+    <form id="registerForm" novalidate>
+        <div class="form-group">
+            <label>Giao vien</label>
+            <select id="gvSelect" required>
+                <option value="" disabled selected hidden>Chon giao vien</option>
+                {% for gv in giang_viens %}
+                <option value="{{ gv.magv }}" data-hoten="{{ gv.hoten }}" data-trangthai="{{ gv.trangthai }}">
+                    {{ gv.hoten }}
+                </option>
+                {% endfor %}
+            </select>
 
-        <form id="registerForm">
+            <label style="width: 80px; margin-left: 10px;">Ma NV</label>
+            <input type="text" id="manvInput" readonly>
+        </div>
 
-            <!-- GIẢNG VIÊN -->
-            <div class="form-group">
-                <label>Họ tên nhân viên</label>
+        <div class="form-group">
+            <label>Tai khoan</label>
+            <input type="text" id="username" placeholder="Tu dong theo ma nhan vien">
+        </div>
 
-                <select id="gvSelect" required>
-                    <option value="">-- Chọn giảng viên --</option>
+        <div class="form-group">
+            <label>Mat khau</label>
+            <input type="password" id="password">
+        </div>
 
-                    {% for gv in giang_viens %}
-                    <option value="{{ gv.magv }}" data-hoten="{{ gv.hoten }}" data-trangthai="{{ gv.trangthai }}">
-                        {{ gv.hoten }}
-                    </option>
-                    {% endfor %}
-                </select>
+        <div class="form-group">
+            <label>Nhom quyen</label>
+            <select id="role" required>
+                <option value="" disabled selected hidden>Chon nhom quyen</option>
+                <option value="GIANGVIEN">Giang vien</option>
+                <option value="PGV">PGV</option>
+            </select>
+        </div>
 
-                <label style="width: 80px; margin-left: 10px;">MANV</label>
-                <input type="text" id="manvInput" readonly>
-            </div>
+        <p id="error-message" style="color:red;"></p>
 
-            <!-- USERNAME -->
-            <div class="form-group">
-                <label>Tài khoản</label>
-                <input type="text" id="username" placeholder="(không bắt buộc)">
-            </div>
+        <div class="buttons">
+            <button type="submit">Tao tai khoan</button>
+            <button type="button" id="btnClearForm">Xoa</button>
+            <a class="btn btn-outline" href="/home">Thoat</a>
+        </div>
+    </form>
+</main>
+{% endblock %}
 
-            <!-- PASSWORD -->
-            <div class="form-group">
-                <label>Mật mã</label>
-                <input type="password" id="password">
-            </div>
+{% block page_js %}
+<script>
+    const gvSelect = document.getElementById("gvSelect");
+    const manvInput = document.getElementById("manvInput");
+    const btnSubmit = document.querySelector('button[type="submit"]');
+    const inputUsername = document.getElementById("username");
+    const inputPassword = document.getElementById("password");
+    const selectRole = document.getElementById("role");
+    const errorMsg = document.getElementById("error-message");
 
-            <!-- ROLE -->
-            <div class="form-group">
-                <label>Quyền hệ thống</label>
-                <select id="systemRole">
-                    <option value="USER">User</option>
-                    <option value="ADMIN">Admin</option>
-                </select>
-            </div>
+    gvSelect.addEventListener("change", function () {
+        const selectedOption = this.options[this.selectedIndex];
 
-            <p id="error-message" style="color:red;"></p>
+        if (this.value) {
+            manvInput.value = this.value;
+            inputUsername.value = this.value;
 
-            <div class="buttons">
-                <button type="submit">Tạo tài khoản</button>
-                <button type="button" id="btnClearForm">Xóa</button>
-                <button type="button" onclick="window.location.href='/'">Thoát</button>
-            </div>
-
-        </form>
-    </div>
-
-    <script>
-
-        // =============================
-        // INIT
-        // =============================
-        const gvSelect = document.getElementById("gvSelect");
-        const manvInput = document.getElementById("manvInput");
-
-        const btnSubmit = document.querySelector('button[type="submit"]');
-        const inputUsername = document.getElementById("username");
-        const inputPassword = document.getElementById("password");
-        const selectRole = document.getElementById("systemRole");
-        const errorMsg = document.getElementById("error-message");
-
-
-        // =============================
-        // CHỌN GIẢNG VIÊN
-        // =============================
-        gvSelect.addEventListener("change", function () {
-
-            const selectedOption = this.options[this.selectedIndex];
-
-            if (this.value) {
-                manvInput.value = this.value;
-                inputUsername.value = this.value; // Tự động điền tài khoản bằng MANV
-
-                const trangthai = selectedOption.dataset.trangthai;
-
-                // 🔥 Nếu đã có tài khoản
-                if (trangthai == "1") {
-                    btnSubmit.style.display = "none";
-
-                    inputUsername.disabled = true;
-                    inputPassword.disabled = true;
-                    selectRole.disabled = true;
-
-                } else {
-                    btnSubmit.style.display = "";
-
-                    inputUsername.disabled = false;
-                    inputPassword.disabled = false;
-                    selectRole.disabled = false;
-                }
-
-            } else {
-                manvInput.value = "";
-                inputUsername.value = "";
-
-                btnSubmit.style.display = "";
-                inputUsername.disabled = false;
-                inputPassword.disabled = false;
-                selectRole.disabled = false;
-            }
-        });
-
-
-        // =============================
-        // SUBMIT FORM
-        // =============================
-        document.getElementById('registerForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            errorMsg.innerText = "";
-
-            const password = inputPassword.value;
-            const manv = manvInput.value;
-            const system_role = selectRole.value;
-
-            const selectedOption = gvSelect.options[gvSelect.selectedIndex];
-            const hoten = selectedOption?.dataset?.hoten;
-
-            if (!password || !manv || !hoten) {
-                errorMsg.innerText = "❌ Vui lòng nhập đầy đủ thông tin";
-                return;
-            }
-
-            // 🔥 LẤY TÊN (không họ)
-            const ten = hoten.trim().split(" ").pop();
-
-            fetch('/user/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    loginname: manv,
-                    password: password,
-                    username: ten.toLowerCase(),
-                    system_role: system_role
-                })
-            })
-                .then(res => {
-    if (!res.ok) {
-        return res.json().then(data => {
-            throw new Error(data.detail || "Tạo tài khoản thất bại");
-        });
-    }
-    return res.json();
-})
-.then(data => {
-    alert("✅ " + data.message);  // 🔥 dùng message từ backend
-    window.location.href = "/user/login";
-})
-                .catch(err => {
-                    errorMsg.innerText = "❌ " + err.message;
-                });
-        });
-
-
-        // =============================
-        // RESET FORM
-        // =============================
-        document.getElementById('btnClearForm').addEventListener('click', function () {
-            document.getElementById('registerForm').reset();
-
+            const trangthai = selectedOption.dataset.trangthai;
+            const disabled = trangthai == "1";
+            btnSubmit.style.display = disabled ? "none" : "";
+            inputUsername.disabled = disabled;
+            inputPassword.disabled = disabled;
+            selectRole.disabled = disabled;
+        } else {
             manvInput.value = "";
-            errorMsg.innerText = "";
-
+            inputUsername.value = "";
             btnSubmit.style.display = "";
             inputUsername.disabled = false;
             inputPassword.disabled = false;
             selectRole.disabled = false;
-        });
+        }
+    });
 
-    </script>
+    document.getElementById('registerForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        errorMsg.innerText = "";
 
-</body>
+        const password = inputPassword.value;
+        const manv = manvInput.value;
+        const role = selectRole.value;
+        const username = inputUsername.value || manv;
 
-</html>
+        if (!manv) {
+            errorMsg.innerText = "Vui long chon giao vien";
+            return;
+        }
+
+        if (!password) {
+            errorMsg.innerText = "Vui long nhap mat khau";
+            return;
+        }
+
+        if (!role) {
+            errorMsg.innerText = "Vui long chon nhom quyen";
+            return;
+        }
+
+        fetch('/user/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                loginname: manv,
+                password: password,
+                username: username,
+                role: role
+            })
+        })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(data => {
+                        throw new Error(data.detail || "Tao tai khoan that bai");
+                    });
+                }
+                return res.json();
+            })
+            .then(data => {
+                window.notify?.(data.message || "Tao tai khoan thanh cong", "success");
+                document.getElementById('registerForm').reset();
+                manvInput.value = "";
+            })
+            .catch(err => {
+                errorMsg.innerText = err.message;
+                window.notify?.(err.message, "error");
+            });
+    });
+
+    document.getElementById('btnClearForm').addEventListener('click', function () {
+        document.getElementById('registerForm').reset();
+        manvInput.value = "";
+        errorMsg.innerText = "";
+        btnSubmit.style.display = "";
+        inputUsername.disabled = false;
+        inputPassword.disabled = false;
+        selectRole.disabled = false;
+    });
+</script>
+{% endblock %}

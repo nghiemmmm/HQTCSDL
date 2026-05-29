@@ -23,7 +23,10 @@ def get_bode_page(
     user=Depends(require_permission(Permission.VIEW_QUESTION)),
 ):
     # Lấy danh sách câu hỏi để truyền vào giao diện
-    bodes = db_bode.get_all_bode(db)
+    if user.get("role") == "GIANGVIEN":
+        bodes = db.query(DbBoDe).filter(DbBoDe.magv == user.get("ma")).all()
+    else:
+        bodes = db_bode.get_all_bode(db)
     
     # Format dữ liệu theo BoDeDisplay schema
     bodes_data = [BoDeDisplay.model_validate(b).model_dump() for b in bodes]
@@ -34,6 +37,7 @@ def get_bode_page(
     
     return templates.TemplateResponse("formBoDe.html", {
         "request": request,
+        "user": user,
         "bodes": bodes_data,
         "giaoviens": giaoviens_data
     })

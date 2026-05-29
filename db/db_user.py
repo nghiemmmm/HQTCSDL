@@ -175,7 +175,7 @@ def dang_nhap(db: Session, request: DangNhap):
     print(f"Login: {request.username} - {request.role}")
 
     # ================= GIANG VIEN =================
-    if request.role == "GIANGVIEN":
+    if request.role in ("GIANGVIEN", "PGV"):
 
         query = text("EXEC SP_KiemTraLogin @login_name = :login_name")
         result = db.execute(query, {"login_name": request.username}).fetchone()
@@ -321,7 +321,7 @@ def dang_ky(db: Session, request: DangKy):
     
     # Map system_role → SQL Server role
     sql_role = ""
-    if request.system_role == "GIANGVIEN":
+    if request.role in ("GIANGVIEN", "PGV"):
         sql_role = "db_owner"  # ✅ Role tồn tại trong SQL Server
     else:
         sql_role = "db_datareader"  # ✅ Role tồn tại trong SQL Server

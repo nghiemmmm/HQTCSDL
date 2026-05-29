@@ -9,6 +9,8 @@ from db.database import get_db
 from db import db_user
 from db import db_giaovien 
 from core.session import delete_session
+from core.auth import get_current_user, require_permission
+from db.roles import Permission
 from fastapi import Request
 from fastapi.responses import RedirectResponse
 router = APIRouter(
@@ -40,19 +42,27 @@ def dangNhap(request: DangNhap, response: Response, db: Session = Depends(get_db
     return user_data
 # thong tin nguoi dung
 @router.get("/info", response_class=HTMLResponse)
-async def info(request: Request, user: UserBase = None):
+async def info(request: Request, user=Depends(get_current_user)):
     return templates.TemplateResponse("info.html", {"request": request, "user": user})
 
 # dang ky
 @router.post("/register")
-def dangKy(request: DangKy, db: Session = Depends(get_db)):
+def dangKy(
+    request: DangKy,
+    db: Session = Depends(get_db),
+    user=Depends(require_permission(Permission.CREATE_USER)),
+):
     """
     Tạo thông tin người dùng vào CSDL
     """
     return db_user.dang_ky(db=db, request=request)
 
 @router.get("/register", response_class=HTMLResponse)
-def register(request: Request, db: Session = Depends(get_db)):
+def register(
+    request: Request,
+    db: Session = Depends(get_db),
+    user=Depends(require_permission(Permission.CREATE_USER)),
+):
 
     result = db.execute(
         text("EXEC SP_GET_GV_CHUA_DK")
@@ -71,13 +81,17 @@ def register(request: Request, db: Session = Depends(get_db)):
         "register.html",
         {
             "request": request,
+            "user": user,
             "giang_viens": giang_viens
         }
     )
 
 # API lấy danh sách giảng viên
 @router.get("/api/giao-vien")
-def get_giao_vien(db: Session = Depends(get_db)):
+def get_giao_vien(
+    db: Session = Depends(get_db),
+    user=Depends(require_permission(Permission.VIEW_TEACHER)),
+):
     """
     Lấy danh sách giảng viên chưa đăng ký từ stored procedure SP_GET_GV_CHUA_DK
     """

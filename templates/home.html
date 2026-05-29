@@ -1,279 +1,70 @@
-<!DOCTYPE html>
-<html lang="vi">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Dashboard - Thi Trắc Nghiệm</title>
-
-    <!-- FONT -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
-        rel="stylesheet">
-
-    <!-- CSS -->
-    <link rel="stylesheet" href="/static/css/home.css?v=4">
-    <link rel="stylesheet" href="/static/css/sidebar.css?v=4">
-    <link rel="stylesheet" href="/static/css/topbar.css?v=4">
-    <link rel="stylesheet" href="/static/css/footer.css?v=4">
-
-</head>
-
-<body>
-
-    <div class="app">
-
-        <!-- SIDEBAR -->
-        {% include 'sidebar.html' %}
-
-        <!-- MAIN -->
-        <div class="main">
-
-            <!-- TOPBAR -->
-            {% include 'topbar.html' %}
-
-            <!-- CONTENT -->
-            <section class="content" id="mainContent">
-
-                <!-- WELCOME DASHBOARD -->
-                <div id="welcomeScreen" style="text-align: center; padding: 50px 20px; color: #6b7280;">
-                    <h2 style="font-size: 24px; color: #1e293b; margin-bottom: 10px;">Chào mừng đến với Hệ thống</h2>
-                    <p>Vui lòng chọn một chức năng từ menu bên trái để bắt đầu.</p>
-                </div>
-
-            </section>
-
-            <!-- FOOTER -->
-            {% include 'footer.html' %}
-
-        </div>
-
-    </div>
-
-    <!-- SCRIPT -->
-    <script>
-
-        /* ================= AUTH ================= */
-
-        (function () {
-
-            const authArea =
-                document.getElementById('authArea');
-
-            const userJson =
-                localStorage.getItem('user');
-
-            function createUserBoxHtml(initials) {
-
-                return `
-                    <button id="avatarBtn" class="avatar">
-                        ${initials}
-                    </button>
-
-                    <button id="logoutBtn" class="btn-logout">
-                        Đăng xuất
-                    </button>
-                `;
-            }
-
-            if (!userJson) {
-
-                authArea.innerHTML =
-                    `
-                    <a class="btn btn-outline"
-                       href="/user/login">
-                        Đăng nhập
-                    </a>
-
-                    <a class="btn btn-primary"
-                       href="/user/register">
-                        Đăng ký
-                    </a>
-                    `;
-
-            } else {
-
-                let user = null;
-
-                try {
-
-                    user = JSON.parse(userJson);
-
-                } catch (e) { }
-
-                const initials =
-                    (user?.ten || 'U')
-                        .charAt(0)
-                        .toUpperCase();
-
-                authArea.innerHTML =
-                    createUserBoxHtml(initials);
-
-                /* AVATAR */
-
-                document
-                    .getElementById('avatarBtn')
-                    .onclick = () => {
-
-                        window.location.href =
-                            '/user/info';
-                    };
-
-                /* LOGOUT */
-
-                document
-                    .getElementById('logoutBtn')
-                    .onclick = async () => {
-
-                        try {
-
-                            await fetch('/user/logout');
-
-                        } catch (e) { }
-
-                        localStorage.removeItem('user');
-
-                        window.location.href =
-                            '/user/login';
-                    };
-            }
-
-        })();
-
-
-
-
-        /* ================= LOAD MODULE ================= */
-
-        (function () {
-
-            const menuLinks =
-                document.querySelectorAll('.menu a[data-module]');
-
-            const mainContent =
-                document.getElementById('mainContent');
-
-            /* ROUTES */
-
-            const moduleRoutes = {
-
-                'monhoc': '/monhoc',
-
-                'lop': '/lop/form',
-
-                'giaovien': '/giaovien/form',
-
-                'sinhvien': '/sinhvien/form',
-
-                'bode': '/bode/form',
-
-                'dangkythi': '/dangkythi/form',
-
-                'thi': '/thi/form'
-            };
-
-
-
-            /* CLICK SIDEBAR LINK */
-
-            menuLinks.forEach(link => {
-
-                link.addEventListener(
-                    'click',
-                    async (e) => {
-
-                        e.preventDefault();
-
-                        // Cập nhật trạng thái active trên sidebar
-                        menuLinks.forEach(l => l.classList.remove('active'));
-                        link.classList.add('active');
-
-                        const module =
-                            link.dataset.module;
-
-                        // Nếu là dashboard thì hiện lại màn hình chào mừng
-                        if (module === 'dashboard') {
-                            mainContent.innerHTML = `
-                                <div id="welcomeScreen" style="text-align: center; padding: 50px 20px; color: #6b7280;">
-                                    <h2 style="font-size: 24px; color: #1e293b; margin-bottom: 10px;">Chào mừng đến với Hệ thống</h2>
-                                    <p>Vui lòng chọn một chức năng từ menu bên trái để bắt đầu.</p>
-                                </div>
-                            `;
-                            return;
-                        }
-
-                        const route =
-                            moduleRoutes[module];
-
-                        if (!route) return;
-
-                        try {
-
-                            /* FETCH HTML */
-
-                            const response =
-                                await fetch(route);
-
-                            const html =
-                                await response.text();
-
-                            /* LOAD INTO CONTENT */
-
-                            mainContent.innerHTML =
-                                html;
-
-                            /* RELOAD SCRIPTS */
-
-                            const scripts =
-                                mainContent.querySelectorAll('script');
-
-                            scripts.forEach(oldScript => {
-
-                                const newScript =
-                                    document.createElement('script');
-
-                                if (oldScript.src) {
-
-                                    newScript.src =
-                                        oldScript.src;
-
-                                } else {
-
-                                    newScript.textContent =
-                                        oldScript.textContent;
-                                }
-
-                                document.body.appendChild(newScript);
-
-                            });
-
-                        } catch (err) {
-
-                            console.error(
-                                'Load module error:',
-                                err
-                            );
-
-                            mainContent.innerHTML =
-                                `
-                                <div style="
-                                    padding:20px;
-                                    color:red;
-                                    font-weight:500;
-                                ">
-                                    Không thể tải module.
-                                </div>
-                                `;
-                        }
-                    }
-                );
-
-            });
-
-        })();
-
-    </script>
-
-</body>
-
-</html>
+{% extends "base_dashboard.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_kicker %}Tong quan theo vai tro{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<section class="dashboard-grid" aria-label="Chuc nang theo quyen">
+    <a class="stat-card" href="/monhoc" data-permission="view_subject">
+        <span>Quan ly dao tao</span>
+        <strong>Mon hoc</strong>
+    </a>
+    <a class="stat-card" href="/lop/" data-permission="view_class">
+        <span>Du lieu lop hoc</span>
+        <strong>Lop hoc</strong>
+    </a>
+    <a class="stat-card" href="/sinhvien/" data-permission="view_student">
+        <span>Ho so nguoi hoc</span>
+        <strong>Sinh vien</strong>
+    </a>
+    <a class="stat-card" href="/giaovien" data-permission="view_teacher">
+        <span>Nhan su giang day</span>
+        <strong>Giao vien</strong>
+    </a>
+    <a class="stat-card" href="/bode/" data-permission="view_question">
+        <span>Ngan hang cau hoi</span>
+        <strong>Bo de</strong>
+    </a>
+    <a class="stat-card" href="/dangkythi" data-permission="view_exam_registration">
+        <span>Lap lich thi</span>
+        <strong>Dang ky thi</strong>
+    </a>
+    <a class="stat-card" href="/thi/" data-any-permission="take_exam,practice_exam">
+        <span>Phong thi truc tuyen</span>
+        <strong>Thi trac nghiem</strong>
+    </a>
+    <a class="stat-card" href="/thi/lich-su" data-permission="view_own_exam">
+        <span>Theo doi bai da lam</span>
+        <strong>Lich su thi</strong>
+    </a>
+    <a class="stat-card" href="/thi/xem-lai" data-permission="view_own_exam">
+        <span>Xem lai cau tra loi</span>
+        <strong>Xem lai bai thi</strong>
+    </a>
+    <a class="stat-card" href="/thi/diem" data-permission="view_own_score">
+        <span>Ket qua ca nhan</span>
+        <strong>Diem thi</strong>
+    </a>
+    <a class="stat-card" href="/thi/ket-qua" data-permission="view_student_score">
+        <span>Ket qua sinh vien</span>
+        <strong>Bang ket qua</strong>
+    </a>
+    <a class="stat-card" href="/thi/bang-diem" data-permission="print_score_table">
+        <span>In va tong hop</span>
+        <strong>Bang diem</strong>
+    </a>
+    <a class="stat-card" href="/user/register" data-permission="create_user">
+        <span>Phan quyen he thong</span>
+        <strong>Tai khoan</strong>
+    </a>
+</section>
+
+<section class="dashboard-card" style="margin-top: 18px; padding: 22px;">
+    <h2 style="margin: 0 0 8px; font-size: 20px;">Dashboard dong theo RBAC</h2>
+    <p style="margin: 0; color: var(--muted); line-height: 1.6;">
+        Sidebar, navbar va card duoc loc theo role dang dang nhap. Backend van kiem tra permission
+        tren tung route de chan truy cap truc tiep bang URL.
+    </p>
+</section>
+{% endblock %}

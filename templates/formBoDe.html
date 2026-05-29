@@ -1,104 +1,105 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <title>Quản lý Bộ đề</title>
-  <link rel="stylesheet" href="/static/css/boDe.css">
-</head>
-<body>
-  <main class="wrap">
-    <h2>QUẢN LÝ BỘ ĐỀ (CÂU HỎI THI)</h2>
+{% extends "base_dashboard.html" %}
 
-    <!-- FORM -->
-    <div class="form-grid">
-      <div class="form-row" style="grid-column: span 2;">
-        <label>Nội dung câu hỏi</label>
-        <textarea id="noiDung" rows="3" maxlength="500" placeholder="VD: Thủ đô của Việt Nam là gì?" disabled style="width: 100%;"></textarea>
-      </div>
+{% block title %}Bo de{% endblock %}
+{% block page_kicker %}Ngan hang cau hoi{% endblock %}
+{% block page_title %}Bo de{% endblock %}
 
-      <label>Đáp án A</label>
-      <input id="dapAnA" maxlength="200" placeholder="VD: Hà Nội" disabled>
+{% block page_css %}
+<link rel="stylesheet" href="/static/css/boDe.css">
+{% endblock %}
 
-      <label>Đáp án B</label>
-      <input id="dapAnB" maxlength="200" placeholder="VD: Hồ Chí Minh" disabled>
+{% block content %}
+<main class="wrap">
+  <h2>QUAN LY BO DE</h2>
 
-      <label>Đáp án C</label>
-      <input id="dapAnC" maxlength="200" placeholder="VD: Đà Nẵng" disabled>
-
-      <label>Đáp án D</label>
-      <input id="dapAnD" maxlength="200" placeholder="VD: Hải Phòng" disabled>
-
-      <label>Đáp án Đúng</label>
-      <select id="dapAnDung" disabled>
-        <option value="">-- Chọn đáp án đúng --</option>
-        <option value="A">A</option>
-        <option value="B">B</option>
-        <option value="C">C</option>
-        <option value="D">D</option>
-      </select>
-
-      <label>Trình độ</label>
-      <select id="trinhDo" disabled>
-        <option value="">-- Chọn trình độ --</option>
-        <option value="A">Trình độ A</option>
-        <option value="B">Trình độ B</option>
-        <option value="C">Trình độ C</option>
-      </select>
-
-      <label>Mã môn học</label>
-      <input id="maMH" maxlength="5" placeholder="VD: MH001" disabled>
-
-      <label>Giáo viên</label>
-      <input id="searchGV" list="listGV" placeholder="Nhập tên hoặc mã GV..." disabled>
+  <div class="form-grid">
+    <div class="form-row" style="grid-column: span 2;">
+      <label>Noi dung cau hoi</label>
+      <textarea id="noiDung" rows="3" maxlength="500" placeholder="Nhap noi dung cau hoi" disabled style="width: 100%;"></textarea>
     </div>
 
-    <datalist id="listGV">
-      {% for gv in giaoviens %}
-      <option value="{{ gv.magv }} - {{ gv.hoten }}"></option>
-      {% endfor %}
-    </datalist>
-    <input type="hidden" id="maGV">
-    <input type="hidden" id="cauHoiId">
+    <label>Dap an A</label>
+    <input id="dapAnA" maxlength="200" disabled>
 
-    <!-- BUTTON -->
-    <div class="toolbar">
-      <button id="btnThem" onclick="them()">Thêm</button>
-      <button id="btnSua" onclick="sua()">Sửa</button>
-      <button id="btnXoa" onclick="xoa()">Xóa</button>
-      <button id="btnGhi" onclick="ghi()" style="display: none;">Ghi</button>
-      <button id="btnHuy" onclick="huy()" style="display: none;">Hủy</button>
-      <button id="btnUndo" onclick="undo()">Undo</button>
-    </div>
+    <label>Dap an B</label>
+    <input id="dapAnB" maxlength="200" disabled>
 
-    <div id="errorText" style="color: #dc2626; font-weight: 500; font-size: 14px; margin-top: 10px; text-align: center; min-height: 20px;"></div>
+    <label>Dap an C</label>
+    <input id="dapAnC" maxlength="200" disabled>
 
-    <!-- SEARCH & TABLE -->
-    <div style="margin: 15px 0; display: flex; align-items: center; gap: 10px;">
-      <label style="font-weight: 600; color: #6b7280; font-size: 13px;">Tìm nhanh:</label>
-      <input id="searchBoDe" placeholder="Nhập nội dung, mã môn, hoặc mã GV để lọc..." style="flex: 1;">
-    </div>
-    
-    <div style="overflow-x: auto;">
-      <table border="1">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nội dung</th>
-            <th>Mã MH</th>
-            <th>Trình độ</th>
-            <th>Đáp án Đúng</th>
-            <th>Mã GV</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
-    </div>
-  </main>
+    <label>Dap an D</label>
+    <input id="dapAnD" maxlength="200" disabled>
 
-  <script>
-    window.initialBodes = JSON.parse(`{{ bodes | tojson }}`);
-    window.listGiaoViens = JSON.parse(`{{ giaoviens | tojson }}`);
-  </script>
-  <script src="/static/js/boDe.js?v=1"></script>
-</body>
-</html>
+    <label>Dap an dung</label>
+    <select id="dapAnDung" disabled>
+      <option value="" disabled selected hidden>-- Chon dap an dung --</option>
+      <option value="A">A</option>
+      <option value="B">B</option>
+      <option value="C">C</option>
+      <option value="D">D</option>
+    </select>
+
+    <label>Trinh do</label>
+    <select id="trinhDo" disabled>
+      <option value="" disabled selected hidden>-- Chon trinh do --</option>
+      <option value="A">Trinh do A</option>
+      <option value="B">Trinh do B</option>
+      <option value="C">Trinh do C</option>
+    </select>
+
+    <label>Ma mon hoc</label>
+    <input id="maMH" maxlength="5" disabled>
+
+    <label>Giao vien</label>
+    <input id="searchGV" list="listGV" placeholder="Nhap ten hoac ma GV..." disabled>
+  </div>
+
+  <datalist id="listGV">
+    {% for gv in giaoviens %}
+    <option value="{{ gv.magv }} - {{ gv.hoten }}"></option>
+    {% endfor %}
+  </datalist>
+  <input type="hidden" id="maGV">
+  <input type="hidden" id="cauHoiId">
+
+  <div class="toolbar">
+    <button id="btnThem" onclick="them()" data-permission="create_question">Them</button>
+    <button id="btnSua" onclick="sua()" data-permission="update_question">Sua</button>
+    <button id="btnXoa" onclick="xoa()" data-permission="delete_question">Xoa</button>
+    <button id="btnGhi" onclick="ghi()" data-any-permission="create_question,update_question" style="display: none;">Ghi</button>
+    <button id="btnHuy" onclick="huy()" data-any-permission="create_question,update_question" style="display: none;">Huy</button>
+    <button id="btnUndo" onclick="undo()" data-any-permission="create_question,update_question,delete_question">Undo</button>
+  </div>
+
+  <div id="errorText" style="color: #dc2626; font-weight: 500; font-size: 14px; margin-top: 10px; text-align: center; min-height: 20px;"></div>
+
+  <div style="margin: 15px 0; display: flex; align-items: center; gap: 10px;">
+    <label style="font-weight: 600; color: #6b7280; font-size: 13px;">Tim nhanh:</label>
+    <input id="searchBoDe" placeholder="Nhap noi dung, ma mon hoac ma GV de loc..." style="flex: 1;">
+  </div>
+
+  <div style="overflow-x: auto;">
+    <table border="1">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Noi dung</th>
+          <th>Ma MH</th>
+          <th>Trinh do</th>
+          <th>Dap an dung</th>
+          <th>Ma GV</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</main>
+{% endblock %}
+
+{% block page_js %}
+<script>
+  window.initialBodes = JSON.parse(`{{ bodes | tojson }}`);
+  window.listGiaoViens = JSON.parse(`{{ giaoviens | tojson }}`);
+</script>
+<script src="/static/js/boDe.js?v=1"></script>
+{% endblock %}

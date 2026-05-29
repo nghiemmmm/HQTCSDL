@@ -1,150 +1,53 @@
-<!DOCTYPE html>
-<html lang="vi">
+{% extends "base_dashboard.html" %}
 
-<head>
-<meta charset="UTF-8">
-<title>Thông tin người dùng</title>
+{% block title %}Thong tin nguoi dung{% endblock %}
+{% block page_kicker %}Tai khoan hien tai{% endblock %}
+{% block page_title %}Thong tin nguoi dung{% endblock %}
+
+{% block content %}
+<section class="dashboard-card" style="max-width: 720px; padding: 24px;">
+    <div id="infoBox">
+        <div class="info-row">
+            <span>Ma</span>
+            <strong>{{ user.ma if user else 'N/A' }}</strong>
+        </div>
+        <div class="info-row">
+            <span>Role</span>
+            <strong>{{ user.role if user else 'N/A' }}</strong>
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 10px; margin-top: 22px;">
+        <a class="btn btn-outline" href="/home">Ve dashboard</a>
+        <button type="button" class="btn btn-danger" id="logoutButton">Dang xuat</button>
+    </div>
+</section>
 
 <style>
+    .info-row {
+        display: grid;
+        grid-template-columns: 160px minmax(0, 1fr);
+        gap: 16px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border);
+    }
 
-body {
-    background: #dfe9ea;
-    font-family: Arial;
-}
-
-.container {
-    width: 600px;
-    margin: 60px auto;
-    background: #d9e4e6;
-    border: 1px solid #cfcfcf;
-    padding: 30px 40px;
-}
-
-h2 {
-    color: #d35400;
-    margin-bottom: 40px;
-    text-align: center;
-}
-
-.info-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 25px;
-    padding: 15px;
-    background: #fff;
-    border-radius: 5px;
-    border-left: 4px solid #d35400;
-}
-
-.info-label {
-    width: 150px;
-    font-weight: bold;
-    color: #333;
-}
-
-.info-value {
-    flex: 1;
-    color: #555;
-    font-size: 16px;
-}
-
-.button-area {
-    margin-top: 40px;
-    text-align: center;
-}
-
-button {
-    background: #f3b37c;
-    border: 1px solid #cfa074;
-    padding: 10px 25px;
-    font-size: 15px;
-    margin-right: 20px;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-button:hover {
-    background: #f0a968;
-}
-
-.error-message {
-    color: #d32f2f;
-    text-align: center;
-    padding: 20px;
-    font-size: 16px;
-}
-
+    .info-row span {
+        color: var(--muted);
+        font-weight: 600;
+    }
 </style>
+{% endblock %}
 
-</head>
-
-<body>
-
-<div class="container">
-
-<h2>THÔNG TIN NGƯỜI DÙNG</h2>
-
-<div id="userInfo">
-    <!-- Dữ liệu sẽ được hiển thị ở đây -->
-</div>
-
-<div class="button-area">
-    <button onclick="logout()">Đăng xuất</button>
-    <button onclick="goBack()">Quay lại</button>
-</div>
-
-</div>
-
+{% block page_js %}
 <script>
-
-// Lấy dữ liệu từ localStorage
-const userJson = localStorage.getItem('user');
-
-if (!userJson) {
-    document.getElementById('userInfo').innerHTML = 
-        '<div class="error-message">Không tìm thấy thông tin người dùng. Vui lòng <a href="/user/login">đăng nhập lại</a></div>';
-} else {
-    const userData = JSON.parse(userJson);
-    
-    // Hiển thị thông tin người dùng (UserBase schema: ma, ho, ten, role)
-    const userInfo = `
-        <div class="info-row">
-            <div class="info-label">Mã:</div>
-            <div class="info-value">${userData.ma || 'N/A'}</div>
-        </div>
-        <div class="info-row">
-            <div class="info-label">Họ:</div>
-            <div class="info-value">${userData.ho || 'N/A'}</div>
-        </div>
-        <div class="info-row">
-            <div class="info-label">Tên:</div>
-            <div class="info-value">${userData.ten || 'N/A'}</div>
-        </div>
-        <div class="info-row">
-            <div class="info-label">Role:</div>
-            <div class="info-value">${userData.role || 'N/A'}</div>
-        </div>
-    `;
-    
-    document.getElementById('userInfo').innerHTML = userInfo;
-}
-
-function logout() {
-    // Gọi API logout để xóa session trên server và cookie
-    fetch('/user/logout', { method: 'GET', credentials: 'same-origin' })
-        .catch(() => {})
-        .finally(() => {
+    document.getElementById('logoutButton')?.addEventListener('click', async () => {
+        try {
+            await fetch('/user/logout');
+        } finally {
             localStorage.removeItem('user');
-            // Quay về trang login
             window.location.href = '/user/login';
-        });
-}
-
-function goBack() {
-    window.history.back();
-}
-
+        }
+    });
 </script>
-
-</body>
-</html>
+{% endblock %}

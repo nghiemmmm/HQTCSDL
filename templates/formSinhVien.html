@@ -1,144 +1,135 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý sinh viên</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/sinhVien.css">
-</head>
-<body>
-    <main class="page-wrap">
-        <header class="hero">
-            <p class="hero-kicker">Hệ thống quản lý học vụ</p>
-            <h1>Quản lý sinh viên</h1>
-            <p>Theo dõi lớp học và cập nhật thông tin sinh viên nhanh chóng, trực quan.</p>
-        </header>
+{% extends "base_dashboard.html" %}
 
-        <!-- Menu thao tác lớp -->
-        <section class="card" aria-label="Thao tác với lớp">
+{% block title %}Sinh vien{% endblock %}
+{% block page_kicker %}Quan ly lop va sinh vien{% endblock %}
+{% block page_title %}Sinh vien{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="/static/css/sinhVien.css">
+{% endblock %}
+
+{% block content %}
+<main class="page-wrap">
+    <section class="card" aria-label="Thao tac voi lop">
+        <div class="card-head">
+            <h3>Thao tac voi lop</h3>
+            <span class="chip">Dieu khien</span>
+        </div>
+        <p id="selectedClassInfo" class="selection-note">Chua chon lop</p>
+        <div id="toolbar">
+            <button id="btnClassAdd" type="button" data-permission="create_class">Them</button>
+            <button id="btnClassDelete" type="button" data-permission="delete_class">Xoa</button>
+            <button id="btnClassEdit" type="button" data-permission="update_class">Hieu chinh</button>
+            <button id="btnClassRestore" type="button" data-any-permission="create_class,update_class,delete_class">Phuc hoi</button>
+            <button id="btnClassSearch" type="button">Tim</button>
+            <button id="btnClassSave" type="button" data-any-permission="create_class,update_class">Ghi</button>
+        </div>
+    </section>
+
+    <section class="grid-layout">
+        <div class="card data-card">
             <div class="card-head">
-                <h3>Thao tác với lớp</h3>
-                <span class="chip">Điều khiển</span>
+                <h3>Danh sach lop</h3>
+                <span class="chip">Lop hoc</span>
             </div>
-            <p id="selectedClassInfo" class="selection-note">Chưa chọn lớp</p>
-            <div id="toolbar">
-                <button id="btnClassAdd" type="button">Thêm</button>
-                <button id="btnClassDelete" type="button">Xóa</button>
-                <button id="btnClassEdit" type="button">Hiệu chỉnh</button>
-                <button id="btnClassRestore" type="button">Phục hồi</button>
-                <button id="btnClassSearch" type="button">Tìm</button>
-                <button id="btnClassSave" type="button">Ghi</button>
+            <div class="table-wrap">
+                <table id="gridLop">
+                    <thead>
+                        <tr>
+                            <th>Ma lop</th>
+                            <th>Ten lop</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
-        </section>
+        </div>
 
-        <section class="grid-layout">
-            <div class="card data-card">
-                <div class="card-head">
-                    <h3>Danh sách lớp</h3>
-                    <span class="chip">Lớp học</span>
-                </div>
-                <div class="table-wrap">
-                    <table id="gridLop">
-                        <thead>
-                            <tr>
-                                <th>Mã lớp</th>
-                                <th>Tên lớp</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+        <div class="card data-card">
+            <div class="card-head">
+                <h3>Danh sach sinh vien</h3>
+                <span class="chip">Sinh vien</span>
             </div>
-
-            <div class="card data-card">
-                <div class="card-head">
-                    <h3>Danh sách sinh viên</h3>
-                    <span class="chip">Sinh viên</span>
-                </div>
-                <div class="table-wrap">
-                    <table id="gridSV">
-                        <thead>
-                            <tr>
-                                <th>Mã SV</th>
-                                <th>Họ tên</th>
-                                <th>Ngày sinh</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+            <div class="table-wrap">
+                <table id="gridSV">
+                    <thead>
+                        <tr>
+                            <th>Ma SV</th>
+                            <th>Ho ten</th>
+                            <th>Ngay sinh</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Form nhập liệu lớp -->
-        <section class="card form-card" id="formLop" style="display: none;">
-            <h3>Nhập thông tin lớp</h3>
-            <label for="txtMaLop">Mã lớp</label>
-            <input type="text" id="txtMaLop" placeholder="Ví dụ: DA22TT01">
+    <section class="card form-card" id="formLop" style="display: none;">
+        <h3>Nhap thong tin lop</h3>
+        <label for="txtMaLop">Ma lop</label>
+        <input type="text" id="txtMaLop" placeholder="VD: DA22TT01">
 
-            <label for="txtTenLop">Tên lớp</label>
-            <input type="text" id="txtTenLop" placeholder="Ví dụ: Lớp A - Đại học">
+        <label for="txtTenLop">Ten lop</label>
+        <input type="text" id="txtTenLop" placeholder="VD: Lop A">
 
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button id="btnLopSave" type="button">Lưu lớp</button>
-                <button id="btnLopCancel" type="button">Hủy</button>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button id="btnLopSave" type="button" data-any-permission="create_class,update_class">Luu lop</button>
+            <button id="btnLopCancel" type="button">Huy</button>
+        </div>
+
+        <div class="class-detail" aria-live="polite" style="margin-top: 20px;">
+            <div class="class-detail-head">
+                <h4>Thong tin lop dang chon</h4>
+                <span class="chip">Chi tiet</span>
             </div>
-
-            <div class="class-detail" aria-live="polite" style="margin-top: 20px;">
-                <div class="class-detail-head">
-                    <h4>Thông tin lớp đang chọn</h4>
-                    <span class="chip">Chi tiết</span>
-                </div>
-                <div class="class-detail-body">
-                    <p><span>Mã lớp:</span> <strong id="viewClassMa">Chưa chọn</strong></p>
-                    <p><span>Tên lớp:</span> <strong id="viewClassTen">Chưa chọn</strong></p>
-                </div>
+            <div class="class-detail-body">
+                <p><span>Ma lop:</span> <strong id="viewClassMa">Chua chon</strong></p>
+                <p><span>Ten lop:</span> <strong id="viewClassTen">Chua chon</strong></p>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Form nhập liệu sinh viên -->
-        <section class="card form-card" id="formSinhVien" style="display: none;">
-            <h3>Nhập thông tin sinh viên</h3>
-            <label for="txtMaSV">Mã SV</label>
-            <input type="text" id="txtMaSV" placeholder="Ví dụ: B22DCCN001">
+    <section class="card form-card" id="formSinhVien" style="display: none;">
+        <h3>Nhap thong tin sinh vien</h3>
+        <label for="txtMaSV">Ma SV</label>
+        <input type="text" id="txtMaSV" placeholder="VD: B22DCCN001">
 
-            <label for="txtHoTen">Họ tên</label>
-            <input type="text" id="txtHoTen" placeholder="Ví dụ: Nguyễn Văn A">
+        <label for="txtHoTen">Ho ten</label>
+        <input type="text" id="txtHoTen" placeholder="VD: Nguyen Van A">
 
-            <label for="txtNgaySinh">Ngày sinh</label>
-            <input type="date" id="txtNgaySinh">
+        <label for="txtNgaySinh">Ngay sinh</label>
+        <input type="date" id="txtNgaySinh">
 
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button id="btnDetailSaveForm" type="button">Lưu sinh viên</button>
-                <button id="btnDetailCancel" type="button">Hủy</button>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button id="btnDetailSaveForm" type="button">Luu sinh vien</button>
+            <button id="btnDetailCancel" type="button">Huy</button>
+        </div>
+
+        <div class="student-detail" aria-live="polite" style="margin-top: 20px;">
+            <div class="student-detail-head">
+                <h4>Thong tin sinh vien dang chon</h4>
+                <span class="chip">Chi tiet</span>
             </div>
-
-            <div class="student-detail" aria-live="polite" style="margin-top: 20px;">
-                <div class="student-detail-head">
-                    <h4>Thông tin sinh viên đang chọn</h4>
-                    <span class="chip">Chi tiết</span>
-                </div>
-                <div class="student-detail-body">
-                    <p><span>Mã SV:</span> <strong id="viewMaSV">Chưa chọn</strong></p>
-                    <p><span>Họ tên:</span> <strong id="viewHoTen">Chưa chọn</strong></p>
-                    <p><span>Ngày sinh:</span> <strong id="viewNgaySinh">Chưa chọn</strong></p>
-                    <p><span>Lớp:</span> <strong id="viewMaLop">Chưa chọn</strong></p>
-                </div>
-                <div class="student-detail-actions" aria-label="Thao tác sinh viên">
-                    <button id="btnDetailAdd" type="button">Thêm</button>
-                    <button id="btnDetailDelete" type="button">Xóa</button>
-                    <button id="btnDetailEdit" type="button">Hiệu chỉnh</button>
-                    <button id="btnDetailRestore" type="button">Phục hồi</button>
-                    <button id="btnDetailSearch" type="button">Tìm</button>
-                    <button id="btnDetailSave" type="button">Ghi</button>
-                </div>
+            <div class="student-detail-body">
+                <p><span>Ma SV:</span> <strong id="viewMaSV">Chua chon</strong></p>
+                <p><span>Ho ten:</span> <strong id="viewHoTen">Chua chon</strong></p>
+                <p><span>Ngay sinh:</span> <strong id="viewNgaySinh">Chua chon</strong></p>
+                <p><span>Lop:</span> <strong id="viewMaLop">Chua chon</strong></p>
             </div>
-        </section>
-    </main>
+            <div class="student-detail-actions" aria-label="Thao tac sinh vien">
+                <button id="btnDetailAdd" type="button" data-permission="create_student">Them</button>
+                <button id="btnDetailDelete" type="button" data-permission="delete_student">Xoa</button>
+                <button id="btnDetailEdit" type="button" data-permission="update_student">Hieu chinh</button>
+                <button id="btnDetailRestore" type="button" data-any-permission="create_student,update_student,delete_student">Phuc hoi</button>
+                <button id="btnDetailSearch" type="button">Tim</button>
+                <button id="btnDetailSave" type="button" data-any-permission="create_student,update_student">Ghi</button>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}
 
-    <script src="/static/js/sinhVien.js?v=20260411-2"></script>
-</body>
-</html>
+{% block page_js %}
+<script src="/static/js/sinhVien.js?v=20260411-2"></script>
+{% endblock %}

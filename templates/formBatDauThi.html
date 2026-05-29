@@ -1,116 +1,84 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <title>Start Exam</title>
-  <link rel="stylesheet" href="/static/css/batDauThi.css">
-</head>
-<body>
+{% extends "base_dashboard.html" %}
 
-<!-- HEADER -->
-<header class="header">
-  <div class="logo">
-    🎓 ExamCore
-  </div>
+{% block title %}Thi{% endblock %}
+{% block page_kicker %}Lam bai thi{% endblock %}
+{% block page_title %}Bat dau thi{% endblock %}
 
-  <nav class="nav desktop">
-    <a class="active">Kỳ thi</a>
-    <a>Kết quả</a>
-    <a>Lịch thi</a>
-  </nav>
+{% block page_css %}
+<link rel="stylesheet" href="/static/css/batDauThi.css">
+{% endblock %}
 
-  <div class="right">
-    <span>Support</span>
-    <div class="avatar">ST</div>
-    <button id="menuBtn">☰</button>
-  </div>
-</header>
-
-<!-- MOBILE NAV -->
-<nav id="mobileNav" class="mobile hidden">
-  <a>Kỳ thi</a>
-  <a>Kết quả</a>
-  <a>Lịch thi</a>
-</nav>
-
-<main class="main">
-
-  <!-- HERO -->
+{% block content %}
+<main class="exam-start">
   <section class="hero">
     <div>
-      <p id="studentInfo">Thông tin sinh viên</p>
-      <h2 id="className">Đang tải tên lớp...</h2>
-      <p id="classCode">Mã lớp: Đang tải...</p>
+      <p id="studentInfo">Thong tin sinh vien</p>
+      <h2 id="className">Dang tai ten lop...</h2>
+      <p id="classCode">Ma lop: Dang tai...</p>
     </div>
     <div>
-      <p>Ngày hôm nay</p>
-      <p>24/05/2024</p>
+      <p>Ngay hom nay</p>
+      <p id="todayText"></p>
     </div>
   </section>
 
   <div class="grid">
-
-    <!-- FORM -->
     <div class="card">
-      <h3>Cấu hình bài thi</h3>
+      <h3>Cau hinh bai thi</h3>
 
       <form>
-        <label>Môn học</label>
-        <select id="monhocSelect">
-          <option value="">Chọn môn</option>
+        <label>Mon hoc</label>
+        <select id="monhocSelect" required>
+          <option value="" disabled selected hidden>Chon mon hoc</option>
         </select>
 
         <div class="row">
           <div>
-            <label>Ngày thi</label>
+            <label>Ngay thi</label>
             <input type="date" id="ngaythiInput">
           </div>
           <div>
-            <label>Lần thi</label>
-            <select id="lanthiSelect">
-              <option value="">Chọn lần thi</option>
-              <option value="1">Lần 1</option>
-              <option value="2">Lần 2</option>
+            <label>Lan thi</label>
+            <select id="lanthiSelect" required>
+              <option value="" disabled selected hidden>Chon lan thi</option>
+              <option value="1">Lan 1</option>
+              <option value="2">Lan 2</option>
             </select>
           </div>
         </div>
 
-        <div class="note">
-          ⚠ Kiểm tra kỹ trước khi bắt đầu thi
-        </div>
+        <div class="note">Kiem tra ky thong tin truoc khi bat dau thi</div>
       </form>
     </div>
 
-    <!-- DETAILS -->
     <aside class="card">
-      <h3>Chi tiết bài thi</h3>
+      <h3>Chi tiet bai thi</h3>
 
       <div class="item">
-        <span>Số câu</span>
+        <span>So cau</span>
         <b id="socauDisplay">...</b>
       </div>
 
       <div class="item">
-        <span>Thời gian</span>
+        <span>Thoi gian</span>
         <b id="thoigianDisplay">...</b>
       </div>
 
       <div class="item">
-        <span>Trình độ</span>
+        <span>Trinh do</span>
         <b id="trinhdoDisplay">...</b>
       </div>
 
-      <button class="startBtn">▶ Bắt đầu thi</button>
+      <button class="startBtn">Bat dau thi</button>
     </aside>
-
   </div>
-
 </main>
+{% endblock %}
 
-<footer class="footer">
-  © 2024 ExamCore
-</footer>
-
-<script src="/static/js/batDauThi.js?v=5"></script>
-</body>
-</html>
+{% block page_js %}
+<script src="/static/js/batDauThi.js?v=8"></script>
+<script>
+  const todayText = document.getElementById('todayText');
+  if (todayText) todayText.textContent = new Date().toLocaleDateString('vi-VN');
+</script>
+{% endblock %}

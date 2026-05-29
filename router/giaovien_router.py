@@ -49,6 +49,7 @@ def form_giaovien(
         "formGiaoVien.html",
         {
             "request": request,
+            "user": user,
             "giao_viens": giao_viens_json
         }
     )

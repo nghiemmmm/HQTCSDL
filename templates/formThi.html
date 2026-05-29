@@ -1,57 +1,50 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <title>Exam UI</title>
-  <link rel="stylesheet" href="/static/css/thi.css">
-</head>
-<body>
+{% extends "base_dashboard.html" %}
 
-<header class="header">
-  <div class="header-left">
-    <h1>Certification Exam</h1>
+{% block title %}Bai thi{% endblock %}
+{% block page_kicker %}Phong thi truc tuyen{% endblock %}
+{% block page_title %}Bai thi{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="/static/css/thi.css">
+{% endblock %}
+
+{% block content %}
+<section class="exam-room">
+  <header class="exam-header">
     <div>
+      <h2>Certification Exam</h2>
       <p id="studentName">Student: Nguyen Van An</p>
-      <p id="className">Class: Đang tải...</p>
+      <p id="className">Class: Dang tai...</p>
     </div>
-  </div>
-
-  <div class="header-right">
     <div id="timer" class="timer">00:00</div>
+  </header>
+
+  <div class="exam-layout">
+    <aside class="exam-navigator">
+      <h3>Navigator</h3>
+      <p id="progress"></p>
+      <div id="navGrid" class="grid"></div>
+      <p>Flagged: <span id="flagCount">0</span></p>
+    </aside>
+
+    <main class="exam-question">
+      <h2 id="questionTitle"></h2>
+      <p id="questionText"></p>
+      <div id="options"></div>
+      <button type="button" onclick="toggleFlag()">Flag</button>
+    </main>
   </div>
-</header>
 
-<div class="container">
+  <footer class="exam-actions">
+    <button id="prevBtn" type="button" onclick="prevQuestion()">Previous</button>
+    <div>
+      <button id="nextBtn" type="button" onclick="nextQuestion()">Next</button>
+      <button type="button" onclick="submitExam()">Submit</button>
+    </div>
+  </footer>
+</section>
+{% endblock %}
 
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <h3>Navigator</h3>
-    <p id="progress"></p>
-    <div id="navGrid" class="grid"></div>
-    <p>Flagged: <span id="flagCount">0</span></p>
-  </aside>
-
-  <!-- Main -->
-  <main class="main">
-    <h2 id="questionTitle"></h2>
-    <p id="questionText"></p>
-    <div id="options"></div>
-
-    <button onclick="toggleFlag()">🚩 Flag</button>
-  </main>
-
-</div>
-
-<!-- Footer -->
-<footer class="footer">
-  <button id="prevBtn" onclick="prevQuestion()">← Previous</button>
-
-  <div>
-    <button id="nextBtn" onclick="nextQuestion()">Next →</button>
-    <button onclick="submitExam()">Submit</button>
-  </div>
-</footer>
-
-<script src="/static/js/thi.js"></script>
-</body>
-</html>
+{% block page_js %}
+<script src="/static/js/thi.js?v=3"></script>
+{% endblock %}

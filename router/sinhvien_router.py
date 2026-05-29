@@ -22,7 +22,7 @@ def hienThiMonHoc(
     request: Request,
     user=Depends(require_permission(Permission.VIEW_STUDENT)),
 ):
-    return templates.TemplateResponse("formSinhVien.html", {"request": request})
+    return templates.TemplateResponse("formSinhVien.html", {"request": request, "user": user})
 
 
 @router.get("/lop/{malop}", response_model=List[SinhVienWithLopDisplay])

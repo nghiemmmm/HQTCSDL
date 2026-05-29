@@ -31,7 +31,7 @@ def form_monhoc(
 ):
     return templates.TemplateResponse(
         "formMonHoc.html",
-        {"request": request}
+        {"request": request, "user": user}
     )
 
 

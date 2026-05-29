@@ -13,14 +13,6 @@
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-  font-family: "Be Vietnam Pro", sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  padding: 16px;
-}
-
 /* CONTAINER */
 .wrap {
   max-width: 850px;

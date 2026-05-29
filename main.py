@@ -1,5 +1,5 @@
 # import tensorflow as tf
-from fastapi import FastAPI, Request, Response# pip install "fastapi[standard]"
+from fastapi import Depends, FastAPI, Request, Response# pip install "fastapi[standard]"
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import uvicorn
@@ -15,6 +15,7 @@ from db.database import engine
 from db import model
 from router import user_router, giaovien_router, monHoc_router, lophoc_router,sinhvien_router, bode_router, dangKyThi_router, thi_router    
 from logs.logging_config import logger
+from core.auth import get_current_user
 
 app = FastAPI(
     docs_url="/myapi",  # Đặt đường dẫn Swagger UI thành "/myapi"
@@ -141,8 +142,8 @@ async def read_root(request: Request):
 
 
 @app.get("/home", response_class=HTMLResponse)
-async def home(request: Request):
-    return templates.TemplateResponse("home.html", {"request": request})
+async def home(request: Request, user=Depends(get_current_user)):
+    return templates.TemplateResponse("home.html", {"request": request, "user": user})
 
 # Tạo icon cho trang web api, nó sẽ hiển thị hình ảnh favicon ở thư mục `static/favicon.ico`
 @app.get('/favicon.ico')

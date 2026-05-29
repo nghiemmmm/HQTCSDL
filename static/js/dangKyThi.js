@@ -14,6 +14,10 @@ function showError(fieldId, message) {
   }
 }
 
+function placeholderOption(label) {
+  return `<option value="" disabled selected hidden>${label}</option>`;
+}
+
 // Load danh sách lớp khi trang vừa tải xong
 document.addEventListener("DOMContentLoaded", async function() {
   try {
@@ -24,7 +28,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     const classSelect = document.getElementById("class");
     
     // Giữ lại option mặc định đầu tiên
-    classSelect.innerHTML = '<option value="">Chọn lớp</option>';
+    classSelect.innerHTML = placeholderOption("Chon lop");
     
     classes.forEach(lop => {
       const option = document.createElement("option");
@@ -34,13 +38,13 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
 
     // Tải danh sách môn học theo magv (Giả sử mặc định là GV01, anh/chị tự thay thế bằng magv đang đăng nhập)
-    const magv = "TH101"; 
+    const magv = window.currentUser?.ma || "";
     const resMonHoc = await fetch(`/dangkythi/monhocdk?magv=${magv}`);
     if (!resMonHoc.ok) throw new Error("Lỗi khi tải danh sách môn học");
 
     const subjects = await resMonHoc.json();
     const subjectSelect = document.getElementById("subject");
-    subjectSelect.innerHTML = '<option value="">Chọn môn</option>';
+    subjectSelect.innerHTML = placeholderOption("Chon mon");
     subjects.forEach(mh => {
       const option = document.createElement("option");
       option.value = mh.mamh;
@@ -54,7 +58,7 @@ document.addEventListener("DOMContentLoaded", async function() {
   }
 });
 
-document.getElementById("examForm").addEventListener("submit", function(e) {
+document.getElementById("examForm").addEventListener("submit", async function(e) {
   e.preventDefault();
   clearErrors();
 
@@ -106,9 +110,25 @@ document.getElementById("examForm").addEventListener("submit", function(e) {
     ngaythi: date, // Pydantic sẽ tự động parse string 'YYYY-MM-DD' sang datetime
     thoigian: parseInt(duration, 10),
     socauthi: parseInt(questionCount, 10),
-    magv: "TH101" // Tạm thời hardcode magv giống ở trên
+    magv: window.currentUser?.ma || ""
   };
 
   console.log("Submit:", data);
-  alert("Đã ghi thành công!");
+  try {
+    const response = await fetch("/dangkythi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.detail || "Khong the tao lich thi");
+    }
+
+    window.notify?.("Da ghi lich thi thanh cong", "success");
+    e.target.reset();
+  } catch (error) {
+    window.notify?.(error.message, "error");
+  }
 });

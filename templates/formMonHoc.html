@@ -1,7 +1,14 @@
-<!-- templates/partials/monhoc.html -->
+{% extends "base_dashboard.html" %}
 
+{% block title %}Mon hoc{% endblock %}
+{% block page_kicker %}Quan ly dao tao{% endblock %}
+{% block page_title %}Mon hoc{% endblock %}
+
+{% block page_css %}
 <link rel="stylesheet" href="/static/css/monHoc.css?v=3">
+{% endblock %}
 
+{% block content %}
 <main class="wrap">
 
   <h2>QUẢN LÝ MÔN HỌC</h2>
@@ -20,27 +27,27 @@
   <!-- BUTTON -->
   <div class="toolbar">
 
-    <button id="btnThem" onclick="them()">
+    <button id="btnThem" onclick="them()" data-permission="create_subject">
       Thêm
     </button>
 
-    <button id="btnSua" onclick="sua()">
+    <button id="btnSua" onclick="sua()" data-permission="update_subject">
       Sửa
     </button>
 
-    <button id="btnXoa" onclick="xoa()">
+    <button id="btnXoa" onclick="xoa()" data-permission="delete_subject">
       Xóa
     </button>
 
-    <button id="btnGhi" onclick="ghi()" style="display:none;">
+    <button id="btnGhi" onclick="ghi()" data-any-permission="create_subject,update_subject" style="display:none;">
       Ghi
     </button>
 
-    <button id="btnHuy" onclick="huy()" style="display:none;">
+    <button id="btnHuy" onclick="huy()" data-any-permission="create_subject,update_subject" style="display:none;">
       Hủy
     </button>
 
-    <button id="btnUndo" onclick="undo()">
+    <button id="btnUndo" onclick="undo()" data-any-permission="create_subject,update_subject,delete_subject">
       Undo
     </button>
 
@@ -95,7 +102,8 @@
 
 </main>
 
+{% endblock %}
 
-
-<!-- JS -->
+{% block page_js %}
 <script src="/static/js/monHoc.js?v=3"></script>
+{% endblock %}

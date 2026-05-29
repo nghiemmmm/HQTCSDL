@@ -1,1 +1,39 @@
-/* Styles for formDangKyThi */
+.exam-form .form-grid {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    gap: 14px 16px;
+    align-items: start;
+}
+
+.exam-form label {
+    color: #475569;
+    font-size: 13px;
+    font-weight: 700;
+    padding-top: 10px;
+}
+
+.exam-form input,
+.exam-form select {
+    width: 100%;
+}
+
+.form-error {
+    display: block;
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+@media (max-width: 700px) {
+    .exam-form .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .exam-form label {
+        padding-top: 0;
+    }
+}

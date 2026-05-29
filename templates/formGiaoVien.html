@@ -1,67 +1,68 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <title>Quản lý giáo viên</title>
-  <link rel="stylesheet" href="/static/css/giaoVien.css">
-</head>
-<body>
-  <main class="wrap">
-    <h2>QUẢN LÝ GIÁO VIÊN</h2>
+{% extends "base_dashboard.html" %}
 
-    <!-- FORM -->
-    <div class="form-grid">
-      <label>Mã giáo viên</label>
-      <input id="maGV" maxlength="8" placeholder="VD: GV001" disabled>
+{% block title %}Giao vien{% endblock %}
+{% block page_kicker %}Quan ly nhan su{% endblock %}
+{% block page_title %}Giao vien{% endblock %}
 
-      <label>Họ</label>
-      <input id="hoGV" maxlength="40" placeholder="VD: Nguyễn Văn" disabled>
+{% block page_css %}
+<link rel="stylesheet" href="/static/css/giaoVien.css">
+{% endblock %}
 
-      <label>Tên</label>
-      <input id="tenGV" maxlength="10" placeholder="VD: A" disabled>
+{% block content %}
+<main class="wrap">
+  <h2>QUAN LY GIAO VIEN</h2>
 
-      <label>Địa chỉ</label>
-      <input id="diaChiGV" maxlength="50" placeholder="VD: Hà Nội" disabled>
+  <div class="form-grid">
+    <label>Ma giao vien</label>
+    <input id="maGV" maxlength="8" placeholder="VD: GV001" disabled>
 
-      <label>Số điện thoại</label>
-      <input id="sdtGV" maxlength="15" placeholder="VD: 0987654321" disabled>
-    </div>
+    <label>Ho</label>
+    <input id="hoGV" maxlength="40" placeholder="VD: Nguyen Van" disabled>
 
-    <!-- BUTTON -->
-    <div class="toolbar">
-      <button id="btnThem" onclick="them()">Thêm</button>
-      <button id="btnSua" onclick="sua()">Sửa</button>
-      <button id="btnXoa" onclick="xoa()">Xóa</button>
-      <button id="btnGhi" onclick="ghi()" style="display: none;">Ghi</button>
-      <button id="btnHuy" onclick="huy()" style="display: none;">Hủy</button>
-      <button id="btnUndo" onclick="undo()">Undo</button>
-    </div>
+    <label>Ten</label>
+    <input id="tenGV" maxlength="10" placeholder="VD: A" disabled>
 
-    <div id="errorText" style="color: #dc2626; font-weight: 500; font-size: 14px; margin-top: 10px; text-align: center; min-height: 20px;"></div>
+    <label>Dia chi</label>
+    <input id="diaChiGV" maxlength="50" placeholder="VD: Ha Noi" disabled>
 
-    <!-- SEARCH & TABLE -->
-    <div style="margin: 15px 0; display: flex; align-items: center; gap: 10px;">
-      <label style="font-weight: 600; color: #6b7280; font-size: 13px;">Tìm nhanh:</label>
-      <input id="searchGV" placeholder="Nhập tên hoặc mã để lọc..." style="flex: 1;">
-    </div>
-    
-    <table border="1">
-      <thead>
-        <tr>
-          <th>Mã GV</th>
-          <th>Họ</th>
-          <th>Tên</th>
-          <th>Địa chỉ</th>
-          <th>SĐT</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
-  </main>
+    <label>So dien thoai</label>
+    <input id="sdtGV" maxlength="15" placeholder="VD: 0987654321" disabled>
+  </div>
 
-  <script>
-    window.initialGiaoViens = JSON.parse(`{{ giao_viens | tojson }}`);
-  </script>
-  <script src="/static/js/giaoVien.js?v=2"></script>
-</body>
-</html>
+  <div class="toolbar">
+    <button id="btnThem" onclick="them()" data-permission="create_teacher">Them</button>
+    <button id="btnSua" onclick="sua()" data-permission="update_teacher">Sua</button>
+    <button id="btnXoa" onclick="xoa()" data-permission="delete_teacher">Xoa</button>
+    <button id="btnGhi" onclick="ghi()" data-any-permission="create_teacher,update_teacher" style="display: none;">Ghi</button>
+    <button id="btnHuy" onclick="huy()" data-any-permission="create_teacher,update_teacher" style="display: none;">Huy</button>
+    <button id="btnUndo" onclick="undo()" data-any-permission="create_teacher,update_teacher,delete_teacher">Undo</button>
+  </div>
+
+  <div id="errorText" style="color: #dc2626; font-weight: 500; font-size: 14px; margin-top: 10px; text-align: center; min-height: 20px;"></div>
+
+  <div style="margin: 15px 0; display: flex; align-items: center; gap: 10px;">
+    <label style="font-weight: 600; color: #6b7280; font-size: 13px;">Tim nhanh:</label>
+    <input id="searchGV" placeholder="Nhap ten hoac ma de loc..." style="flex: 1;">
+  </div>
+
+  <table border="1">
+    <thead>
+      <tr>
+        <th>Ma GV</th>
+        <th>Ho</th>
+        <th>Ten</th>
+        <th>Dia chi</th>
+        <th>SDT</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</main>
+{% endblock %}
+
+{% block page_js %}
+<script>
+  window.initialGiaoViens = JSON.parse(`{{ giao_viens | tojson }}`);
+</script>
+<script src="/static/js/giaoVien.js?v=2"></script>
+{% endblock %}

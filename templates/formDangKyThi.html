@@ -1,102 +1,80 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <title>ExamCore Admin</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="/static/css/dangKyThi.css">
-</head>
+{% extends "base_dashboard.html" %}
 
-<body class="bg-gray-50">
+{% block title %}Dang ky thi{% endblock %}
+{% block page_kicker %}Lap lich thi{% endblock %}
+{% block page_title %}Dang ky thi{% endblock %}
 
-  <!-- MAIN -->
-  <main class="p-8 max-w-5xl mx-auto">
+{% block page_css %}
+<link rel="stylesheet" href="/static/css/dangKyThi.css">
+{% endblock %}
 
-    <h1 class="text-2xl font-bold mb-2">Đăng ký thi</h1>
-    <p class="text-gray-500 mb-6">Nhập thông tin để tạo lịch thi</p>
-
-    <!-- FORM -->
-    <form id="examForm" class="bg-white p-6 rounded-lg shadow space-y-6">
-
-      <div class="grid md:grid-cols-2 gap-4">
-
-        <!-- Class -->
-        <div>
-          <label class="text-sm font-semibold">Lớp</label>
-          <select id="class" class="w-full border p-2 rounded mt-1">
-            <option value="">Chọn lớp</option>
-            <option value="D15">D15 - CNTT</option>
-          </select>
-          <span id="classError" class="text-red-500 text-sm mt-1 hidden block"></span>
-        </div>
-
-        <!-- Subject -->
-        <div>
-          <label class="text-sm font-semibold">Môn</label>
-          <select id="subject" class="w-full border p-2 rounded mt-1">
-            <option value="">Chọn môn</option>
-            <option value="C++">C++</option>
-          </select>
-          <span id="subjectError" class="text-red-500 text-sm mt-1 hidden block"></span>
-        </div>
-
-        <!-- Level -->
-        <div>
-          <label class="text-sm font-semibold">Trình độ</label>
-          <select id="level" class="w-full border p-2 rounded mt-1">
-            <option value="">Chọn trình độ</option>
-            <option>A</option>
-            <option>B</option>
-            <option>C</option>
-          </select>
-          <span id="levelError" class="text-red-500 text-sm mt-1 hidden block"></span>
-        </div>
-
-        <!-- Attempt -->
-        <div>
-          <label class="text-sm font-semibold">Lần thi</label>
-          <select id="attempt" class="w-full border p-2 rounded mt-1">
-            <option value="">Chọn lần thi</option>
-            <option>1</option>
-            <option>2</option>
-          </select>
-          <span id="attemptError" class="text-red-500 text-sm mt-1 hidden block"></span>
-        </div>
-
-        <!-- Date -->
-        <div>
-          <label class="text-sm font-semibold">Ngày thi</label>
-          <input type="date" id="date" class="w-full border p-2 rounded mt-1">
-          <span id="dateError" class="text-red-500 text-sm mt-1 hidden block"></span>
-        </div>
-
-        <!-- Duration -->
-        <div>
-          <label class="text-sm font-semibold">Thời gian (phút)</label>
-          <input type="number" id="duration" placeholder="60" class="w-full border p-2 rounded mt-1">
-          <span id="durationError" class="text-red-500 text-sm mt-1 hidden block"></span>
-        </div>
-
-        <!-- Question count -->
-        <div>
-          <label class="text-sm font-semibold">Số câu</label>
-          <input type="number" id="questionCount" placeholder="40" class="w-full border p-2 rounded mt-1">
-          <span id="questionCountError" class="text-red-500 text-sm mt-1 hidden block"></span>
-        </div>
-
+{% block content %}
+<main class="wrap">
+  <form id="examForm" class="exam-form" novalidate>
+    <div class="form-grid">
+      <label>Lop</label>
+      <div>
+        <select id="class" required>
+          <option value="" disabled selected hidden>Chon lop</option>
+        </select>
+        <span id="classError" class="form-error hidden"></span>
       </div>
 
-      <!-- BUTTON -->
-      <div class="flex gap-3 justify-end">
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">
-          Ghi
-        </button>
+      <label>Mon</label>
+      <div>
+        <select id="subject" required>
+          <option value="" disabled selected hidden>Chon mon</option>
+        </select>
+        <span id="subjectError" class="form-error hidden"></span>
       </div>
 
-    </form>
+      <label>Trinh do</label>
+      <div>
+        <select id="level" required>
+          <option value="" disabled selected hidden>Chon trinh do</option>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+        </select>
+        <span id="levelError" class="form-error hidden"></span>
+      </div>
 
-  </main>
+      <label>Lan thi</label>
+      <div>
+        <select id="attempt" required>
+          <option value="" disabled selected hidden>Chon lan thi</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+        </select>
+        <span id="attemptError" class="form-error hidden"></span>
+      </div>
 
-  <script src="/static/js/dangKyThi.js"></script>
-</body>
-</html>
+      <label>Ngay thi</label>
+      <div>
+        <input type="date" id="date">
+        <span id="dateError" class="form-error hidden"></span>
+      </div>
+
+      <label>Thoi gian phut</label>
+      <div>
+        <input type="number" id="duration" placeholder="60">
+        <span id="durationError" class="form-error hidden"></span>
+      </div>
+
+      <label>So cau</label>
+      <div>
+        <input type="number" id="questionCount" placeholder="40">
+        <span id="questionCountError" class="form-error hidden"></span>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <button type="submit" class="btn btn-primary" data-permission="create_exam_registration">Ghi</button>
+    </div>
+  </form>
+</main>
+{% endblock %}
+
+{% block page_js %}
+<script src="/static/js/dangKyThi.js"></script>
+{% endblock %}
