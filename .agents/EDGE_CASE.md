@@ -135,7 +135,6 @@
 * Hết thời gian nhưng sinh viên chưa bấm nộp bài.
 * Sinh viên không trả lời câu nào.
 * Sinh viên trả lời thiếu một số câu.
-* Có câu trả lời không thuộc A, B, C, D.
 * Timer trên client và server bị lệch.
 * Hai tab/máy cùng đăng nhập một sinh viên để thi cùng lúc.
 * Hệ thống tính điểm sai do làm tròn số.
@@ -224,3 +223,11 @@
 * Mất kết nối CSDL khi đang tạo tài khoản.
 * Hai PGV cùng tạo một login cùng lúc.
 * Xóa tài khoản nhưng chưa xóa user trong database.
+
+Trùng họ trùng tên ltrim(str(mang)) + một cột thông tin đi kèm
+Tạo nút ghi sp
+Phân quyền tài khoản thuộc phòng giáo vụ lấy giáo viên thuộc phòng giảng viên , PGC hoặc nhóm khoa , ko thuộc 2 quyền
+Nhập gv , 3.5 thấy người vừa nhập cấp tài khoản theo cấp độ , chỉ quan tất cả đều giảng viên -> quyền hạn phòng giáo vụ
+PGV cấp toàn quyền dbowner
+4.7 lưu ý lấy hết tất cả ko đủ lấy thêm trình độ thấp hơn
+Tạo tài khoản giáo viên thêm tạo tài khoản ko thêm table hệ thống sys login  ko tại bảng nhóm , truy vấn từ table hệ thống thêm table mà chi tiết bài thơ lưu lại chi tiết quá trình thi

@@ -1,0 +1,90 @@
+{% extends "base_dashboard.html" %}
+
+{% block title %}Lịch sử thi{% endblock %}
+{% block page_kicker %}Sinh vien{% endblock %}
+{% block page_title %}Lịch sử thi{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="/static/css/lichSuThi.css">
+{% endblock %}
+
+{% block content %}
+<section class="exam-history">
+  <div class="history-filters">
+    <div class="search-box">
+      <label for="historySearch">Tìm kiếm</label>
+      <input id="historySearch" type="search" placeholder="Tìm theo tên đề thi, môn học, trạng thái...">
+    </div>
+
+    <div>
+      <label for="subjectFilter">Môn học</label>
+      <select id="subjectFilter">
+        <option value="">Tất cả môn học</option>
+        {% for subject in subjects %}
+        <option value="{{ subject.code }}">{{ subject.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label for="statusFilter">Trạng thái</label>
+      <select id="statusFilter">
+        <option value="">Tất cả trạng thái</option>
+        <option value="chua-thi">Chưa thi</option>
+        <option value="dang-lam">Đang làm</option>
+        <option value="da-nop">Đã nộp</option>
+        <option value="het-han">Hết hạn</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="timeFilter">Thời gian</label>
+      <select id="timeFilter">
+        <option value="">Tất cả thời gian</option>
+        <option value="today">Hôm nay</option>
+        <option value="week">7 ngày tới/gần đây</option>
+        <option value="past">Đã qua</option>
+        <option value="future">Sắp tới</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="history-grid">
+    <section class="history-panel">
+      <div class="panel-head">
+        <div>
+          <h2>Đề thi chưa hoàn thành</h2>
+          <p>Các bài thi chưa nộp hoặc cần tiếp tục xử lý.</p>
+        </div>
+        <span class="count-badge" id="unfinishedCount">{{ unfinished_exams|length }}</span>
+      </div>
+
+      <div class="exam-list" data-empty-text="Không có đề thi chưa hoàn thành">
+        {% for exam in unfinished_exams %}
+        {% include "partials/examHistoryCard.html" %}
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="history-panel">
+      <div class="panel-head">
+        <div>
+          <h2>Lịch sử thi/nộp bài gần đây</h2>
+          <p>Các bài thi đã nộp và có điểm trong hệ thống.</p>
+        </div>
+        <span class="count-badge" id="recentCount">{{ recent_exams|length }}</span>
+      </div>
+
+      <div class="exam-list" data-empty-text="Chưa có lịch sử nộp bài">
+        {% for exam in recent_exams %}
+        {% include "partials/examHistoryCard.html" %}
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+</section>
+{% endblock %}
+
+{% block page_js %}
+<script src="/static/js/lichSuThi.js"></script>
+{% endblock %}

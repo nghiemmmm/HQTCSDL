@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, Float, DateTime, Date, SmallInteger
-from sqlalchemy import ForeignKey, CHAR, NCHAR, Unicode, CheckConstraint
+from sqlalchemy import ForeignKey, CHAR, NCHAR, Unicode, UnicodeText, CheckConstraint
 from sqlalchemy.orm import relationship
 from db.database import Base
 
@@ -92,6 +92,34 @@ class DbBangDiem(Base):
 
     sinhvien = relationship("DbSinhVien", back_populates="bangdiem")
     monhoc = relationship("DbMonHoc", back_populates="bangdiem")
+
+
+class DbPhienThi(Base):
+    __tablename__ = "PHIENTHI"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    masv = Column(NCHAR(8), ForeignKey("SINHVIEN.masv"), nullable=False)
+    malop = Column(NCHAR(15), ForeignKey("LOP.malop"), nullable=False)
+    mamh = Column(NCHAR(5), ForeignKey("MONHOC.mamh"), nullable=False)
+    trinhdo = Column(CHAR(1), nullable=False)
+    lan = Column(SmallInteger, nullable=False)
+    socauthi = Column(SmallInteger, nullable=False)
+    thoigian = Column(SmallInteger, nullable=False)
+    ngaythi = Column(Date, nullable=False)
+    batdau_luc = Column(DateTime, nullable=False)
+    thoigian_conlai = Column(Integer, nullable=False)
+    trangthai = Column(Unicode(20), nullable=False, default="DANG_LAM")
+    danhsach_cauhoi = Column(UnicodeText, nullable=False)
+    dapan_dachon = Column(UnicodeText, nullable=False, default="{}")
+    cauhoi_hientai = Column(Integer, nullable=False, default=0)
+    capnhat_luc = Column(DateTime)
+    nopbai_luc = Column(DateTime)
+    diem = Column(Float)
+
+    __table_args__ = (
+        CheckConstraint("lan BETWEEN 1 AND 2"),
+        CheckConstraint("trangthai IN ('DANG_LAM','DA_NOP','HET_GIO','HUY_BO')"),
+    )
 
 
 class DbGiaoVienDangKy(Base):

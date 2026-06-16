@@ -1,0 +1,178 @@
+{% extends "base_dashboard.html" %}
+
+{% block title %}Kết quả bài thi{% endblock %}
+{% block page_kicker %}Sinh viên{% endblock %}
+{% block page_title %}Kết quả bài thi{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="/static/css/xemLaiThi.css">
+{% endblock %}
+
+{% block content %}
+{% if not has_result %}
+<section class="result-empty dashboard-card">
+  <h2>Chưa có bài thi đã nộp</h2>
+  <p>Hệ thống chưa tìm thấy phiên thi đã nộp để xem lại kết quả.</p>
+  <a href="/thi/lich-su">Quay lại lịch sử thi</a>
+</section>
+{% else %}
+<section class="result-page">
+  <section class="submit-success dashboard-card">
+    <div>
+      <span class="success-kicker">Kết quả bài thi</span>
+      <h2>Bài làm của bạn đã được gửi thành công</h2>
+      <p>{{ overview.exam_title }}</p>
+    </div>
+    <span class="result-badge badge-{{ overview.pass_key }}">{{ overview.pass_status }}</span>
+  </section>
+
+  <section class="score-panel dashboard-card" aria-label="Điểm số">
+    <div class="score-circle">
+      <span>Điểm số</span>
+      <strong>{{ "%.2f"|format(overview.final_score or 0) }}/10</strong>
+    </div>
+    <div class="score-breakdown">
+      <div>
+        <span>Tỷ lệ đúng</span>
+        <strong>{{ quick_stats.correct_ratio }}</strong>
+      </div>
+      <div>
+        <span>Phần trăm chính xác</span>
+        <strong>{{ quick_stats.accuracy_rate }}%</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="quick-stats" aria-label="Thống kê nhanh">
+    <article class="stat-card">
+      <span>Tổng số câu</span>
+      <strong>{{ quick_stats.total_count }}</strong>
+    </article>
+    <article class="stat-card stat-correct">
+      <span>Số câu đúng</span>
+      <strong>{{ quick_stats.correct_count }}</strong>
+    </article>
+    <article class="stat-card stat-wrong">
+      <span>Số câu sai</span>
+      <strong>{{ quick_stats.wrong_count }}</strong>
+    </article>
+    <article class="stat-card stat-unanswered">
+      <span>Số câu chưa làm</span>
+      <strong>{{ quick_stats.unanswered_count }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Điểm số</span>
+      <strong>{{ "%.2f"|format(quick_stats.final_score or 0) }}</strong>
+    </article>
+  </section>
+
+  <section class="overview-card dashboard-card">
+    <div class="section-head">
+      <h2>Thông tin chi tiết bài thi</h2>
+      <span>{{ overview.submitted_at }}</span>
+    </div>
+    <dl class="overview-grid">
+      <div>
+        <dt>Tên đề thi</dt>
+        <dd>{{ overview.exam_title }}</dd>
+      </div>
+      <div>
+        <dt>Môn học</dt>
+        <dd>{{ overview.subject }}</dd>
+      </div>
+      <div>
+        <dt>Lớp học</dt>
+        <dd>{{ overview.class_name }}</dd>
+      </div>
+      <div>
+        <dt>Trình độ đề thi</dt>
+        <dd>{{ overview.level }}</dd>
+      </div>
+      <div>
+        <dt>Lần thi</dt>
+        <dd>{{ overview.attempt }}</dd>
+      </div>
+      <div>
+        <dt>Họ tên sinh viên</dt>
+        <dd>{{ overview.student_name }}</dd>
+      </div>
+      <div>
+        <dt>Mã sinh viên</dt>
+        <dd>{{ overview.student_code }}</dd>
+      </div>
+      <div>
+        <dt>Thời gian bắt đầu</dt>
+        <dd>{{ overview.started_at }}</dd>
+      </div>
+      <div>
+        <dt>Thời gian nộp bài</dt>
+        <dd>{{ overview.submitted_at }}</dd>
+      </div>
+      <div>
+        <dt>Thời gian làm bài thực tế</dt>
+        <dd>{{ overview.duration }}</dd>
+      </div>
+      <div>
+        <dt>Tổng số câu hỏi</dt>
+        <dd>{{ overview.total_count }}</dd>
+      </div>
+      <div>
+        <dt>Số câu đúng</dt>
+        <dd>{{ overview.correct_count }}</dd>
+      </div>
+      <div>
+        <dt>Số câu sai</dt>
+        <dd>{{ overview.wrong_count }}</dd>
+      </div>
+      <div>
+        <dt>Số câu chưa trả lời</dt>
+        <dd>{{ overview.unanswered_count }}</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="result-actions dashboard-card" aria-label="Hành động">
+    <a class="result-btn primary" href="#answerReview">Xem đáp án</a>
+    <a class="result-btn" href="#answerReview">Xem lại bài thi</a>
+    <a class="result-btn" href="/home">Quay về Dashboard</a>
+    <button class="result-btn" type="button" disabled>Tải kết quả PDF</button>
+  </section>
+
+  <section class="question-review" id="answerReview">
+    <div class="section-head">
+      <h2>Chi tiết đáp án</h2>
+      <span>{{ quick_stats.total_count }} câu</span>
+    </div>
+
+    {% for question in question_results %}
+    <article class="question-result-card dashboard-card">
+      <header class="question-head">
+        <div>
+          <span>Câu {{ question.number }}</span>
+          <h3>{{ question.text }}</h3>
+        </div>
+        <strong class="question-status status-{{ question.status_key }}">{{ question.status_label }}</strong>
+      </header>
+
+      <div class="answer-list">
+        {% for option in question.options %}
+        <div class="answer-option answer-{{ option.state }}">
+          <span class="answer-key">{{ option.key }}</span>
+          <p>{{ option.text }}</p>
+          {% if option.icon %}
+          <strong class="answer-icon">{{ option.icon }}</strong>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+
+      <footer class="question-foot">
+        <span>Đáp án đã chọn: <strong>{{ question.selected_answer }}</strong></span>
+        <span>Đáp án đúng: <strong>{{ question.correct_answer }}</strong></span>
+      </footer>
+    </article>
+    {% endfor %}
+  </section>
+</section>
+{% endif %}
+{% endblock %}

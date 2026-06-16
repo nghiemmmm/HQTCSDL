@@ -1,0 +1,51 @@
+<article
+  class="exam-history-card"
+  data-search="{{ exam.title }} {{ exam.subject_name }} {{ exam.status }}"
+  data-subject="{{ exam.subject_code }}"
+  data-status="{{ exam.status_key }}"
+  data-start="{{ exam.start_iso }}"
+>
+  <div class="exam-card-main">
+    <div>
+      <h3>{{ exam.title }}</h3>
+      <p>{{ exam.subject_name }}</p>
+    </div>
+    <span class="status-badge status-{{ exam.status_key }}">{{ exam.status }}</span>
+  </div>
+
+  <dl class="exam-card-meta">
+    {% if exam.started_text %}
+    <div>
+      <dt>Bắt đầu làm</dt>
+      <dd>{{ exam.started_text }}</dd>
+    </div>
+    {% endif %}
+    {% if exam.remaining_text %}
+    <div>
+      <dt>Thời gian còn lại</dt>
+      <dd>{{ exam.remaining_text }}</dd>
+    </div>
+    {% endif %}
+    <div>
+      <dt>Bắt đầu</dt>
+      <dd>{{ exam.start_at }}</dd>
+    </div>
+    <div>
+      <dt>Kết thúc</dt>
+      <dd>{{ exam.end_at }}</dd>
+    </div>
+    <div>
+      <dt>Thời lượng</dt>
+      <dd>{{ exam.duration }}</dd>
+    </div>
+    <div>
+      <dt>Điểm số</dt>
+      <dd>{% if exam.score is not none %}{{ exam.score }}{% else %}Chưa có{% endif %}</dd>
+    </div>
+  </dl>
+
+  <div class="exam-card-actions">
+    <a class="history-btn primary-action" href="{{ exam.action_url }}">{{ exam.action_label }}</a>
+    <a class="history-btn" href="{{ exam.detail_url }}">Xem chi tiết</a>
+  </div>
+</article>

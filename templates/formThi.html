@@ -5,46 +5,77 @@
 {% block page_title %}Bai thi{% endblock %}
 
 {% block page_css %}
-<link rel="stylesheet" href="/static/css/thi.css">
+<link rel="stylesheet" href="/static/css/thi.css?v=4">
 {% endblock %}
 
 {% block content %}
-<section class="exam-room">
+<section class="exam-room" style="--question-font-size: 16px;">
   <header class="exam-header">
-    <div>
-      <h2>Certification Exam</h2>
-      <p id="studentName">Student: Nguyen Van An</p>
-      <p id="className">Class: Dang tai...</p>
+    <div class="exam-header-left">
+      <button id="backBtn" class="exam-btn exam-btn-ghost" type="button">Quay lại</button>
     </div>
-    <div id="timer" class="timer">00:00</div>
+
+    <div class="exam-student">
+      <span>Thí sinh</span>
+      <strong id="studentName">Dang tai...</strong>
+      <small id="className">Dang tai lop...</small>
+    </div>
+
+    <div class="exam-header-actions">
+      <div id="timer" class="timer">00:00</div>
+      <button id="decreaseFontBtn" class="exam-btn exam-btn-icon" type="button" aria-label="Giam co chu">A-</button>
+      <button id="increaseFontBtn" class="exam-btn exam-btn-icon" type="button" aria-label="Tang co chu">A+</button>
+      <button id="viewModeBtn" class="exam-btn exam-btn-ghost" type="button">Danh sách câu hỏi</button>
+      <button id="submitBtn" class="exam-btn exam-btn-primary" type="button">Nộp bài</button>
+    </div>
   </header>
 
-  <div class="exam-layout">
-    <aside class="exam-navigator">
-      <h3>Navigator</h3>
-      <p id="progress"></p>
-      <div id="navGrid" class="grid"></div>
-      <p>Flagged: <span id="flagCount">0</span></p>
-    </aside>
-
-    <main class="exam-question">
-      <h2 id="questionTitle"></h2>
-      <p id="questionText"></p>
-      <div id="options"></div>
-      <button type="button" onclick="toggleFlag()">Flag</button>
-    </main>
+  <div class="exam-meta">
+    <div>
+      <span>Mon thi</span>
+      <strong id="examTitle">Dang tai bai thi...</strong>
+    </div>
+    <div>
+      <span>Tien do</span>
+      <strong id="progress">0/0</strong>
+    </div>
   </div>
 
-  <footer class="exam-actions">
-    <button id="prevBtn" type="button" onclick="prevQuestion()">Previous</button>
-    <div>
-      <button id="nextBtn" type="button" onclick="nextQuestion()">Next</button>
-      <button type="button" onclick="submitExam()">Submit</button>
-    </div>
-  </footer>
+  <div class="exam-layout">
+    <main class="exam-question-area" aria-live="polite">
+      <div id="questionHost" class="question-host"></div>
+    </main>
+
+    <aside class="exam-navigator" aria-label="Danh sach cau hoi">
+      <div class="navigator-head">
+        <h3>Danh sách câu hỏi</h3>
+        <span><span id="answeredCount">0</span>/<span id="totalCount">0</span></span>
+      </div>
+      <div id="navGrid" class="nav-grid"></div>
+    </aside>
+  </div>
+
+  <div id="submitModal" class="modal-overlay" hidden>
+    <section class="submit-modal" role="dialog" aria-modal="true" aria-labelledby="submitModalTitle">
+      <header>
+        <h2 id="submitModalTitle">Bạn có chắc chắn muốn nộp bài?</h2>
+      </header>
+
+      <div class="submit-modal-body">
+        <p id="modalTimeText">Thời gian làm bài của bạn còn: 00:00:00</p>
+        <p id="modalWarning" class="modal-warning" hidden></p>
+        <p>Khi xác nhận nhấn nộp bài, bạn sẽ không thể sửa lại bài thi của mình. Hãy chắc chắn bạn đã xem lại tất cả các đáp án. Chúc bạn may mắn!</p>
+      </div>
+
+      <footer>
+        <button id="cancelSubmitBtn" class="exam-btn exam-btn-ghost" type="button">Hủy</button>
+        <button id="confirmSubmitBtn" class="exam-btn exam-btn-primary" type="button">Nộp bài</button>
+      </footer>
+    </section>
+  </div>
 </section>
 {% endblock %}
 
 {% block page_js %}
-<script src="/static/js/thi.js?v=3"></script>
+<script src="/static/js/thi.js?v=4"></script>
 {% endblock %}

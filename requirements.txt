@@ -5,3 +5,4 @@ sqlalchemy
 pyodbc
 driver ODBC
 fastapi-cache2
+pytest
