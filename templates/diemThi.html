@@ -1,0 +1,58 @@
+{% extends "base_dashboard.html" %}
+
+{% block title %}Diem thi{% endblock %}
+{% block page_kicker %}Ket qua ca nhan{% endblock %}
+{% block page_title %}Diem thi{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="/static/css/report.css?v=1">
+{% endblock %}
+
+{% block content %}
+<section class="report-shell">
+  <div class="report-panel">
+    <div>
+      <p class="report-label">Sinh vien</p>
+      <h2>{{ (student.ho or '') }} {{ (student.ten or '') }}</h2>
+    </div>
+    <dl class="report-meta">
+      <div><dt>Ma SV</dt><dd>{{ student.masv }}</dd></div>
+      <div><dt>Lop</dt><dd>{{ student.malop or 'Chua phan lop' }}</dd></div>
+      <div><dt>So mon da thi</dt><dd>{{ scores|length }}</dd></div>
+    </dl>
+  </div>
+
+  <div class="report-table-card">
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>STT</th>
+          <th>Ma MH</th>
+          <th>Mon hoc</th>
+          <th>Lan</th>
+          <th>Ngay thi</th>
+          <th>Diem</th>
+          <th>Diem chu</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in scores %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ item.mamh }}</td>
+          <td>{{ item.tenmh }}</td>
+          <td>{{ item.lan }}</td>
+          <td>{{ item.ngaythi }}</td>
+          <td><strong>{{ "%.2f"|format(item.diem or 0) }}</strong></td>
+          <td>{{ item.diem_chu }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" class="empty-cell">Chua co diem thi.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

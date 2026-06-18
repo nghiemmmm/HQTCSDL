@@ -2,7 +2,7 @@ from typing import List
 
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from core.templates import Jinja2Templates
 from sqlalchemy.orm.session import Session
 from db.database import get_db
 from db import db_lop, db_sinhvien, db_dangkythi

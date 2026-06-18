@@ -6,7 +6,7 @@ from typing import Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from core.templates import Jinja2Templates
 from pydantic import BaseModel, Field
 from sqlalchemy.orm.session import Session
 from sqlalchemy import and_, func
@@ -22,6 +22,18 @@ router = APIRouter(
     tags=["Thi"]
 )
 templates = Jinja2Templates(directory="templates")
+
+
+def diem_chu(diem: Optional[float]) -> str:
+    if diem is None:
+        return "Chua thi"
+    if diem >= 8.5:
+        return "Gioi"
+    if diem >= 7:
+        return "Kha"
+    if diem >= 5:
+        return "Trung binh"
+    return "Yeu"
 
 @router.get("/", response_class=HTMLResponse)
 def read_root(
@@ -366,42 +378,142 @@ def xem_lai_bai_thi(
 @router.get("/diem", response_class=HTMLResponse)
 def diem_thi(
     request: Request,
+    db: Session = Depends(get_db),
     user=Depends(require_permission(Permission.VIEW_OWN_SCORE)),
 ):
-    return templates.TemplateResponse("placeholder.html", {
+    sinh_vien = db.query(DbSinhVien).filter(DbSinhVien.masv == user.get("ma")).first()
+    if not sinh_vien:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Khong tim thay sinh vien dang dang nhap"
+        )
+
+    rows = (
+        db.query(DbBangDiem, DbMonHoc)
+        .join(DbMonHoc, DbBangDiem.mamh == DbMonHoc.mamh)
+        .filter(DbBangDiem.masv == sinh_vien.masv)
+        .order_by(DbBangDiem.ngaythi.desc(), DbBangDiem.mamh, DbBangDiem.lan)
+        .all()
+    )
+
+    scores = [
+        {
+            "mamh": (score.mamh or "").strip(),
+            "tenmh": (subject.tenmh or "").strip(),
+            "lan": score.lan,
+            "ngaythi": score.ngaythi.strftime("%d/%m/%Y") if score.ngaythi else "",
+            "diem": score.diem,
+            "diem_chu": diem_chu(score.diem),
+        }
+        for score, subject in rows
+    ]
+
+    return templates.TemplateResponse("diemThi.html", {
         "request": request,
         "user": user,
-        "title": "Diem thi",
-        "kicker": "Sinh vien",
-        "description": "Bang diem ca nhan cua sinh vien dang dang nhap.",
+        "student": sinh_vien,
+        "scores": scores,
     })
 
 
 @router.get("/ket-qua", response_class=HTMLResponse)
 def ket_qua_sinh_vien(
     request: Request,
+    malop: Optional[str] = Query(None),
+    mamh: Optional[str] = Query(None),
+    lan: Optional[int] = Query(None, ge=1, le=2),
+    db: Session = Depends(get_db),
     user=Depends(require_permission(Permission.VIEW_STUDENT_SCORE)),
 ):
-    return templates.TemplateResponse("placeholder.html", {
+    query = (
+        db.query(DbBangDiem, DbSinhVien, DbMonHoc, DbLop)
+        .join(DbSinhVien, DbBangDiem.masv == DbSinhVien.masv)
+        .join(DbMonHoc, DbBangDiem.mamh == DbMonHoc.mamh)
+        .join(DbLop, DbSinhVien.malop == DbLop.malop)
+    )
+
+    if malop:
+        query = query.filter(DbSinhVien.malop == malop)
+    if mamh:
+        query = query.filter(DbBangDiem.mamh == mamh)
+    if lan:
+        query = query.filter(DbBangDiem.lan == lan)
+
+    rows = query.order_by(DbLop.malop, DbMonHoc.mamh, DbBangDiem.lan, DbSinhVien.ten, DbSinhVien.ho).all()
+    results = [
+        {
+            "masv": (student.masv or "").strip(),
+            "hoten": f"{(student.ho or '').strip()} {(student.ten or '').strip()}".strip(),
+            "malop": (lop.malop or "").strip(),
+            "tenlop": (lop.tenlop or "").strip(),
+            "mamh": (subject.mamh or "").strip(),
+            "tenmh": (subject.tenmh or "").strip(),
+            "lan": score.lan,
+            "ngaythi": score.ngaythi.strftime("%d/%m/%Y") if score.ngaythi else "",
+            "diem": score.diem,
+            "diem_chu": diem_chu(score.diem),
+        }
+        for score, student, subject, lop in rows
+    ]
+
+    return templates.TemplateResponse("ketQuaSinhVien.html", {
         "request": request,
         "user": user,
-        "title": "Ket qua thi sinh vien",
-        "kicker": "Bao cao",
-        "description": "Man hinh xem ket qua thi va xem lai bai lam cua sinh vien.",
+        "classes": db.query(DbLop).order_by(DbLop.malop).all(),
+        "subjects": db.query(DbMonHoc).order_by(DbMonHoc.mamh).all(),
+        "results": results,
+        "filters": {"malop": malop or "", "mamh": mamh or "", "lan": lan or ""},
     })
 
 
 @router.get("/bang-diem", response_class=HTMLResponse)
 def bang_diem(
     request: Request,
+    malop: Optional[str] = Query(None),
+    mamh: Optional[str] = Query(None),
+    lan: Optional[int] = Query(None, ge=1, le=2),
+    db: Session = Depends(get_db),
     user=Depends(require_permission(Permission.PRINT_SCORE_TABLE)),
 ):
-    return templates.TemplateResponse("placeholder.html", {
+    selected_class = db.query(DbLop).filter(DbLop.malop == malop).first() if malop else None
+    selected_subject = db.query(DbMonHoc).filter(DbMonHoc.mamh == mamh).first() if mamh else None
+    rows = []
+
+    if malop and mamh and lan:
+        query = (
+            db.query(DbSinhVien, DbBangDiem)
+            .outerjoin(
+                DbBangDiem,
+                and_(
+                    DbBangDiem.masv == DbSinhVien.masv,
+                    DbBangDiem.mamh == mamh,
+                    DbBangDiem.lan == lan,
+                )
+            )
+            .filter(DbSinhVien.malop == malop)
+            .order_by(DbSinhVien.ten, DbSinhVien.ho, DbSinhVien.masv)
+        )
+        rows = [
+            {
+                "stt": index,
+                "masv": (student.masv or "").strip(),
+                "ho": (student.ho or "").strip(),
+                "ten": (student.ten or "").strip(),
+                "diem": score.diem if score else None,
+                "diem_chu": diem_chu(score.diem if score else None),
+            }
+            for index, (student, score) in enumerate(query.all(), start=1)
+        ]
+
+    return templates.TemplateResponse("bangDiem.html", {
         "request": request,
         "user": user,
-        "title": "Bang diem mon hoc",
-        "kicker": "Bao cao",
-        "description": "Man hinh tong hop va in bang diem mon hoc.",
+        "classes": db.query(DbLop).order_by(DbLop.malop).all(),
+        "subjects": db.query(DbMonHoc).order_by(DbMonHoc.mamh).all(),
+        "selected_class": selected_class,
+        "selected_subject": selected_subject,
+        "rows": rows,
+        "filters": {"malop": malop or "", "mamh": mamh or "", "lan": lan or ""},
     })
 
 from db.model import DbSinhVien, DbGiaoVienDangKy, DbMonHoc, DbLop, DbBoDe, DbBangDiem, DbPhienThi
@@ -877,25 +989,6 @@ def nop_bai_thi(
             detail="Ngay thi phai co dinh dang YYYY-MM-DD"
         )
 
-    if user.get("role") != "SINHVIEN":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Chi sinh vien moi duoc nop bai thi chinh thuc"
-        )
-
-    sinh_vien = db.query(DbSinhVien).filter(DbSinhVien.masv == user.get("ma")).first()
-    if not sinh_vien:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Khong tim thay sinh vien dang dang nhap"
-        )
-
-    if not sinh_vien.malop or sinh_vien.malop.strip() != request.malop.strip():
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Khong duoc nop bai thi cua lop khac"
-        )
-
     start_at = datetime.combine(exam_date, time.min)
     end_at = datetime.combine(exam_date, time.max)
 
@@ -913,6 +1006,54 @@ def nop_bai_thi(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Khong tim thay lich thi phu hop"
+        )
+
+    if user.get("role") != "SINHVIEN":
+        submitted_answers = {}
+        for question_id, selected_answer in request.answers.items():
+            try:
+                submitted_answers[int(question_id)] = (selected_answer or "").strip().upper()
+            except ValueError:
+                continue
+
+        question_ids = list(submitted_answers.keys())
+        questions = db.query(DbBoDe).filter(
+            DbBoDe.cauhoi.in_(question_ids),
+            DbBoDe.mamh == exam_info.mamh
+        ).all() if question_ids else []
+
+        correct_count = 0
+        for question in questions:
+            selected_answer = submitted_answers.get(question.cauhoi)
+            if selected_answer and selected_answer == (question.dap_an or "").strip().upper():
+                correct_count += 1
+
+        total_count = int(exam_info.socauthi or len(question_ids) or 0)
+        score = round((correct_count / total_count) * 10, 2) if total_count > 0 else 0
+
+        return {
+            "message": "Nop bai thi thu thanh cong, khong ghi diem",
+            "session_id": None,
+            "masv": None,
+            "mamonhoc": request.mamonhoc.strip(),
+            "lanthi": request.lanthi,
+            "socauthi": total_count,
+            "socaudung": correct_count,
+            "diem": score,
+            "practice": True,
+        }
+
+    sinh_vien = db.query(DbSinhVien).filter(DbSinhVien.masv == user.get("ma")).first()
+    if not sinh_vien:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Khong tim thay sinh vien dang dang nhap"
+        )
+
+    if not sinh_vien.malop or sinh_vien.malop.strip() != request.malop.strip():
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Khong duoc nop bai thi cua lop khac"
         )
 
     existing_score = db.query(DbBangDiem).filter(

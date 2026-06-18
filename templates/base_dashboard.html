@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/dashboard.css?v=3">
+    <link rel="stylesheet" href="/static/css/dashboard.css?v=4">
     {% block page_css %}{% endblock %}
 </head>
 
@@ -56,7 +56,7 @@
     <script>
         window.__SERVER_USER__ = {% if user is defined and user %}{{ user | tojson }}{% else %}null{% endif %};
     </script>
-    <script src="/static/js/dashboard.js?v=3"></script>
+    <script src="/static/js/dashboard.js?v=4"></script>
     {% block page_js %}{% endblock %}
 </body>
 

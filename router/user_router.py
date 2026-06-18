@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Request, Response
 from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.templating import Jinja2Templates
+from core.templates import Jinja2Templates
 from core.session import create_session
 from sqlalchemy.orm.session import Session
 from sqlalchemy import text 
@@ -64,9 +64,23 @@ def register(
     user=Depends(require_permission(Permission.CREATE_USER)),
 ):
 
-    result = db.execute(
-        text("EXEC SP_GET_GV_CHUA_DK")
-    ).fetchall()
+    try:
+        result = db.execute(
+            text("EXEC SP_GET_GV_CHUA_DK")
+        ).fetchall()
+    except Exception:
+        result = db.execute(
+            text("""
+                SELECT
+                    gv.MAGV,
+                    LTRIM(RTRIM(COALESCE(gv.HO, '') + ' ' + COALESCE(gv.TEN, ''))) AS HOTEN,
+                    CASE WHEN dp.name IS NULL THEN 0 ELSE 1 END AS TRANGTHAI
+                FROM GIAOVIEN gv
+                LEFT JOIN sys.database_principals dp
+                    ON dp.name = gv.MAGV
+                ORDER BY gv.MAGV
+            """)
+        ).fetchall()
 
     giang_viens = [
         {

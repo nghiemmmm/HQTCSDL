@@ -379,6 +379,9 @@ async function confirmSubmitExam() {
     closeSubmitModal();
     render();
     window.notify?.(`Da nop bai. Diem: ${result.diem}`, "success");
+    if (result.practice) {
+      return;
+    }
     window.location.href = `/thi/xem-lai?session_id=${result.session_id || examSessionId}`;
   } catch (error) {
     window.notify?.(error.message, "error");

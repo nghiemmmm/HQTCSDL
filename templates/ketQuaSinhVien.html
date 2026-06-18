@@ -1,0 +1,80 @@
+{% extends "base_dashboard.html" %}
+
+{% block title %}Ket qua sinh vien{% endblock %}
+{% block page_kicker %}Bao cao diem thi{% endblock %}
+{% block page_title %}Ket qua sinh vien{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="/static/css/report.css?v=1">
+{% endblock %}
+
+{% block content %}
+<section class="report-shell">
+  <form class="filter-bar" method="get">
+    <label>
+      <span>Lop</span>
+      <select name="malop">
+        <option value="">Tat ca</option>
+        {% for lop in classes %}
+        <option value="{{ lop.malop }}" {% if filters.malop == lop.malop %}selected{% endif %}>{{ lop.malop }} - {{ lop.tenlop }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      <span>Mon hoc</span>
+      <select name="mamh">
+        <option value="">Tat ca</option>
+        {% for subject in subjects %}
+        <option value="{{ subject.mamh }}" {% if filters.mamh == subject.mamh %}selected{% endif %}>{{ subject.mamh }} - {{ subject.tenmh }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      <span>Lan thi</span>
+      <select name="lan">
+        <option value="">Tat ca</option>
+        <option value="1" {% if filters.lan == 1 %}selected{% endif %}>1</option>
+        <option value="2" {% if filters.lan == 2 %}selected{% endif %}>2</option>
+      </select>
+    </label>
+    <button class="btn btn-primary" type="submit">Loc</button>
+  </form>
+
+  <div class="report-table-card">
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>STT</th>
+          <th>Ma SV</th>
+          <th>Ho ten</th>
+          <th>Lop</th>
+          <th>Mon hoc</th>
+          <th>Lan</th>
+          <th>Ngay thi</th>
+          <th>Diem</th>
+          <th>Diem chu</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in results %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ item.masv }}</td>
+          <td>{{ item.hoten }}</td>
+          <td>{{ item.malop }}</td>
+          <td>{{ item.tenmh }}</td>
+          <td>{{ item.lan }}</td>
+          <td>{{ item.ngaythi }}</td>
+          <td><strong>{{ "%.2f"|format(item.diem or 0) }}</strong></td>
+          <td>{{ item.diem_chu }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="9" class="empty-cell">Khong co ket qua phu hop.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

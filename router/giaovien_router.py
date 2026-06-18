@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from core.templates import Jinja2Templates
 from sqlalchemy.orm.session import Session
 from schemas.schemas import UserBase, DangNhap, GiaoVien
 from db.database import get_db

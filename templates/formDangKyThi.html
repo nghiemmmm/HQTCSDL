@@ -57,13 +57,13 @@
 
       <label>Thoi gian phut</label>
       <div>
-        <input type="number" id="duration" placeholder="60">
+        <input type="number" id="duration" min="5" max="60" placeholder="60">
         <span id="durationError" class="form-error hidden"></span>
       </div>
 
       <label>So cau</label>
       <div>
-        <input type="number" id="questionCount" placeholder="40">
+        <input type="number" id="questionCount" min="10" max="100" placeholder="40">
         <span id="questionCountError" class="form-error hidden"></span>
       </div>
     </div>
@@ -76,5 +76,5 @@
 {% endblock %}
 
 {% block page_js %}
-<script src="/static/js/dangKyThi.js"></script>
+<script src="/static/js/dangKyThi.js?v=2"></script>
 {% endblock %}

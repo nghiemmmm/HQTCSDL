@@ -16,6 +16,7 @@ class DangKy(BaseModel):
     password: str
     username: str
     role: quyen
+    hoten: Optional[str] = None
 
 # --- MON HOC SCHEMAS ---
 class MonHocBase(BaseModel):
@@ -153,12 +154,12 @@ class DangKyThi(BaseModel):
     ngaythi: Optional[datetime] = None
     lan: int = Field(..., ge=1, le=2)
     socauthi: Optional[int] = Field(None, ge=10, le=100)
-    thoigian: Optional[int] = Field(None, ge=15, le=60)
+    thoigian: Optional[int] = Field(None, ge=5, le=60)
 class ThongTinThi(DangKyThi):
     trinhdo: Optional[str] = Field(None, pattern="^[ABC]$")
     lan: int = Field(..., ge=1, le=2)
     socauthi: Optional[int] = Field(None, ge=10, le=100)
-    thoigian: Optional[int] = Field(None, ge=15, le=60)
+    thoigian: Optional[int] = Field(None, ge=5, le=60)
     model_config = ConfigDict(from_attributes=True)
 
 class GiaoVienDangKyThiDisplay(DangKyThi):

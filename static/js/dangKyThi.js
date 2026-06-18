@@ -39,7 +39,10 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     // Tải danh sách môn học theo magv (Giả sử mặc định là GV01, anh/chị tự thay thế bằng magv đang đăng nhập)
     const magv = window.currentUser?.ma || "";
-    const resMonHoc = await fetch(`/dangkythi/monhocdk?magv=${magv}`);
+    const subjectUrl = window.currentUser?.role === "GIANGVIEN"
+      ? `/dangkythi/monhocdk?magv=${encodeURIComponent(magv)}`
+      : "/monhoc/danhsachMH";
+    const resMonHoc = await fetch(subjectUrl);
     if (!resMonHoc.ok) throw new Error("Lỗi khi tải danh sách môn học");
 
     const subjects = await resMonHoc.json();
@@ -83,8 +86,8 @@ document.getElementById("examForm").addEventListener("submit", async function(e)
     hasError = true; 
   } else {
     const durationNum = parseInt(duration, 10);
-    if (isNaN(durationNum) || durationNum < 15 || durationNum > 60) {
-      showError("duration", "Thời gian thi phải từ 15 đến 60 phút.");
+    if (isNaN(durationNum) || durationNum < 5 || durationNum > 60) {
+      showError("duration", "Thời gian thi phải từ 5 đến 60 phút.");
       hasError = true;
     }
   }
@@ -94,8 +97,8 @@ document.getElementById("examForm").addEventListener("submit", async function(e)
     hasError = true; 
   } else {
     const questionCountNum = parseInt(questionCount, 10);
-    if (isNaN(questionCountNum) || questionCountNum <= 0) {
-      showError("questionCount", "Số câu hỏi phải lớn hơn 0.");
+    if (isNaN(questionCountNum) || questionCountNum < 10 || questionCountNum > 100) {
+      showError("questionCount", "So cau hoi phai tu 10 den 100.");
       hasError = true;
     }
   }
@@ -110,7 +113,7 @@ document.getElementById("examForm").addEventListener("submit", async function(e)
     ngaythi: date, // Pydantic sẽ tự động parse string 'YYYY-MM-DD' sang datetime
     thoigian: parseInt(duration, 10),
     socauthi: parseInt(questionCount, 10),
-    magv: window.currentUser?.ma || ""
+    magv: window.currentUser?.role === "GIANGVIEN" ? (window.currentUser?.ma || "") : null
   };
 
   console.log("Submit:", data);

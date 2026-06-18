@@ -1,7 +1,7 @@
 # import tensorflow as tf
 from fastapi import Depends, FastAPI, Request, Response# pip install "fastapi[standard]"
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from core.templates import Jinja2Templates
 import uvicorn
 import os
 import datetime

@@ -5,66 +5,28 @@
 {% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
-<section class="dashboard-grid" aria-label="Chuc nang theo quyen">
-    <a class="stat-card" href="/monhoc" data-permission="view_subject">
-        <span>Quan ly dao tao</span>
-        <strong>Mon hoc</strong>
-    </a>
-    <a class="stat-card" href="/lop/" data-permission="view_class">
-        <span>Du lieu lop hoc</span>
-        <strong>Lop hoc</strong>
-    </a>
-    <a class="stat-card" href="/sinhvien/" data-permission="view_student">
-        <span>Ho so nguoi hoc</span>
-        <strong>Sinh vien</strong>
-    </a>
-    <a class="stat-card" href="/giaovien" data-permission="view_teacher">
-        <span>Nhan su giang day</span>
-        <strong>Giao vien</strong>
-    </a>
-    <a class="stat-card" href="/bode/" data-permission="view_question">
-        <span>Ngan hang cau hoi</span>
-        <strong>Bo de</strong>
-    </a>
-    <a class="stat-card" href="/dangkythi" data-permission="view_exam_registration">
-        <span>Lap lich thi</span>
-        <strong>Dang ky thi</strong>
-    </a>
-    <a class="stat-card" href="/thi/" data-any-permission="take_exam,practice_exam">
-        <span>Phong thi truc tuyen</span>
-        <strong>Thi trac nghiem</strong>
-    </a>
-    <a class="stat-card" href="/thi/lich-su" data-permission="view_own_exam">
-        <span>Theo doi bai da lam</span>
-        <strong>Lich su thi</strong>
-    </a>
-    <a class="stat-card" href="/thi/xem-lai" data-permission="view_own_exam">
-        <span>Xem lai cau tra loi</span>
-        <strong>Xem lai bai thi</strong>
-    </a>
-    <a class="stat-card" href="/thi/diem" data-permission="view_own_score">
-        <span>Ket qua ca nhan</span>
-        <strong>Diem thi</strong>
-    </a>
-    <a class="stat-card" href="/thi/ket-qua" data-permission="view_student_score">
-        <span>Ket qua sinh vien</span>
-        <strong>Bang ket qua</strong>
-    </a>
-    <a class="stat-card" href="/thi/bang-diem" data-permission="print_score_table">
-        <span>In va tong hop</span>
-        <strong>Bang diem</strong>
-    </a>
-    <a class="stat-card" href="/user/register" data-permission="create_user">
-        <span>Phan quyen he thong</span>
-        <strong>Tai khoan</strong>
-    </a>
+<section class="dashboard-hero">
+    <div>
+        <span class="hero-eyebrow">{{ user.role if user is defined and user else "USER" }}</span>
+        <h2>{{ (user.ho ~ ' ' ~ user.ten) if user is defined and user else "He thong thi trac nghiem" }}</h2>
+        <p>{{ user.ma if user is defined and user else "" }}</p>
+    </div>
+    <a class="btn btn-outline" href="/user/info">Ho so</a>
 </section>
 
-<section class="dashboard-card" style="margin-top: 18px; padding: 22px;">
-    <h2 style="margin: 0 0 8px; font-size: 20px;">Dashboard dong theo RBAC</h2>
-    <p style="margin: 0; color: var(--muted); line-height: 1.6;">
-        Sidebar, navbar va card duoc loc theo role dang dang nhap. Backend van kiem tra permission
-        tren tung route de chan truy cap truc tiep bang URL.
-    </p>
+<section class="dashboard-grid" aria-label="Chuc nang theo quyen">
+    <a class="stat-card" href="/monhoc" data-permission="view_subject"><span>Dao tao</span><strong>Mon hoc</strong></a>
+    <a class="stat-card" href="/lop/" data-permission="view_class"><span>Lop hoc</span><strong>Danh sach lop</strong></a>
+    <a class="stat-card" href="/sinhvien/" data-permission="view_student"><span>Nguoi hoc</span><strong>Sinh vien</strong></a>
+    <a class="stat-card" href="/giaovien" data-permission="view_teacher"><span>Nhan su</span><strong>Giao vien</strong></a>
+    <a class="stat-card" href="/bode/" data-permission="view_question"><span>Cau hoi</span><strong>Bo de</strong></a>
+    <a class="stat-card" href="/dangkythi" data-permission="view_exam_registration"><span>Lich thi</span><strong>Dang ky thi</strong></a>
+    <a class="stat-card" href="/thi/" data-any-permission="take_exam,practice_exam"><span>Phong thi</span><strong>Thi trac nghiem</strong></a>
+    <a class="stat-card" href="/thi/lich-su" data-permission="view_own_exam"><span>Bai lam</span><strong>Lich su thi</strong></a>
+    <a class="stat-card" href="/thi/xem-lai" data-permission="view_own_exam"><span>Dap an</span><strong>Xem lai bai thi</strong></a>
+    <a class="stat-card" href="/thi/diem" data-permission="view_own_score"><span>Ca nhan</span><strong>Diem thi</strong></a>
+    <a class="stat-card" href="/thi/ket-qua" data-permission="view_student_score"><span>Thong ke</span><strong>Ket qua sinh vien</strong></a>
+    <a class="stat-card" href="/thi/bang-diem" data-permission="print_score_table"><span>In an</span><strong>Bang diem</strong></a>
+    <a class="stat-card" href="/user/register" data-permission="create_user"><span>He thong</span><strong>Tai khoan</strong></a>
 </section>
 {% endblock %}

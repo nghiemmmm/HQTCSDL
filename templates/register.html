@@ -12,15 +12,13 @@
 <main class="container">
     <form id="registerForm" novalidate>
         <div class="form-group">
-            <label>Giao vien</label>
-            <select id="gvSelect" required>
-                <option value="" disabled selected hidden>Chon giao vien</option>
+            <label>Ho va ten nhan vien</label>
+            <input type="text" id="employeeName" list="employeeList" placeholder="Nhap ho va ten nhan vien" autocomplete="off">
+            <datalist id="employeeList">
                 {% for gv in giang_viens %}
-                <option value="{{ gv.magv }}" data-hoten="{{ gv.hoten }}" data-trangthai="{{ gv.trangthai }}">
-                    {{ gv.hoten }}
-                </option>
+                <option value="{{ gv.hoten }}" data-magv="{{ gv.magv }}" data-trangthai="{{ gv.trangthai }}"></option>
                 {% endfor %}
-            </select>
+            </datalist>
 
             <label style="width: 80px; margin-left: 10px;">Ma NV</label>
             <input type="text" id="manvInput" readonly>
@@ -58,7 +56,8 @@
 
 {% block page_js %}
 <script>
-    const gvSelect = document.getElementById("gvSelect");
+    const employeeNameInput = document.getElementById("employeeName");
+    const employeeOptions = Array.from(document.querySelectorAll("#employeeList option"));
     const manvInput = document.getElementById("manvInput");
     const btnSubmit = document.querySelector('button[type="submit"]');
     const inputUsername = document.getElementById("username");
@@ -66,40 +65,69 @@
     const selectRole = document.getElementById("role");
     const errorMsg = document.getElementById("error-message");
 
-    gvSelect.addEventListener("change", function () {
-        const selectedOption = this.options[this.selectedIndex];
+    function findEmployeeByName(name) {
+        const normalizedName = name.trim().toLowerCase();
+        return employeeOptions.find(option => option.value.trim().toLowerCase() === normalizedName);
+    }
 
-        if (this.value) {
-            manvInput.value = this.value;
-            inputUsername.value = this.value;
+    function syncMaNvFromAccount() {
+        const account = inputUsername.value.trim();
+        if (account) {
+            manvInput.value = account.toUpperCase();
+        }
+    }
+
+    employeeNameInput.addEventListener("input", function () {
+        const selectedOption = findEmployeeByName(this.value);
+
+        if (selectedOption) {
+            const magv = selectedOption.dataset.magv || "";
+            manvInput.value = magv;
+            inputUsername.value = magv;
 
             const trangthai = selectedOption.dataset.trangthai;
             const disabled = trangthai == "1";
-            btnSubmit.style.display = disabled ? "none" : "";
-            inputUsername.disabled = disabled;
-            inputPassword.disabled = disabled;
-            selectRole.disabled = disabled;
-        } else {
-            manvInput.value = "";
-            inputUsername.value = "";
             btnSubmit.style.display = "";
+            btnSubmit.innerText = "Tao tai khoan";
+            inputUsername.disabled = false;
+            inputPassword.disabled = false;
+            selectRole.disabled = false;
+            errorMsg.innerText = "";
+        } else {
+            syncMaNvFromAccount();
+            btnSubmit.style.display = "";
+            btnSubmit.innerText = "Tao tai khoan";
             inputUsername.disabled = false;
             inputPassword.disabled = false;
             selectRole.disabled = false;
         }
     });
 
+    inputUsername.addEventListener("input", syncMaNvFromAccount);
+
     document.getElementById('registerForm').addEventListener('submit', function (e) {
         e.preventDefault();
         errorMsg.innerText = "";
 
         const password = inputPassword.value;
-        const manv = manvInput.value;
+        syncMaNvFromAccount();
+        const hoten = employeeNameInput.value.trim();
+        const manv = manvInput.value.trim();
         const role = selectRole.value;
-        const username = inputUsername.value || manv;
+        const username = inputUsername.value.trim();
+
+        if (!hoten) {
+            errorMsg.innerText = "Vui long nhap ho va ten nhan vien";
+            return;
+        }
+
+        if (!username) {
+            errorMsg.innerText = "Vui long nhap tai khoan";
+            return;
+        }
 
         if (!manv) {
-            errorMsg.innerText = "Vui long chon giao vien";
+            errorMsg.innerText = "Ma NV chua duoc tao tu tai khoan";
             return;
         }
 
@@ -117,10 +145,11 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                loginname: manv,
+                loginname: username,
                 password: password,
-                username: username,
-                role: role
+                username: manv,
+                role: role,
+                hoten: hoten
             })
         })
             .then(res => {
@@ -147,6 +176,7 @@
         manvInput.value = "";
         errorMsg.innerText = "";
         btnSubmit.style.display = "";
+        btnSubmit.innerText = "Tao tai khoan";
         inputUsername.disabled = false;
         inputPassword.disabled = false;
         selectRole.disabled = false;

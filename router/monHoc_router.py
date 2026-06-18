@@ -1,7 +1,7 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from core.templates import Jinja2Templates
 from sqlalchemy.orm import Session
 from sqlalchemy import exc
 
