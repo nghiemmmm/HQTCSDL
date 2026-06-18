@@ -8,24 +8,38 @@ from types import SimpleNamespace
 from unittest.mock import Mock
 
 import pytest
-from fastapi import HTTPException, status
 from pytest import MonkeyPatch
 
 from db import db_user
 from db.roles import quyen
 from schemas.schemas import DangNhap
+from services import user_service
+from services.exceptions import (
+    AuthenticationError,
+    ResourceNotFoundError,
+    ValidationError,
+)
 
 
-def test_student_login_returns_user_data_when_credentials_match() -> None:
+def test_student_login_returns_user_data_when_credentials_match(
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Student login should return user data when credentials match."""
     db = Mock()
+    del monkeypatch
     db.execute.side_effect = [
         SimpleNamespace(fetchone=lambda: SimpleNamespace(MASV="SV001")),
-        SimpleNamespace(fetchone=lambda: SimpleNamespace(MASV="SV001", HO="Nguyen", TEN="An")),
+        SimpleNamespace(
+            fetchone=lambda: SimpleNamespace(
+                MASV="SV001",
+                HO="Nguyen",
+                TEN="An",
+            )
+        ),
     ]
     request = DangNhap(username="SV001", password="123456", role=quyen.SINH_VIEN)
 
-    user_data = db_user.dang_nhap(db, request)
+    user_data = user_service.login(db, request)
 
     assert user_data == {
         "ma": "SV001",
@@ -41,26 +55,27 @@ def test_student_login_raises_404_when_student_does_not_exist() -> None:
     db.execute.return_value.fetchone.return_value = None
     request = DangNhap(username="SV404", password="123456", role=quyen.SINH_VIEN)
 
-    with pytest.raises(HTTPException) as exc_info:
-        db_user.dang_nhap(db, request)
+    with pytest.raises(ResourceNotFoundError) as exc_info:
+        user_service.login(db, request)
 
-    assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
     assert exc_info.value.detail["field"] == "username"
 
 
-def test_student_login_raises_401_when_password_is_wrong() -> None:
+def test_student_login_raises_401_when_password_is_wrong(
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Student login should raise unauthorized when password is wrong."""
     db = Mock()
+    del monkeypatch
     db.execute.side_effect = [
         SimpleNamespace(fetchone=lambda: SimpleNamespace(MASV="SV001")),
         SimpleNamespace(fetchone=lambda: None),
     ]
     request = DangNhap(username="SV001", password="wrong", role=quyen.SINH_VIEN)
 
-    with pytest.raises(HTTPException) as exc_info:
-        db_user.dang_nhap(db, request)
+    with pytest.raises(AuthenticationError) as exc_info:
+        user_service.login(db, request)
 
-    assert exc_info.value.status_code == status.HTTP_401_UNAUTHORIZED
     assert exc_info.value.detail["field"] == "password"
 
 
@@ -81,7 +96,7 @@ def test_teacher_login_returns_user_data_when_sql_login_succeeds(
     monkeypatch.setattr(db_user, "create_engine", lambda connection_url: sql_engine)
     request = DangNhap(username="GV001", password="secret", role=quyen.GIANG_VIEN)
 
-    user_data = db_user.dang_nhap(db, request)
+    user_data = user_service.login(db, request)
 
     assert user_data == {
         "ma": "GV001",
@@ -98,10 +113,9 @@ def test_teacher_login_raises_404_when_sql_login_does_not_exist() -> None:
     db.execute.return_value.fetchone.return_value = None
     request = DangNhap(username="missing", password="secret", role=quyen.GIANG_VIEN)
 
-    with pytest.raises(HTTPException) as exc_info:
-        db_user.dang_nhap(db, request)
+    with pytest.raises(ResourceNotFoundError) as exc_info:
+        user_service.login(db, request)
 
-    assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
     assert exc_info.value.detail["field"] == "username"
 
 
@@ -118,10 +132,9 @@ def test_teacher_login_raises_401_when_sql_password_is_wrong(
     monkeypatch.setattr(db_user, "create_engine", raise_connection_error)
     request = DangNhap(username="GV001", password="wrong", role=quyen.GIANG_VIEN)
 
-    with pytest.raises(HTTPException) as exc_info:
-        db_user.dang_nhap(db, request)
+    with pytest.raises(AuthenticationError) as exc_info:
+        user_service.login(db, request)
 
-    assert exc_info.value.status_code == status.HTTP_401_UNAUTHORIZED
     assert exc_info.value.detail["field"] == "password"
 
 
@@ -138,10 +151,9 @@ def test_teacher_login_raises_404_when_profile_sp_returns_no_data(
     monkeypatch.setattr(db_user, "create_engine", lambda connection_url: sql_engine)
     request = DangNhap(username="GV001", password="secret", role=quyen.GIANG_VIEN)
 
-    with pytest.raises(HTTPException) as exc_info:
-        db_user.dang_nhap(db, request)
+    with pytest.raises(ResourceNotFoundError) as exc_info:
+        user_service.login(db, request)
 
-    assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
     assert exc_info.value.detail["field"] == "system"
 
 
@@ -150,8 +162,7 @@ def test_login_raises_400_when_role_is_invalid() -> None:
     db = Mock()
     request = SimpleNamespace(username="user", password="secret", role="OTHER")
 
-    with pytest.raises(HTTPException) as exc_info:
-        db_user.dang_nhap(db, request)
+    with pytest.raises(ValidationError) as exc_info:
+        user_service.login(db, request)
 
-    assert exc_info.value.status_code == status.HTTP_400_BAD_REQUEST
     assert exc_info.value.detail["field"] == "role"

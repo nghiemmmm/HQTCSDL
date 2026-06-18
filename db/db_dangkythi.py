@@ -1,108 +1,123 @@
-from fastapi import HTTPException, status
-from sqlalchemy.orm.session import Session
-from db.model import DbGiaoVienDangKy, DbMonHoc, DbLop, DbGiaoVien
+"""Exam-registration repository containing database operations only."""
+
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+
+from db.model import (
+    DbBoDe,
+    DbGiaoVien,
+    DbGiaoVienDangKy,
+    DbLop,
+    DbMonHoc,
+)
 from schemas.schemas import DangKyThi
 
-def create(db: Session, request: DangKyThi):
-    # Check if MonHoc exists
-    monhoc = db.query(DbMonHoc).filter(DbMonHoc.mamh == request.mamh).first()
-    if not monhoc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Môn học với mã {request.mamh} không tồn tại")
 
-    # Check if Lop exists
-    lop = db.query(DbLop).filter(DbLop.malop == request.malop).first()
-    if not lop:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Lớp với mã {request.malop} không tồn tại")
+def get_subject(db: Session, mamh: str) -> DbMonHoc | None:
+    """Return a subject."""
+    return db.query(DbMonHoc).filter(DbMonHoc.mamh == mamh).first()
 
-    # Check if GiaoVien exists (if magv is provided)
-    if request.magv:
-        giaovien = db.query(DbGiaoVien).filter(DbGiaoVien.magv == request.magv).first()
-        if not giaovien:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Giáo viên với mã {request.magv} không tồn tại")
 
-    # Check if the registration already exists (Primary Key: malop, mamh, lan)
-    existing_reg = db.query(DbGiaoVienDangKy).filter(
-        DbGiaoVienDangKy.mamh == request.mamh,
-        DbGiaoVienDangKy.malop == request.malop,
-        DbGiaoVienDangKy.lan == request.lan
-    ).first()
-    
-    if existing_reg:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, 
-            detail=f"Lịch thi cho lớp {request.malop}, môn {request.mamh} lần {request.lan} đã được đăng ký."
-        )
+def get_class(db: Session, malop: str) -> DbLop | None:
+    """Return a class."""
+    return db.query(DbLop).filter(DbLop.malop == malop).first()
 
-    # Call Stored Procedure to check if there are enough questions in BODE
+
+def get_teacher(db: Session, magv: str) -> DbGiaoVien | None:
+    """Return a teacher."""
+    return db.query(DbGiaoVien).filter(DbGiaoVien.magv == magv).first()
+
+
+def get_registration(
+    db: Session,
+    malop: str,
+    mamh: str,
+    lan: int,
+) -> DbGiaoVienDangKy | None:
+    """Return an exam registration by its composite key using SP_GET_GVDK."""
     from sqlalchemy import text
-    try:
-        sp_result = db.execute(
-            text("EXEC SP_KiemTraSoLuongCauHoi @MAMH=:mamh, @TRINHDO=:trinhdo, @SOCAUTHI=:socauthi"),
-            {"mamh": request.mamh, "trinhdo": request.trinhdo, "socauthi": request.socauthi}
-        ).fetchone()
-
-        if sp_result and sp_result[0] == 0: # IsHopLe is the first column
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, 
-                detail=sp_result[2] # ThongBao is the third column
-            )
-    except Exception as e:
-        # Fallback to ORM check if SP is not yet created in the database
-        # (Useful for development before running the SQL script)
-        from db.model import DbBoDe
-        so_cau_co_san = db.query(DbBoDe).filter(
-            DbBoDe.mamh == request.mamh, 
-            DbBoDe.trinhdo == request.trinhdo
-        ).count()
-        if so_cau_co_san < request.socauthi:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Không đủ câu hỏi. Yêu cầu: {request.socauthi}, Hiện có: {so_cau_co_san}"
-            )
-
-    new_reg = DbGiaoVienDangKy(
-        magv=request.magv,
-        mamh=request.mamh,
-        malop=request.malop,
-        trinhdo=request.trinhdo,
-        ngaythi=request.ngaythi,
-        lan=request.lan,
-        socauthi=request.socauthi,
-        thoigian=request.thoigian
-    )
+    query = text("EXEC SP_GET_GVDK @MALOP = :malop, @MAMH = :mamh, @LAN = :lan")
+    row = db.execute(query, {
+        "malop": malop,
+        "mamh": mamh,
+        "lan": lan
+    }).fetchone()
     
-    db.add(new_reg)
-    db.commit()
-    db.refresh(new_reg)
-    return new_reg
+    if row is None:
+        return None
+        
+    return DbGiaoVienDangKy(
+        magv=row[0],
+        malop=row[1],
+        mamh=row[2],
+        trinhdo=row[3],
+        lan=row[4],
+        ngaythi=row[5],
+        socauthi=row[6],
+        thoigian=row[7]
+    )
 
-def get_all(db: Session):
+
+def check_question_count_with_procedure(
+    db: Session,
+    mamh: str,
+    trinhdo: str,
+    socauthi: int,
+):
+    """Execute the existing question-count procedure."""
+    return db.execute(
+        text(
+            "EXEC SP_KiemTraSoLuongCauHoi "
+            "@MAMH=:mamh, @TRINHDO=:trinhdo, @SOCAUTHI=:socauthi"
+        ),
+        {"mamh": mamh, "trinhdo": trinhdo, "socauthi": socauthi},
+    ).fetchone()
+
+
+def count_questions(db: Session, mamh: str, trinhdo: str) -> int:
+    """Count questions by subject and level."""
+    return db.query(DbBoDe).filter(
+        DbBoDe.mamh == mamh,
+        DbBoDe.trinhdo == trinhdo,
+    ).count()
+
+
+def create(db: Session, request: DangKyThi) -> DbGiaoVienDangKy:
+    """Insert an exam registration."""
+    entity = DbGiaoVienDangKy(**request.model_dump())
+    db.add(entity)
+    db.commit()
+    db.refresh(entity)
+    return entity
+
+
+def get_all(db: Session) -> list[DbGiaoVienDangKy]:
+    """Return all registrations."""
     return db.query(DbGiaoVienDangKy).all()
 
-def get_by_lop(db: Session, malop: str):
-    return db.query(DbGiaoVienDangKy).filter(DbGiaoVienDangKy.malop == malop).all()
 
-def delete(db: Session, malop: str, mamh: str, lan: int):
-    reg = db.query(DbGiaoVienDangKy).filter(
-        DbGiaoVienDangKy.malop == malop,
-        DbGiaoVienDangKy.mamh == mamh,
-        DbGiaoVienDangKy.lan == lan
-    ).first()
-    
-    if not reg:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy lịch đăng ký thi")
-        
-    db.delete(reg)
+def get_by_lop(db: Session, malop: str) -> list[DbGiaoVienDangKy]:
+    """Return registrations for a class."""
+    return db.query(DbGiaoVienDangKy).filter(
+        DbGiaoVienDangKy.malop == malop
+    ).all()
+
+
+def delete(db: Session, entity: DbGiaoVienDangKy) -> None:
+    """Delete a registration."""
+    db.delete(entity)
     db.commit()
-    return {"message": "Xóa lịch thi thành công"}
-    
-def get_monhocdk(db: Session, magv: str):
-    try:
-        return db.query(DbMonHoc).join(
-            DbGiaoVienDangKy, DbMonHoc.mamh == DbGiaoVienDangKy.mamh
-        ).filter(DbGiaoVienDangKy.magv == magv).all()
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
-            detail=f"Lỗi khi lấy môn học đăng ký: {str(e)}"
-        )
+
+
+def get_monhocdk(db: Session, magv: str) -> list[DbMonHoc]:
+    """Return distinct subjects registered by a teacher."""
+    return db.query(DbMonHoc).join(
+        DbGiaoVienDangKy,
+        DbMonHoc.mamh == DbGiaoVienDangKy.mamh,
+    ).filter(DbGiaoVienDangKy.magv == magv).all()
+
+
+def list_registrations_in_range(db: Session, from_date: str, to_date: str) -> list:
+    """Return exam registrations between two dates using SP_GET_DS_GVDK."""
+    query = text("EXEC SP_GET_DS_GVDK @FROM = :from_date, @TO = :to_date")
+    return db.execute(query, {"from_date": from_date, "to_date": to_date}).fetchall()

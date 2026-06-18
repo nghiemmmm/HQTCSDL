@@ -55,6 +55,7 @@ class Permission(str, Enum):
 ROLE_PERMISSIONS = {
     quyen.PGV: [
         Permission.CREATE_USER,
+        Permission.VIEW_EXAM_REGISTRATION,
 
         Permission.VIEW_SUBJECT,
         Permission.CREATE_SUBJECT,

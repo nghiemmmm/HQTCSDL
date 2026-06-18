@@ -1,97 +1,131 @@
+"""HTTP routes for teacher management."""
+
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm.session import Session
-from schemas.schemas import UserBase, DangNhap, GiaoVien
-from db.database import get_db
-from db import db_giaovien, db_user 
-from core.auth import require_permission
+
 from db.roles import Permission
-router = APIRouter(
-    prefix = "/giaovien",
-    tags= ["GiaoVien"]
-)
+from router.dependencies import DatabaseDep, require_permission
+from router.error_mapping import raise_http_error
+from schemas.schemas import GiaoVienCreate, GiaoVienUpdate, GiaoVienPublic, Message
+from services import teacher_service
+from services.exceptions import ServiceError
+
+router = APIRouter(prefix="/giaovien", tags=["GiaoVien"])
 templates = Jinja2Templates(directory="templates")
+
 
 @router.get("/GVCHDK")
 def get_giao_vien(
-    db: Session = Depends(get_db),
-    user=Depends(require_permission(Permission.VIEW_TEACHER)),
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.VIEW_TEACHER))],
 ):
-    return db_giaovien.get_all_gv(db=db)
+    """Return teachers."""
+    try:
+        return teacher_service.list_teacher_displays(db)
+    except ServiceError as exc:
+        raise_http_error(exc)
 
 
 @router.get("/GV_CHUA_QUYEN")
 def get_giao_vien_chua_quyen(
-    db: Session = Depends(get_db),
-    user=Depends(require_permission(Permission.VIEW_TEACHER)),
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.VIEW_TEACHER))],
 ):
-    return db_giaovien.get_ds_gv_chua_quyen(db=db)
+    """Return teachers without accounts."""
+    try:
+        return teacher_service.list_unregistered_teachers(db)
+    except ServiceError as exc:
+        raise_http_error(exc)
+
 
 @router.get("", response_class=HTMLResponse)
 def form_giaovien(
     request: Request,
-    db: Session = Depends(get_db),
-    user=Depends(require_permission(Permission.VIEW_TEACHER)),
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.VIEW_TEACHER))],
 ):
-    giao_viens = db_giaovien.get_all(db)
-    giao_viens_json = [
+    """Render the teacher page."""
+    teachers = teacher_service.list_teachers(db)
+    data = [
         {
-            "magv": gv.magv,
-            "ho": gv.ho,
-            "ten": gv.ten,
-            "diachi": gv.diachi,
-            "sodtll": gv.sodtll
+            "magv": item.magv,
+            "ho": item.ho,
+            "ten": item.ten,
+            "diachi": item.diachi,
+            "sodtll": item.sodtll,
         }
-        for gv in giao_viens
+        for item in teachers
     ]
     return templates.TemplateResponse(
         "formGiaoVien.html",
-        {
-            "request": request,
-            "user": user,
-            "giao_viens": giao_viens_json
-        }
+        {"request": request, "user": user, "giao_viens": data},
     )
 
 
 @router.get("/{magv}")
 def get_one(
     magv: str,
-    db: Session = Depends(get_db),
-    user=Depends(require_permission(Permission.VIEW_TEACHER)),
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.VIEW_TEACHER))],
 ):
-    return db_giaovien.get_by_id(db, magv)
+    """Return one teacher."""
+    try:
+        return teacher_service.get_teacher(db, magv)
+    except ServiceError as exc:
+        raise_http_error(exc)
+
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 def create(
-    request: GiaoVien,
-    db: Session = Depends(get_db),
-    user=Depends(require_permission(Permission.CREATE_TEACHER)),
+    request: GiaoVienCreate,
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.CREATE_TEACHER))],
 ):
-    return db_giaovien.create(db, request)
+    """Create a teacher."""
+    try:
+        return teacher_service.create_teacher(db, request)
+    except ServiceError as exc:
+        raise_http_error(exc)
+
 
 @router.put("/{magv}")
 def update(
     magv: str,
-    request: GiaoVien,
-    db: Session = Depends(get_db),
-    user=Depends(require_permission(Permission.UPDATE_TEACHER)),
+    request: GiaoVienUpdate,
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.UPDATE_TEACHER))],
 ):
-    return db_giaovien.update(db, magv, request)
+    """Update a teacher."""
+    try:
+        return teacher_service.update_teacher(db, magv, request)
+    except ServiceError as exc:
+        raise_http_error(exc)
 
-@router.delete("/{magv}")
+
+@router.delete("/{magv}", response_model=Message)
 def delete(
     magv: str,
-    db: Session = Depends(get_db),
-    user=Depends(require_permission(Permission.DELETE_TEACHER)),
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.DELETE_TEACHER))],
 ):
-    return db_giaovien.delete(db, magv)
+    """Delete a teacher."""
+    try:
+        return teacher_service.delete_teacher(db, magv)
+    except ServiceError as exc:
+        raise_http_error(exc)
+
 
 @router.get("/search/{keyword}")
 def search(
     keyword: str,
-    db: Session = Depends(get_db),
-    user=Depends(require_permission(Permission.VIEW_TEACHER)),
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.VIEW_TEACHER))],
 ):
-    return db_giaovien.search(db, keyword)
+    """Search teachers."""
+    try:
+        return teacher_service.search_teachers(db, keyword)
+    except ServiceError as exc:
+        raise_http_error(exc)

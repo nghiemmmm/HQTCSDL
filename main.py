@@ -13,9 +13,18 @@ from fastapi_cache import FastAPICache
 from fastapi.middleware.cors import CORSMiddleware
 from db.database import engine
 from db import model
-from router import user_router, giaovien_router, monHoc_router, lophoc_router,sinhvien_router, bode_router, dangKyThi_router, thi_router    
+from router import (
+    bode_router,
+    exam_registration_router,
+    giaovien_router,
+    lophoc_router,
+    subject_router,
+    sinhvien_router,
+    thi_router,
+    user_router,
+)
 from logs.logging_config import logger
-from core.auth import get_current_user
+from router.dependencies import get_current_user
 
 app = FastAPI(
     docs_url="/myapi",  # Đặt đường dẫn Swagger UI thành "/myapi"
@@ -115,14 +124,15 @@ async def log_requests(request: Request, call_next):
 async def on_startup() -> None:
     in_memory_cache = InMemoryBackend()
     FastAPICache.init(in_memory_cache)
+    model.Base.metadata.create_all(engine)
     print("Thong bao: FastAPI da khoi chay thanh cong!")
 
 # app.include_router(employee_router.router)
 app.include_router(user_router.router)
 app.include_router(giaovien_router.router)
-app.include_router(monHoc_router.router)
+app.include_router(subject_router.router)
 app.include_router(lophoc_router.router)
-app.include_router(dangKyThi_router.router)
+app.include_router(exam_registration_router.router)
 app.include_router(sinhvien_router.router)
 app.include_router(bode_router.router)
 # app.include_router(authentication.router)
@@ -154,7 +164,6 @@ async def favicon():
 
 
 # Tạo Bảng trong DB nếu nó chưa tồn tại
-model.Base.metadata.create_all(engine)
 
 """
 Cho phép các trang web, app, api trên cùng 1 máy tính có thể truy cập đến api này  

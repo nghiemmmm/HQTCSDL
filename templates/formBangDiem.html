@@ -1,0 +1,395 @@
+{% extends "base_dashboard.html" %}
+
+{% block title %}Bảng điểm môn học{% endblock %}
+{% block page_kicker %}Báo cáo{% endblock %}
+{% block page_title %}Bảng điểm môn học{% endblock %}
+
+{% block page_css %}
+<style>
+  .report-wrap {
+    background-color: var(--surface-card);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    margin-bottom: 24px;
+  }
+  
+  .filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+    align-items: flex-end;
+  }
+  
+  .filter-grid .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .filter-grid label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+  
+  .filter-grid select {
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--background);
+    color: var(--text-primary);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  
+  .filter-grid select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  }
+  
+  .toolbar-actions {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .btn-search {
+    background-color: var(--primary);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+  }
+  
+  .btn-search:hover {
+    background-color: var(--primary-hover);
+  }
+  
+  .btn-print {
+    background-color: #059669;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    height: 42px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+  }
+  
+  .btn-print:hover {
+    background-color: #047857;
+  }
+
+  .table-container {
+    display: none;
+    margin-top: 24px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .report-print-header {
+    display: none;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .report-print-header h1 {
+    font-size: 20px;
+    margin: 0 0 10px 0;
+    color: black;
+  }
+  
+  .report-print-header p {
+    font-size: 14px;
+    margin: 4px 0;
+    color: #374151;
+  }
+  
+  table.score-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--surface-card);
+    font-size: 14px;
+    text-align: left;
+  }
+  
+  table.score-table th, table.score-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  table.score-table th {
+    background-color: var(--background);
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+  
+  table.score-table tr:hover {
+    background-color: rgba(243, 244, 246, 0.05);
+  }
+  
+  .error-text {
+    color: #dc2626;
+    font-weight: 500;
+    font-size: 14px;
+    margin-top: 10px;
+    text-align: center;
+    display: none;
+  }
+
+  /* PRINT STYLE RULES */
+  @media print {
+    body {
+      background-color: white !important;
+      color: black !important;
+    }
+    
+    .dashboard-sidebar, .dashboard-navbar, .filter-grid, .toolbar-actions, h2, .page-kicker {
+      display: none !important;
+    }
+    
+    .report-wrap {
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      background: transparent !important;
+    }
+    
+    .report-print-header {
+      display: block !important;
+    }
+    
+    .table-container {
+      display: block !important;
+      border: 1px solid black !important;
+      margin-top: 0 !important;
+    }
+    
+    table.score-table {
+      background-color: white !important;
+      color: black !important;
+      font-size: 12px !important;
+    }
+    
+    table.score-table th {
+      background-color: #f3f4f6 !important;
+      color: black !important;
+      border-bottom: 2px solid black !important;
+    }
+    
+    table.score-table td {
+      border-bottom: 1px solid #e5e7eb !important;
+    }
+    
+    /* Make sure printable layout takes full width */
+    .dashboard-content {
+      padding: 0 !important;
+      margin: 0 !important;
+      width: 100% !important;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="report-wrap">
+  <h2>BẢNG ĐIỂM MÔN HỌC</h2>
+  
+  <div class="filter-grid">
+    <div class="field">
+      <label for="selectClass">Lớp học</label>
+      <select id="selectClass">
+        <option value="">-- Chọn lớp học --</option>
+        {% for c in classes %}
+        <option value="{{ c.malop }}">{{ c.malop }} - {{ c.tenlop }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    
+    <div class="field">
+      <label for="selectSubject">Môn học</label>
+      <select id="selectSubject">
+        <option value="">-- Chọn môn học --</option>
+        {% for s in subjects %}
+        <option value="{{ s.mamh }}">{{ s.mamh }} - {{ s.tenmh }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    
+    <div class="field">
+      <label for="selectAttempt">Lần thi</label>
+      <select id="selectAttempt">
+        <option value="1">Lần 1</option>
+        <option value="2">Lần 2</option>
+      </select>
+    </div>
+    
+    <div class="toolbar-actions">
+      <button class="btn-search" onclick="fetchScoreboard()">Xem bảng điểm</button>
+      <button id="btnPrint" class="btn-print" onclick="window.print()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+        <span>In bảng điểm</span>
+      </button>
+    </div>
+  </div>
+  
+  <div id="errorText" class="error-text"></div>
+  
+  <!-- PRINT ONLY HEADER -->
+  <div id="printHeader" class="report-print-header">
+    <h1>BẢNG ĐIỂM MÔN HỌC CHÍNH THỨC</h1>
+    <p id="printClassInfo">Lớp: ...</p>
+    <p id="printSubjectInfo">Môn học: ...</p>
+    <p id="printAttemptInfo">Lần thi: ...</p>
+  </div>
+  
+  <!-- SCOREBOARD TABLE -->
+  <div id="tableContainer" class="table-container">
+    <table class="score-table">
+      <thead>
+        <tr>
+          <th style="width: 60px; text-align: center;">STT</th>
+          <th style="width: 120px;">Mã SV</th>
+          <th>Họ</th>
+          <th>Tên</th>
+          <th style="width: 100px; text-align: center;">Điểm số</th>
+          <th style="width: 100px; text-align: center;">Điểm chữ</th>
+          <th>Điểm chữ viết</th>
+        </tr>
+      </thead>
+      <tbody id="scoreboardBody">
+      </tbody>
+    </table>
+  </div>
+</main>
+{% endblock %}
+
+{% block page_js %}
+<script>
+  function showError(msg) {
+    const err = document.getElementById("errorText");
+    if (msg) {
+      err.innerText = msg;
+      err.style.display = "block";
+    } else {
+      err.style.display = "none";
+    }
+  }
+
+  async function fetchScoreboard() {
+    showError("");
+    document.getElementById("tableContainer").style.display = "none";
+    document.getElementById("btnPrint").style.display = "none";
+    
+    const malop = document.getElementById("selectClass").value;
+    const mamh = document.getElementById("selectSubject").value;
+    const lan = document.getElementById("selectAttempt").value;
+    
+    if (!malop) {
+      showError("Vui lòng chọn lớp học.");
+      return;
+    }
+    if (!mamh) {
+      showError("Vui lòng chọn môn học.");
+      return;
+    }
+    
+    try {
+      const res = await fetch(`/thi/api/bang-diem-data?malop=${encodeURIComponent(malop)}&mamh=${encodeURIComponent(mamh)}&lan=${lan}`);
+      if (!res.ok) throw new Error("Lỗi máy chủ khi lấy bảng điểm môn học.");
+      const data = await res.json();
+      
+      const tbody = document.getElementById("scoreboardBody");
+      tbody.innerHTML = "";
+      
+      if (data.students.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 20px;">Lớp học này chưa có sinh viên nào.</td></tr>';
+        document.getElementById("tableContainer").style.display = "block";
+        return;
+      }
+      
+      data.students.forEach(s => {
+        const tr = document.createElement("tr");
+        
+        const tdStt = document.createElement("td");
+        tdStt.innerText = s.stt;
+        tdStt.style.textAlign = "center";
+        
+        const tdMasv = document.createElement("td");
+        tdMasv.innerText = s.masv;
+        
+        const tdHo = document.createElement("td");
+        tdHo.innerText = s.ho;
+        
+        const tdTen = document.createElement("td");
+        tdTen.innerText = s.ten;
+        
+        const tdDiem = document.createElement("td");
+        tdDiem.innerText = typeof s.diem === "number" ? s.diem.toFixed(2) : s.diem;
+        tdDiem.style.textAlign = "center";
+        tdDiem.style.fontWeight = "600";
+        if (typeof s.diem === "number" && s.diem < 4.0) {
+          tdDiem.style.color = "#dc2626"; // highlight failed scores
+        }
+        
+        const tdDiemChu = document.createElement("td");
+        tdDiemChu.innerText = s.diem_chu || "-";
+        tdDiemChu.style.textAlign = "center";
+        tdDiemChu.style.fontWeight = "600";
+        
+        const tdDiemChuViet = document.createElement("td");
+        tdDiemChuViet.innerText = s.diem_chu_viet || "-";
+        
+        tr.appendChild(tdStt);
+        tr.appendChild(tdMasv);
+        tr.appendChild(tdHo);
+        tr.appendChild(tdTen);
+        tr.appendChild(tdDiem);
+        tr.appendChild(tdDiemChu);
+        tr.appendChild(tdDiemChuViet);
+        
+        tbody.appendChild(tr);
+      });
+      
+      // Update print header info
+      const classSelect = document.getElementById("selectClass");
+      const className = classSelect.options[classSelect.selectedIndex].text;
+      const subjectSelect = document.getElementById("selectSubject");
+      const subjectName = subjectSelect.options[subjectSelect.selectedIndex].text;
+      
+      document.getElementById("printClassInfo").innerText = `Lớp: ${className}`;
+      document.getElementById("printSubjectInfo").innerText = `Môn học: ${subjectName}`;
+      document.getElementById("printAttemptInfo").innerText = `Lần thi: ${lan}`;
+      
+      document.getElementById("tableContainer").style.display = "block";
+      document.getElementById("btnPrint").style.display = "inline-flex";
+    } catch (err) {
+      showError(err.message);
+    }
+  }
+</script>
+{% endblock %}

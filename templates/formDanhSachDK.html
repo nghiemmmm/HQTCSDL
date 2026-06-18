@@ -1,0 +1,373 @@
+{% extends "base_dashboard.html" %}
+
+{% block title %}Danh sách đăng ký thi{% endblock %}
+{% block page_kicker %}Báo cáo{% endblock %}
+{% block page_title %}Danh sách đăng ký thi{% endblock %}
+
+{% block page_css %}
+<style>
+  .report-wrap {
+    background-color: var(--surface-card);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    margin-bottom: 24px;
+  }
+  
+  .filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+    align-items: flex-end;
+  }
+  
+  .filter-grid .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .filter-grid label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+  
+  .filter-grid input[type="date"] {
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--background);
+    color: var(--text-primary);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  
+  .filter-grid input[type="date"]:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  }
+  
+  .toolbar-actions {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .btn-search {
+    background-color: var(--primary);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+  }
+  
+  .btn-search:hover {
+    background-color: var(--primary-hover);
+  }
+  
+  .btn-print {
+    background-color: #059669;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    height: 42px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+  }
+  
+  .btn-print:hover {
+    background-color: #047857;
+  }
+
+  .table-container {
+    display: none;
+    margin-top: 24px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .report-print-header {
+    display: none;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .report-print-header h1 {
+    font-size: 20px;
+    margin: 0 0 10px 0;
+    color: black;
+  }
+  
+  .report-print-header p {
+    font-size: 14px;
+    margin: 4px 0;
+    color: #374151;
+  }
+  
+  table.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--surface-card);
+    font-size: 14px;
+    text-align: left;
+  }
+  
+  table.report-table th, table.report-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  table.report-table th {
+    background-color: var(--background);
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+  
+  table.report-table tr:hover {
+    background-color: rgba(243, 244, 246, 0.05);
+  }
+  
+  .error-text {
+    color: #dc2626;
+    font-weight: 500;
+    font-size: 14px;
+    margin-top: 10px;
+    text-align: center;
+    display: none;
+  }
+
+  /* PRINT STYLE RULES */
+  @media print {
+    body {
+      background-color: white !important;
+      color: black !important;
+    }
+    
+    .dashboard-sidebar, .dashboard-navbar, .filter-grid, .toolbar-actions, h2, .page-kicker {
+      display: none !important;
+    }
+    
+    .report-wrap {
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      background: transparent !important;
+    }
+    
+    .report-print-header {
+      display: block !important;
+    }
+    
+    .table-container {
+      display: block !important;
+      border: 1px solid black !important;
+      margin-top: 0 !important;
+    }
+    
+    table.report-table {
+      background-color: white !important;
+      color: black !important;
+      font-size: 12px !important;
+    }
+    
+    table.report-table th {
+      background-color: #f3f4f6 !important;
+      color: black !important;
+      border-bottom: 2px solid black !important;
+    }
+    
+    table.report-table td {
+      border-bottom: 1px solid #e5e7eb !important;
+    }
+    
+    .dashboard-content {
+      padding: 0 !important;
+      margin: 0 !important;
+      width: 100% !important;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="report-wrap">
+  <h2>DANH SÁCH ĐĂNG KÝ THI TRẮC NGHIỆM</h2>
+  
+  <div class="filter-grid">
+    <div class="field">
+      <label for="fromDate">Từ ngày</label>
+      <input type="date" id="fromDate">
+    </div>
+    
+    <div class="field">
+      <label for="toDate">Đến ngày</label>
+      <input type="date" id="toDate">
+    </div>
+    
+    <div class="toolbar-actions">
+      <button class="btn-search" onclick="fetchRegistrations()">Xem danh sách</button>
+      <button id="btnPrint" class="btn-print" onclick="window.print()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+        <span>In danh sách</span>
+      </button>
+    </div>
+  </div>
+  
+  <div id="errorText" class="error-text"></div>
+  
+  <!-- PRINT ONLY HEADER -->
+  <div id="printHeader" class="report-print-header">
+    <h1>DANH SÁCH ĐĂNG KÝ THI TRẮC NGHIỆM</h1>
+    <p id="printTimeInfo">Từ ngày: ... Đến ngày: ...</p>
+  </div>
+  
+  <!-- DATA TABLE -->
+  <div id="tableContainer" class="table-container">
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th style="width: 60px; text-align: center;">STT</th>
+          <th>Tên Lớp</th>
+          <th>Tên Môn Học</th>
+          <th>Giảng Viên Đăng Ký</th>
+          <th style="width: 100px; text-align: center;">Số Câu Thi</th>
+          <th style="width: 120px; text-align: center;">Ngày Thi</th>
+          <th style="width: 100px; text-align: center;">Đã Thi</th>
+        </tr>
+      </thead>
+      <tbody id="reportTableBody">
+      </tbody>
+    </table>
+  </div>
+</main>
+{% endblock %}
+
+{% block page_js %}
+<script>
+  // Set default dates: from first day of month to today
+  document.addEventListener("DOMContentLoaded", () => {
+    const today = new Date();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    
+    document.getElementById("fromDate").value = firstDay.toISOString().split('T')[0];
+    document.getElementById("toDate").value = today.toISOString().split('T')[0];
+  });
+
+  function showError(msg) {
+    const err = document.getElementById("errorText");
+    if (msg) {
+      err.innerText = msg;
+      err.style.display = "block";
+    } else {
+      err.style.display = "none";
+    }
+  }
+
+  async function fetchRegistrations() {
+    showError("");
+    document.getElementById("tableContainer").style.display = "none";
+    document.getElementById("btnPrint").style.display = "none";
+    
+    const fromDate = document.getElementById("fromDate").value;
+    const toDate = document.getElementById("toDate").value;
+    
+    if (!fromDate || !toDate) {
+      showError("Vui lòng chọn đầy đủ khoảng thời gian.");
+      return;
+    }
+    
+    try {
+      const res = await fetch(`/dangkythi/api/danh-sach-data?from_date=${encodeURIComponent(fromDate)}&to_date=${encodeURIComponent(toDate)}`);
+      if (!res.ok) throw new Error("Lỗi máy chủ khi lấy danh sách đăng ký thi.");
+      const data = await res.json();
+      
+      const tbody = document.getElementById("reportTableBody");
+      tbody.innerHTML = "";
+      
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 20px;">Không có đăng ký thi nào trong khoảng thời gian này.</td></tr>';
+        document.getElementById("tableContainer").style.display = "block";
+        return;
+      }
+      
+      data.forEach((row, idx) => {
+        const tr = document.createElement("tr");
+        
+        const tdStt = document.createElement("td");
+        tdStt.innerText = idx + 1;
+        tdStt.style.textAlign = "center";
+        
+        const tdTenLop = document.createElement("td");
+        tdTenLop.innerText = row.tenlop;
+        
+        const tdTenMh = document.createElement("td");
+        tdTenMh.innerText = row.tenmh;
+        
+        const tdHoTen = document.createElement("td");
+        tdHoTen.innerText = row.hoten;
+        
+        const tdSoCau = document.createElement("td");
+        tdSoCau.innerText = row.socauthi;
+        tdSoCau.style.textAlign = "center";
+        
+        const tdNgayThi = document.createElement("td");
+        tdNgayThi.innerText = row.ngaythi;
+        tdNgayThi.style.textAlign = "center";
+        
+        const tdDaThi = document.createElement("td");
+        tdDaThi.innerText = row.dathi;
+        tdDaThi.style.textAlign = "center";
+        tdDaThi.style.fontWeight = "bold";
+        tdDaThi.style.color = "#059669";
+        
+        tr.appendChild(tdStt);
+        tr.appendChild(tdTenLop);
+        tr.appendChild(tdTenMh);
+        tr.appendChild(tdHoTen);
+        tr.appendChild(tdSoCau);
+        tr.appendChild(tdNgayThi);
+        tr.appendChild(tdDaThi);
+        
+        tbody.appendChild(tr);
+      });
+      
+      // Update print header info
+      const fmtDate = (dStr) => {
+        const parts = dStr.split('-');
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      };
+      document.getElementById("printTimeInfo").innerText = `Từ ngày: ${fmtDate(fromDate)} Đến ngày: ${fmtDate(toDate)}`;
+      
+      document.getElementById("tableContainer").style.display = "block";
+      document.getElementById("btnPrint").style.display = "inline-flex";
+    } catch (err) {
+      showError(err.message);
+    }
+  }
+</script>
+{% endblock %}

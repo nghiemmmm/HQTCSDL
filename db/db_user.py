@@ -1,355 +1,92 @@
-from urllib import response
+"""User repository and SQL Server account persistence operations."""
 
-from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm.session import Session
-from fastapi import HTTPException
-from sqlalchemy import text
-from sqlalchemy.engine import URL
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
+from sqlalchemy.engine import Engine, URL
+from sqlalchemy.orm import Session
+
 from db.database import engine
-from schemas.schemas import DangNhap, DangKy
-from core.session import create_session
-from fastapi.responses import Response
-
-templates = Jinja2Templates(directory="templates")
-
-# def dang_nhap(db: Session, request: DangNhap):
-#     print(f"Đăng nhập với username: {request.username}, role: {request.role}")
-#     if request.role == "GIANGVIEN":
-
-#         # kiểm tra login tồn tại bằng Stored Procedure (SP_KiemTraLogin)
-#         query = text("EXEC SP_KiemTraLogin @login_name = :login_name")
-#         result = db.execute(query, {"login_name": request.username}).fetchone()
-
-#         if result is None:
-#             raise HTTPException(
-#                 status_code=404,
-#                 detail={
-#                     "field": "username",
-#                     "message": "Tài khoản không tồn tại"
-#                 }
-#             )
-
-#         # thử đăng nhập SQL Server
-#         try:
-
-#             connection_url = URL.create(
-#                 "mssql+pyodbc",
-#                 username=request.username,
-#                 password=request.password,
-#                 host="localhost",
-#                 port=1433,
-#                 database="THITRACNGHIEM",
-#                 query={
-#                     "driver": "ODBC Driver 18 for SQL Server",
-#                     "TrustServerCertificate": "yes"
-#                 },
-#             )
-
-#             engine = create_engine(connection_url)
-#             conn = engine.connect()
-
-#         except Exception:
-#             raise HTTPException(
-#                 status_code=401,
-#                  detail={
-#                     "field": "password",
-#                     "message": "Sai mật khẩu SQL Server"
-#                 }
-#             )
-
-#         # lấy database user (MAGV)
-#         # query = text("""
-#         #     SELECT USER_NAME() AS MAGV
-#         # """)
-
-#         # user = conn.execute(query).fetchone()
-
-#         # # lấy thông tin giảng viên
-#         # query = text("""
-#         #     SELECT HO,TEN
-#         #     FROM GIAOVIEN
-#         #     WHERE MAGV = :magv
-#         # """)
-
-      
-#         query = text("EXEC dbo.sp_ThongTinDangNhap :tenlogin")
-
-#         result = conn.execute(query, {
-#             "tenlogin": request.username
-#         }).fetchone()
-#         if result is None:
-#             raise HTTPException(
-#                 status_code=404,
-#                 detail="Không lấy được thông tin đăng nhập"
-#             )
-
-#         hoten = (result.Hoten or "").strip().split()
-#         ho = " ".join(hoten[:-1]) if len(hoten) > 1 else ""
-#         ten = hoten[-1] if hoten else ""
-
-#         return {
-#             "ma": result.Username,
-#             "ho": ho,
-#             "ten": ten,
-#             "role": result.Rolename
-#         }
 
 
-   
-#     elif request.role == "SINHVIEN":
-#         query_exists = text("""
-#             SELECT MASV
-#             FROM SINHVIEN
-#             WHERE MASV = :masv
-#         """)
+def find_sql_login(db: Session, login_name: str):
+    """Return a SQL login row when it exists."""
+    return db.execute(
+        text("EXEC SP_KiemTraLogin @login_name = :login_name"),
+        {"login_name": login_name},
+    ).fetchone()
 
-#         sv_exists = conn.execute(
-#             query_exists,
-#             {"masv": request.username}
-#         ).fetchone()
 
-#         if sv_exists is None:
-#             conn.close()
-#             raise HTTPException(
-#                 status_code=404,
-#                 detail={
-#                     "field": "username",
-#                     "message": "Mã sinh viên không tồn tại"
-#                 }
-#             )
+def connect_as_user(username: str, password: str):
+    """Open a SQL Server connection using supplied credentials."""
+    connection_url = URL.create(
+        "mssql+pyodbc",
+        username=username,
+        password=password,
+        host="localhost",
+        port=1433,
+        database="THITRACNGHIEM",
+        query={
+            "driver": "ODBC Driver 18 for SQL Server",
+            "TrustServerCertificate": "yes",
+        },
+    )
+    return create_engine(connection_url).connect()
 
-#         query_login = text("""
-#             SELECT MASV, HO, TEN
-#             FROM SINHVIEN
-#             WHERE MASV = :masv AND PASSWORD = :password
-#         """)
 
-#         sv = conn.execute(
-#             query_login,
-#             {"masv": request.username, "password": "123"}
-#         ).fetchone()
+def get_login_profile(connection, login_name: str):
+    """Return profile data for a SQL login."""
+    return connection.execute(
+        text("EXEC dbo.sp_ThongTinDangNhap :tenlogin"),
+        {"tenlogin": login_name},
+    ).fetchone()
 
-#         conn.close()
 
-#         try:
-#             connection_url = URL.create(
-#                 "mssql+pyodbc",
-#                 username="sa",
-#                 password="123",
-#                 host="localhost",
-#                 port=1433,
-#                 database="THITRACNGHIEM",
-#                 query={
-#                     "driver": "ODBC Driver 18 for SQL Server",
-#                     "TrustServerCertificate": "yes"
-#                 },
-#             )
+def find_student(db: Session, student_id: str):
+    """Return a student identity row."""
+    return db.execute(
+        text("SELECT MASV FROM SINHVIEN WHERE MASV = :masv"),
+        {"masv": student_id},
+    ).fetchone()
 
-#             engine = create_engine(connection_url)
-#             conn = engine.connect()
 
-#         except Exception:
-#             raise HTTPException(
-#                 status_code=500,
-#                 detail={
-#                     "field": "system",
-#                     "message": "Không thể kết nối database"
-#                 }
-#             )
-#         return {
-#             "ma": sv.MASV,
-#             "ho": sv.HO,
-#             "ten": sv.TEN,
-#             "role": "SINHVIEN"
-#         }
-
-#     else:
-#         raise HTTPException(
-#             status_code=400,
-#             detail="Role không hợp lệ"
-#         )
-    
-def dang_nhap(db: Session, request: DangNhap):
-
-    print(f"Login: {request.username} - {request.role}")
-
-    # ================= GIANG VIEN =================
-    if request.role in ("GIANGVIEN", "PGV"):
-
-        query = text("EXEC SP_KiemTraLogin @login_name = :login_name")
-        result = db.execute(query, {"login_name": request.username}).fetchone()
-
-        if result is None:
-            raise HTTPException(
-                status_code=404,
-                detail={
-                    "field": "username",
-                    "message": "Tài khoản không tồn tại"
-                }
-            )
-
-        try:
-            connection_url = URL.create(
-                "mssql+pyodbc",
-                username=request.username,
-                password=request.password,
-                host="localhost",
-                port=1433,
-                database="THITRACNGHIEM",
-                query={
-                    "driver": "ODBC Driver 18 for SQL Server",
-                    "TrustServerCertificate": "yes"
-                },
-            )
-
-            engine = create_engine(connection_url)
-            conn = engine.connect()
-
-        except Exception:
-            raise HTTPException(
-                status_code=401,
-                detail={
-                    "field": "password",
-                    "message": "Sai mật khẩu SQL Server"
-                }
-            )
-
-        query = text("EXEC dbo.sp_ThongTinDangNhap :tenlogin")
-
-        result = conn.execute(query, {
-            "tenlogin": request.username
-        }).fetchone()
-
-        conn.close()
-
-        if result is None:
-            raise HTTPException(
-                status_code=404,
-                detail={
-                    "field": "system",
-                    "message": "Không lấy được thông tin đăng nhập"
-                }
-            )
-
-        hoten = (result.Hoten or "").strip().split()
-        ho = " ".join(hoten[:-1]) if len(hoten) > 1 else ""
-        ten = hoten[-1] if hoten else ""
-
-        user_data = {
-            # "user_id": result.Username,
-            "ma": result.Username,
-            "ho": ho,
-            "ten": ten,
-            "role": result.Rolename
-        }
-        return user_data
-
-    # ================= SINH VIEN =================
-    elif request.role == "SINHVIEN":
-
-        # check tồn tại
-        query_exists = text("""
-            SELECT MASV
-            FROM SINHVIEN
-            WHERE MASV = :masv
-        """)
-
-        sv_exists = db.execute(
-            query_exists,
-            {"masv": request.username}
-        ).fetchone()
-
-        if sv_exists is None:
-            raise HTTPException(
-                status_code=404,
-                detail={
-                    "field": "username",
-                    "message": "Mã sinh viên không tồn tại"
-                }
-            )
-
-        # check login
-        query_login = text("""
+def authenticate_student(db: Session, student_id: str, password: str):
+    """Return a student profile when credentials match."""
+    return db.execute(
+        text(
+            """
             SELECT MASV, HO, TEN
             FROM SINHVIEN
             WHERE MASV = :masv AND PASSWORD = :password
-        """)
+            """
+        ),
+        {"masv": student_id, "password": password},
+    ).fetchone()
 
-        sv = db.execute(
-            query_login,
-            {
-                "masv": request.username,
-                "password": request.password
-            }
-        ).fetchone()
 
-        if sv is None:
-            raise HTTPException(
-                status_code=401,
-                detail={
-                    "field": "password",
-                    "message": "Sai mật khẩu"
-                }
-            )
-
-        # return {
-        #     "ma": sv.MASV,
-        #     "ho": sv.HO,
-        #     "ten": sv.TEN,
-        #     "role": "SINHVIEN"
-        # 
-        user_data = {
-            "ma": sv.MASV,
-            "ho": sv.HO,
-            "ten": sv.TEN,
-            "role": "SINHVIEN",
-        }
-        return user_data
-
-    # ================= ROLE INVALID =================
-    else:
-        raise HTTPException(
-            status_code=400,
-            detail={
-                "field": "role",
-                "message": "Role không hợp lệ"
-            }
-        )
-    
-def dang_ky(db: Session, request: DangKy):
-    
-    # Map system_role → SQL Server role
-    sql_role = ""
-    if request.role in ("GIANGVIEN", "PGV"):
-        sql_role = "db_owner"  # ✅ Role tồn tại trong SQL Server
-    else:
-        sql_role = "db_datareader"  # ✅ Role tồn tại trong SQL Server
-    
-    try:
-        with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
-            conn.execute(
-                text("""
+def create_sql_account(
+    login_name: str,
+    password: str,
+    username: str,
+    sql_role: str,
+    database_engine: Engine = engine,
+) -> None:
+    """Create a SQL Server account through the existing procedure."""
+    with database_engine.connect().execution_options(
+        isolation_level="AUTOCOMMIT"
+    ) as connection:
+        connection.execute(
+            text(
+                """
                 EXEC sp_TaoTaiKhoan
                     :loginname,
                     :password,
                     :username,
                     :role
-                """),
-                {
-                    "loginname": request.loginname,
-                    "password": request.password,
-                    "username": request.username,
-                    "role": sql_role
-                }
-            )
-        
-        return {
-            "message": "Tạo tài khoản thành công"
-        }   
-    
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Lỗi khi tạo tài khoản: {str(e)}"
+                """
+            ),
+            {
+                "loginname": login_name,
+                "password": password,
+                "username": username,
+                "role": sql_role,
+            },
         )
