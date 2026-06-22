@@ -89,3 +89,50 @@
   </div>
 </section>
 {% endblock %}
+
+{% block page_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const regs = {{ regs_json | tojson | safe }};
+  const lopSelect = document.querySelector('select[name="malop"]');
+  const monSelect = document.querySelector('select[name="mamh"]');
+
+  function updateFilters() {
+    const selectedLop = lopSelect.value;
+    const selectedMon = monSelect.value;
+    
+    // Update Mon hoc options
+    Array.from(monSelect.options).forEach(opt => {
+      if (!opt.value) return; // Skip placeholder
+      if (!selectedLop) {
+        opt.hidden = false;
+        opt.disabled = false;
+      } else {
+        const hasReg = regs.some(r => r.malop === selectedLop && r.mamh === opt.value);
+        opt.hidden = !hasReg;
+        opt.disabled = !hasReg;
+      }
+    });
+
+    // Update Lop options
+    Array.from(lopSelect.options).forEach(opt => {
+      if (!opt.value) return; // Skip placeholder
+      if (!selectedMon) {
+        opt.hidden = false;
+        opt.disabled = false;
+      } else {
+        const hasReg = regs.some(r => r.mamh === selectedMon && r.malop === opt.value);
+        opt.hidden = !hasReg;
+        opt.disabled = !hasReg;
+      }
+    });
+  }
+
+  lopSelect.addEventListener('change', updateFilters);
+  monSelect.addEventListener('change', updateFilters);
+  
+  // Initial filtering
+  updateFilters();
+});
+</script>
+{% endblock %}

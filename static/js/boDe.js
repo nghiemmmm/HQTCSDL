@@ -44,7 +44,9 @@ let pageSize = parseInt(pageSizeSelect?.value || "10", 10);
 
 function setButtonState(state) {
   const editing = state === "editing";
-  if (formPanel) formPanel.hidden = !editing;
+  const hasSelection = selectedIndex >= 0;
+
+  if (formPanel) formPanel.hidden = !(editing || hasSelection);
   if (formActions) formActions.hidden = !editing;
   if (btnOpenThem) btnOpenThem.style.display = editing ? "none" : "inline-flex";
   if (btnSua) btnSua.disabled = editing;
@@ -168,13 +170,16 @@ function render() {
       row.classList.add("is-selected");
     }
 
+    const gvInfo = window.listGiaoViens ? window.listGiaoViens.find(g => g.magv === item.magv) : null;
+    const gvDisplay = gvInfo ? `${gvInfo.magv} - ${gvInfo.hoten}` : item.magv;
+
     row.innerHTML = `
       <td>${item.cauhoi}</td>
       <td>${item.noidung && item.noidung.length > 70 ? item.noidung.substring(0, 70) + '...' : item.noidung}</td>
       <td>${item.mamh}</td>
       <td>${item.trinhdo}</td>
       <td>${item.dap_an}</td>
-      <td>${item.magv}</td>
+      <td>${gvDisplay}</td>
     `;
 
     row.onclick = () => selectRow(index);
@@ -210,6 +215,10 @@ function selectRow(index) {
     searchGVInput.value = gvInfo ? `${gvInfo.magv} - ${gvInfo.hoten}` : item.magv;
   }
   maGVInput.value = item.magv;
+
+  setButtonState("default");
+  setFormTitle("Chi tiết câu hỏi");
+  disableAllInputs(true);
 
   render();
 }
@@ -256,13 +265,24 @@ function them() {
   render();
 }
 
-function sua() {
+async function sua() {
   clearError();
   if (selectedIndex < 0) return showError("Vui lòng chọn dòng cần sửa");
 
+  const cauhoiId = data[selectedIndex].cauhoi;
+  try {
+    const res = await fetch(`/bode/${cauhoiId}/check-status`);
+    const statusData = await parseResponse(res);
+    if (statusData.da_su_dung) {
+      return showError("Câu hỏi này đã được sử dụng trong đề thi, không thể sửa!");
+    }
+  } catch (err) {
+    return showError(err.message);
+  }
+
   isSua = true;
   isThem = false;
-  editingCauHoiId = data[selectedIndex].cauhoi;
+  editingCauHoiId = cauhoiId;
   setFormTitle("Sua cau hoi");
   setButtonState("editing");
 
@@ -368,11 +388,21 @@ function huy() {
   render();
 }
 
-function xoa() {
+async function xoa() {
   clearError();
   if (selectedIndex < 0) return showError("Vui lòng chọn dòng cần xóa");
 
   const rowData = data[selectedIndex];
+
+  try {
+    const res = await fetch(`/bode/${rowData.cauhoi}/check-status`);
+    const statusData = await parseResponse(res);
+    if (statusData.da_su_dung) {
+      return showError("Câu hỏi này đã được sử dụng trong đề thi, không thể xoá!");
+    }
+  } catch (err) {
+    return showError(err.message);
+  }
   
   errorText.innerHTML = `
     <div style="background: #fee2e2; border: 1px solid #f87171; padding: 10px; border-radius: 4px; display: inline-block; color: #991b1b;">

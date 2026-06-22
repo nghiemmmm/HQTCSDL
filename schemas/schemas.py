@@ -118,7 +118,7 @@ class BoDeBase(BaseModel):
     c: str = Field(..., max_length=200)
     d: str = Field(..., max_length=200)
     dap_an: str = Field(..., pattern="^[ABCD]$")
-    magv: str = Field(..., max_length=8)
+    magv: Optional[str] = Field(None, max_length=8)
 
 class CauHoiCreate(BoDeBase):
     pass

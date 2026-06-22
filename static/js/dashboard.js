@@ -6,7 +6,8 @@
             'view_class', 'create_class', 'update_class', 'delete_class',
             'view_student', 'create_student', 'update_student', 'delete_student',
             'view_teacher', 'create_teacher', 'update_teacher', 'delete_teacher',
-            'view_student_score', 'view_score_report', 'view_student_exam', 'print_score_table'
+            'view_student_score', 'view_score_report', 'view_student_exam', 'print_score_table',
+            'view_question', 'create_question', 'update_question', 'delete_question'
         ],
         GIANGVIEN: [
             'view_question', 'create_question', 'update_question', 'delete_question',

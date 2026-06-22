@@ -139,7 +139,7 @@ class DbGiaoVienDangKy(Base):
         CheckConstraint("trinhdo IN ('A','B','C')"),
         CheckConstraint("lan BETWEEN 1 AND 2"),
         CheckConstraint("socauthi BETWEEN 10 AND 100"),
-        CheckConstraint("thoigian BETWEEN 5 AND 60"),
+        CheckConstraint("thoigian BETWEEN 15 AND 60"),
     )
 
     giaovien = relationship("DbGiaoVien", back_populates="giao_vien_dang_ky")

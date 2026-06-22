@@ -51,8 +51,8 @@ function validateForm(data) {
   if (!data.trinhdo) { showError("level", "Vui long chon trinh do."); hasError = true; }
   if (!data.lan) { showError("attempt", "Vui long chon lan thi."); hasError = true; }
   if (!data.ngaythi) { showError("date", "Vui long chon ngay gio thi."); hasError = true; }
-  if (!data.thoigian || data.thoigian < 5 || data.thoigian > 60) {
-    showError("duration", "Thoi gian thi phai tu 5 den 60 phut.");
+  if (!data.thoigian || data.thoigian < 15 || data.thoigian > 60) {
+    showError("duration", "Thoi gian thi phai tu 15 den 60 phut.");
     hasError = true;
   }
   if (!data.socauthi || data.socauthi < 10 || data.socauthi > 100) {

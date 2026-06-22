@@ -82,6 +82,10 @@ def update_bode(
     if user.get("role") == "GIANGVIEN" and (bode.magv or "").strip() != (user.get("ma") or "").strip():
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Khong duoc sua cau hoi cua giao vien khac")
 
+    status_check = db_bode.check_cauhoi_da_su_dung(db, id)
+    if status_check["da_su_dung"]:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cau hoi da duoc su dung trong de thi, khong the sua")
+
     if user.get("role") == "GIANGVIEN":
         request.magv = user.get("ma")
 
@@ -106,6 +110,10 @@ def delete_bode(
 
     if user.get("role") == "GIANGVIEN" and (bode.magv or "").strip() != (user.get("ma") or "").strip():
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Khong duoc xoa cau hoi cua giao vien khac")
+
+    status_check = db_bode.check_cauhoi_da_su_dung(db, id)
+    if status_check["da_su_dung"]:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cau hoi da duoc su dung trong de thi, khong the xoa")
 
     result = db_bode.delete_bode(db, id)
     return JSONResponse(

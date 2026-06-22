@@ -132,8 +132,8 @@ async function loadClassChooserForTeacher() {
   document.getElementById("className").innerText = "Ch\u1ecdn l\u1edbp thi th\u1eed";
   document.getElementById("classCode").innerText = "M\u00e3 l\u1edbp: Ch\u01b0a ch\u1ecdn";
 
-  const response = await fetch("/dangkythi/lophoc");
-  if (!response.ok) throw new Error("Kh\u00f4ng th\u1ec3 t\u1ea3i danh s\u00e1ch l\u1edbp thi");
+  const response = await fetch("/thi/lophoc-duoc-thi");
+  if (!response.ok) throw new Error("Không thể tải danh sách lớp thi");
 
   const classes = await response.json();
   select.innerHTML = placeholderOption("Ch\u1ecdn l\u1edbp thi");

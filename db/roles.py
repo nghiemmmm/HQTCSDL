@@ -79,6 +79,10 @@ ROLE_PERMISSIONS = {
         Permission.VIEW_SCORE_REPORT,
         Permission.VIEW_STUDENT_EXAM,
         Permission.PRINT_SCORE_TABLE,
+        Permission.VIEW_QUESTION,
+        Permission.CREATE_QUESTION,
+        Permission.UPDATE_QUESTION,
+        Permission.DELETE_QUESTION,
     ],
 
     quyen.GIANG_VIEN: [

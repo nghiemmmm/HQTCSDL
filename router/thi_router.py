@@ -524,53 +524,70 @@ def ket_qua_sinh_vien(
     db: Session = Depends(get_db),
     user=Depends(require_permission(Permission.VIEW_STUDENT_SCORE)),
 ):
-    query = (
-        db.query(DbBangDiem, DbSinhVien, DbMonHoc, DbLop)
-        .join(DbSinhVien, DbBangDiem.masv == DbSinhVien.masv)
-        .join(DbMonHoc, DbBangDiem.mamh == DbMonHoc.mamh)
-        .join(DbLop, DbSinhVien.malop == DbLop.malop)
-    )
+    results = []
 
-    if user.get("role") == "GIANGVIEN":
-        query = query.join(
-            DbGiaoVienDangKy,
-            and_(
-                DbGiaoVienDangKy.malop == DbSinhVien.malop,
-                DbGiaoVienDangKy.mamh == DbBangDiem.mamh,
-                DbGiaoVienDangKy.lan == DbBangDiem.lan,
-                DbGiaoVienDangKy.magv == user.get("ma"),
-            )
+    if malop and mamh and lan:
+        query = (
+            db.query(DbBangDiem, DbSinhVien, DbMonHoc, DbLop)
+            .join(DbSinhVien, DbBangDiem.masv == DbSinhVien.masv)
+            .join(DbMonHoc, DbBangDiem.mamh == DbMonHoc.mamh)
+            .join(DbLop, DbSinhVien.malop == DbLop.malop)
         )
 
-    if malop:
+        if user.get("role") == "GIANGVIEN":
+            query = query.join(
+                DbGiaoVienDangKy,
+                and_(
+                    DbGiaoVienDangKy.malop == DbSinhVien.malop,
+                    DbGiaoVienDangKy.mamh == DbBangDiem.mamh,
+                    DbGiaoVienDangKy.lan == DbBangDiem.lan,
+                    DbGiaoVienDangKy.magv == user.get("ma"),
+                )
+            )
+
         query = query.filter(DbSinhVien.malop == malop)
-    if mamh:
         query = query.filter(DbBangDiem.mamh == mamh)
-    if lan:
         query = query.filter(DbBangDiem.lan == lan)
 
-    rows = query.order_by(DbLop.malop, DbMonHoc.mamh, DbBangDiem.lan, DbSinhVien.ten, DbSinhVien.ho).all()
-    results = [
-        {
-            "masv": (student.masv or "").strip(),
-            "hoten": f"{(student.ho or '').strip()} {(student.ten or '').strip()}".strip(),
-            "malop": (lop.malop or "").strip(),
-            "tenlop": (lop.tenlop or "").strip(),
-            "mamh": (subject.mamh or "").strip(),
-            "tenmh": (subject.tenmh or "").strip(),
-            "lan": score.lan,
-            "ngaythi": score.ngaythi.strftime("%d/%m/%Y") if score.ngaythi else "",
-            "diem": score.diem,
-            "diem_chu": diem_chu(score.diem),
-        }
-        for score, student, subject, lop in rows
-    ]
+        rows = query.order_by(DbLop.malop, DbMonHoc.mamh, DbBangDiem.lan, DbSinhVien.ten, DbSinhVien.ho).all()
+        results = [
+            {
+                "masv": (student.masv or "").strip(),
+                "hoten": f"{(student.ho or '').strip()} {(student.ten or '').strip()}".strip(),
+                "malop": (lop.malop or "").strip(),
+                "tenlop": (lop.tenlop or "").strip(),
+                "mamh": (subject.mamh or "").strip(),
+                "tenmh": (subject.tenmh or "").strip(),
+                "lan": score.lan,
+                "ngaythi": score.ngaythi.strftime("%d/%m/%Y") if score.ngaythi else "",
+                "diem": score.diem,
+                "diem_chu": diem_chu(score.diem),
+            }
+            for score, student, subject, lop in rows
+        ]
+
+    if user.get("role") == "GIANGVIEN":
+        magv = user.get("ma")
+        classes_list = db.query(DbLop).join(DbGiaoVienDangKy, DbLop.malop == DbGiaoVienDangKy.malop).filter(DbGiaoVienDangKy.magv == magv).distinct().order_by(DbLop.malop).all()
+        subjects_list = db.query(DbMonHoc).join(DbGiaoVienDangKy, DbMonHoc.mamh == DbGiaoVienDangKy.mamh).filter(DbGiaoVienDangKy.magv == magv).distinct().order_by(DbMonHoc.mamh).all()
+        regs = db.query(DbGiaoVienDangKy).filter(DbGiaoVienDangKy.magv == magv).all()
+    else:
+        classes_list = db.query(DbLop).order_by(DbLop.malop).all()
+        subjects_list = db.query(DbMonHoc).order_by(DbMonHoc.mamh).all()
+        regs = db.query(DbGiaoVienDangKy).all()
+
+    regs_json = [{"malop": (r.malop or "").strip(), "mamh": (r.mamh or "").strip()} for r in regs]
+    selected_class = db.query(DbLop).filter(DbLop.malop == malop).first() if malop else None
+    selected_subject = db.query(DbMonHoc).filter(DbMonHoc.mamh == mamh).first() if mamh else None
 
     return templates.TemplateResponse("ketQuaSinhVien.html", {
         "request": request,
         "user": user,
-        "classes": db.query(DbLop).order_by(DbLop.malop).all(),
-        "subjects": db.query(DbMonHoc).order_by(DbMonHoc.mamh).all(),
+        "classes": classes_list,
+        "subjects": subjects_list,
+        "regs_json": regs_json,
+        "selected_class": selected_class,
+        "selected_subject": selected_subject,
         "results": results,
         "filters": {"malop": malop or "", "mamh": mamh or "", "lan": lan or ""},
     })
@@ -616,11 +633,24 @@ def bang_diem(
             for index, (student, score) in enumerate(query.all(), start=1)
         ]
 
+    if user.get("role") == "GIANGVIEN":
+        magv = user.get("ma")
+        classes_list = db.query(DbLop).join(DbGiaoVienDangKy, DbLop.malop == DbGiaoVienDangKy.malop).filter(DbGiaoVienDangKy.magv == magv).distinct().order_by(DbLop.malop).all()
+        subjects_list = db.query(DbMonHoc).join(DbGiaoVienDangKy, DbMonHoc.mamh == DbGiaoVienDangKy.mamh).filter(DbGiaoVienDangKy.magv == magv).distinct().order_by(DbMonHoc.mamh).all()
+        regs = db.query(DbGiaoVienDangKy).filter(DbGiaoVienDangKy.magv == magv).all()
+    else:
+        classes_list = db.query(DbLop).order_by(DbLop.malop).all()
+        subjects_list = db.query(DbMonHoc).order_by(DbMonHoc.mamh).all()
+        regs = db.query(DbGiaoVienDangKy).all()
+
+    regs_json = [{"malop": (r.malop or "").strip(), "mamh": (r.mamh or "").strip()} for r in regs]
+
     return templates.TemplateResponse("bangDiem.html", {
         "request": request,
         "user": user,
-        "classes": db.query(DbLop).order_by(DbLop.malop).all(),
-        "subjects": db.query(DbMonHoc).order_by(DbMonHoc.mamh).all(),
+        "classes": classes_list,
+        "subjects": subjects_list,
+        "regs_json": regs_json,
         "selected_class": selected_class,
         "selected_subject": selected_subject,
         "rows": rows,
@@ -723,6 +753,23 @@ def nhapLop(
         )
 
     return sinh_vien.lop
+
+
+@router.get("/lophoc-duoc-thi", response_model=List[LopDisplay])
+def lop_hoc_duoc_thi(
+    db: Session = Depends(get_db),
+    user=Depends(require_any_permission(Permission.TAKE_EXAM, Permission.PRACTICE_EXAM)),
+):
+    if user.get("role") == "GIANGVIEN":
+        return (
+            db.query(DbLop)
+            .join(DbGiaoVienDangKy, DbLop.malop == DbGiaoVienDangKy.malop)
+            .filter(DbGiaoVienDangKy.magv == user.get("ma"))
+            .distinct()
+            .order_by(DbLop.malop)
+            .all()
+        )
+    return db.query(DbLop).order_by(DbLop.malop).all()
 
 
 @router.get("/monhoc-duoc-thi", response_model=List[MonHocDisplay])
