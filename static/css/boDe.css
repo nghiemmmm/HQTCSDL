@@ -138,3 +138,243 @@ tbody tr {
 tbody tr:hover {
   background-color: #f3f4f6;
 }
+.bode-page {
+  max-width: 1120px;
+}
+
+.bode-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.bode-head h2 {
+  text-align: left;
+  margin-bottom: 6px;
+}
+
+.bode-head p,
+.list-head p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.btn-add {
+  background: #10b981;
+  min-height: 38px;
+  white-space: nowrap;
+}
+
+.btn-add:hover {
+  background: #059669;
+}
+
+.question-form-panel {
+  margin-bottom: 18px;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.form-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+
+.form-panel-head h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 6px;
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.btn-icon:hover {
+  background: #cbd5e1;
+}
+
+.question-form-panel .form-grid {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+.form-actions {
+  justify-content: flex-end;
+  margin: 0;
+  padding: 0 20px 18px;
+}
+
+.feedback-text {
+  min-height: 22px;
+  margin: 8px 0 12px;
+  color: #dc2626;
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+}
+
+.list-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+
+.list-head h3 {
+  margin: 0 0 5px;
+  font-size: 18px;
+}
+
+.list-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.list-actions input {
+  width: min(420px, 46vw);
+}
+
+.list-actions button,
+.pagination-bar button {
+  min-height: 36px;
+  padding: 7px 12px;
+}
+
+.list-actions #btnSua {
+  background: #f59e0b;
+}
+
+.list-actions #btnXoa {
+  background: #ef4444;
+}
+
+.list-actions #btnUndo {
+  background: #8b5cf6;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.table-wrap table {
+  margin-top: 0;
+  border: 0;
+}
+
+.table-wrap th,
+.table-wrap td {
+  border-left: 0;
+  border-right: 0;
+}
+
+tbody tr.is-selected {
+  background: #dbeafe;
+}
+
+.empty-cell {
+  text-align: center;
+  color: #64748b;
+  padding: 24px 12px;
+}
+
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 18px;
+  border-top: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+.page-numbers {
+  display: flex;
+  gap: 6px;
+}
+
+.page-numbers button {
+  min-width: 36px;
+  background: #fff;
+  color: #111827;
+  border: 1px solid #dbe3ef;
+}
+
+.page-numbers button.is-active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+
+.pagination-bar > button,
+.pagination-bar select {
+  width: auto;
+}
+
+.pagination-bar > button {
+  background: #fff;
+  color: #111827;
+  border: 1px solid #dbe3ef;
+}
+
+@media (max-width: 900px) {
+  .bode-head,
+  .list-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .list-actions {
+    justify-content: flex-start;
+  }
+
+  .list-actions input {
+    width: 100%;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pagination-bar {
+    align-items: stretch;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}

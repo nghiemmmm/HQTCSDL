@@ -4,29 +4,104 @@
 {% block page_kicker %}Tong quan theo vai tro{% endblock %}
 {% block page_title %}Dashboard{% endblock %}
 
+{% set role = user.role if user is defined and user else "USER" %}
+{% set full_name = ((user.ho ~ ' ' ~ user.ten)|trim) if user is defined and user else "" %}
+{% set display_name = full_name if full_name else (user.ma if user is defined and user else "Nguoi dung") %}
+
 {% block content %}
-<section class="dashboard-hero">
-    <div>
-        <span class="hero-eyebrow">{{ user.role if user is defined and user else "USER" }}</span>
-        <h2>{{ (user.ho ~ ' ' ~ user.ten) if user is defined and user else "He thong thi trac nghiem" }}</h2>
-        <p>{{ user.ma if user is defined and user else "" }}</p>
+<section class="dashboard-overview" aria-label="Tong quan he thong">
+    <div class="overview-main">
+        <div>
+            <span class="hero-eyebrow">{{ role }}</span>
+            <h2>Chao {{ display_name }}</h2>
+            <p>
+                {% if role == "SINHVIEN" %}
+                Theo doi lich thi, tiep tuc bai dang lam va xem lai ket qua ca nhan.
+                {% elif role == "GIANGVIEN" %}
+                Quan ly cau hoi, lich thi va theo doi ket qua lop phu trach.
+                {% else %}
+                Quan tri du lieu dao tao, tai khoan va bao cao diem thi.
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="overview-actions">
+            <a class="btn btn-primary" href="/thi/" data-permission="take_exam">Vao thi</a>
+            <a class="btn btn-primary" href="/dangkythi" data-permission="view_exam_registration">Quan ly lich thi</a>
+            <a class="btn btn-primary" href="/sinhvien/" data-permission="view_student">Quan ly sinh vien</a>
+            <a class="btn btn-outline" href="/user/info">Ho so</a>
+        </div>
     </div>
-    <a class="btn btn-outline" href="/user/info">Ho so</a>
+
+    <div class="overview-meta">
+        <div>
+            <span>Ma tai khoan</span>
+            <strong>{{ user.ma if user is defined and user else "N/A" }}</strong>
+        </div>
+        <div>
+            <span>Vai tro</span>
+            <strong>{{ role }}</strong>
+        </div>
+    </div>
 </section>
 
-<section class="dashboard-grid" aria-label="Chuc nang theo quyen">
-    <a class="stat-card" href="/monhoc" data-permission="view_subject"><span>Dao tao</span><strong>Mon hoc</strong></a>
-    <a class="stat-card" href="/lop/" data-permission="view_class"><span>Lop hoc</span><strong>Danh sach lop</strong></a>
-    <a class="stat-card" href="/sinhvien/" data-permission="view_student"><span>Nguoi hoc</span><strong>Sinh vien</strong></a>
-    <a class="stat-card" href="/giaovien" data-permission="view_teacher"><span>Nhan su</span><strong>Giao vien</strong></a>
-    <a class="stat-card" href="/bode/" data-permission="view_question"><span>Cau hoi</span><strong>Bo de</strong></a>
-    <a class="stat-card" href="/dangkythi" data-permission="view_exam_registration"><span>Lich thi</span><strong>Dang ky thi</strong></a>
-    <a class="stat-card" href="/thi/" data-any-permission="take_exam,practice_exam"><span>Phong thi</span><strong>Thi trac nghiem</strong></a>
-    <a class="stat-card" href="/thi/lich-su" data-permission="view_own_exam"><span>Bai lam</span><strong>Lich su thi</strong></a>
-    <a class="stat-card" href="/thi/xem-lai" data-permission="view_own_exam"><span>Dap an</span><strong>Xem lai bai thi</strong></a>
-    <a class="stat-card" href="/thi/diem" data-permission="view_own_score"><span>Ca nhan</span><strong>Diem thi</strong></a>
-    <a class="stat-card" href="/thi/ket-qua" data-permission="view_student_score"><span>Thong ke</span><strong>Ket qua sinh vien</strong></a>
-    <a class="stat-card" href="/thi/bang-diem" data-permission="print_score_table"><span>In an</span><strong>Bang diem</strong></a>
-    <a class="stat-card" href="/user/register" data-permission="create_user"><span>He thong</span><strong>Tai khoan</strong></a>
+<section class="insight-grid" aria-label="Trang thai nhanh">
+    <a class="insight-card" href="/thi/lich-su" data-permission="view_own_exam">
+        <span>Bai thi</span>
+        <strong>Lich su va bai dang lam</strong>
+        <small>Xem trang thai cac lan thi cua ban</small>
+    </a>
+    <a class="insight-card" href="/thi/diem" data-permission="view_own_score">
+        <span>Diem ca nhan</span>
+        <strong>Bang diem cua toi</strong>
+        <small>Theo doi diem va ket qua tung mon</small>
+    </a>
+    <a class="insight-card" href="/bode/" data-permission="view_question">
+        <span>Ngan hang cau hoi</span>
+        <strong>Bo de dang quan ly</strong>
+        <small>Cap nhat cau hoi truoc khi mo lich thi</small>
+    </a>
+    <a class="insight-card" href="/thi/ket-qua" data-permission="view_student_score">
+        <span>Ket qua lop</span>
+        <strong>Theo doi diem sinh vien</strong>
+        <small>Loc ket qua theo lop, mon va lan thi</small>
+    </a>
+    <a class="insight-card" href="/user/register" data-permission="create_user">
+        <span>Tai khoan</span>
+        <strong>Cap quyen truy cap</strong>
+        <small>Tao tai khoan cho nhan su dung he thong</small>
+    </a>
+</section>
+
+<section class="workflow-panel" aria-label="Cong viec thuong dung">
+    <div class="panel-heading">
+        <div>
+            <h3>Cong viec tiep theo</h3>
+            <p>Cac thao tac hay dung duoc gom theo luong cong viec, khong lap lai toan bo menu.</p>
+        </div>
+    </div>
+
+    <div class="workflow-list">
+        <a href="/thi/" data-any-permission="take_exam,practice_exam">
+            <span>01</span>
+            <strong>Chon lich va vao phong thi</strong>
+            <small>Dung khi can bat dau hoac thi thu mot bai trac nghiem.</small>
+        </a>
+        <a href="/dangkythi" data-permission="view_exam_registration">
+            <span>02</span>
+            <strong>Kiem tra lich thi da mo</strong>
+            <small>Dam bao lop, mon, lan thi, thoi gian va so cau deu dung.</small>
+        </a>
+        <a href="/bode/" data-permission="view_question">
+            <span>03</span>
+            <strong>Ra soat ngan hang cau hoi</strong>
+            <small>Bo sung cau hoi theo trinh do truoc khi dang ky thi.</small>
+        </a>
+        <a href="/thi/bang-diem" data-permission="print_score_table">
+            <span>04</span>
+            <strong>In bang diem</strong>
+            <small>Chot ket qua theo lop, mon hoc va lan thi.</small>
+        </a>
+    </div>
 </section>
 {% endblock %}

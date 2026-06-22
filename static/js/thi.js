@@ -33,10 +33,10 @@ async function readErrorMessage(response, fallback) {
 }
 
 function validateExamParams() {
-  if (!maMH) return "Thieu ma mon hoc";
-  if (!lanThi) return "Thieu lan thi";
-  if (!maLop) return "Thieu ma lop";
-  if (!ngayThi) return "Thieu ngay thi";
+  if (!maMH) return "Thi\u1ebfu m\u00e3 m\u00f4n h\u1ecdc";
+  if (!lanThi) return "Thi\u1ebfu l\u1ea7n thi";
+  if (!maLop) return "Thi\u1ebfu m\u00e3 l\u1edbp";
+  if (!ngayThi) return "Thi\u1ebfu ng\u00e0y thi";
   return "";
 }
 
@@ -49,7 +49,7 @@ async function loadStudentInfo() {
   const displayName = fullName || masv;
 
   if (!masv) {
-    setText("studentName", "Khong tim thay thong tin dang nhap");
+    setText("studentName", "Kh\u00f4ng t\u00ecm th\u1ea5y th\u00f4ng tin \u0111\u0103ng nh\u1eadp");
     setText("className", "Lop: N/A");
     return;
   }
@@ -66,12 +66,12 @@ async function loadStudentInfo() {
       setText("className", `${classInfo.malop.trim()} - ${classInfo.tenlop}`);
     } else {
       setText("studentName", displayName);
-      setText("className", "Khong tim thay lop");
+      setText("className", "Kh\u00f4ng t\u00ecm th\u1ea5y l\u1edbp");
     }
   } catch (error) {
     console.error("Loi:", error);
     setText("studentName", displayName);
-    setText("className", "Loi ket noi may chu");
+    setText("className", "L\u1ed7i k\u1ebft n\u1ed1i m\u00e1y ch\u1ee7");
   }
 }
 
@@ -90,7 +90,7 @@ async function loadQuestions() {
 
   const response = await fetch(`/thi/cau-hoi?${params.toString()}`);
   if (!response.ok) {
-    throw new Error(await readErrorMessage(response, "Khong the tai cau hoi thi"));
+    throw new Error(await readErrorMessage(response, "Kh\u00f4ng th\u1ec3 t\u1ea3i c\u00e2u h\u1ecfi thi"));
   }
 
   const exam = await response.json();
@@ -107,7 +107,7 @@ async function loadQuestions() {
   if (Number.isNaN(timeLeft)) {
     timeLeft = (parseInt(exam.thoigian, 10) || 0) * 60;
   }
-  setText("examTitle", `Bai thi mon: ${exam.mamonhoc} (Lan ${exam.lanthi})`);
+  setText("examTitle", `B\u00e0i thi m\u00f4n: ${exam.mamonhoc} (L\u1ea7n ${exam.lanthi})`);
 }
 
 function startTimer() {
@@ -116,7 +116,7 @@ function startTimer() {
   timerId = setInterval(() => {
     if (timeLeft > 0) timeLeft--;
     if (timeLeft === 0 && !examSubmitted) {
-      window.notify?.("Da het thoi gian lam bai", "error");
+      window.notify?.("\u0110\u00e3 h\u1ebft th\u1eddi gian l\u00e0m b\u00e0i", "error");
       submitExamNow(true);
     }
     renderTimer();
@@ -219,7 +219,7 @@ function renderQuestionHost() {
   if (!QUESTIONS.length) {
     const empty = document.createElement("div");
     empty.className = "empty-state";
-    empty.innerText = "Khong the tai danh sach cau hoi cho lich thi nay.";
+    empty.innerText = "Kh\u00f4ng th\u1ec3 t\u1ea3i danh s\u00e1ch c\u00e2u h\u1ecfi cho l\u1ecbch thi n\u00e0y.";
     host.appendChild(empty);
     return;
   }
@@ -239,14 +239,14 @@ function renderQuestionHost() {
   const prev = document.createElement("button");
   prev.type = "button";
   prev.className = "exam-btn exam-btn-ghost";
-  prev.innerText = "Cau truoc";
+  prev.innerText = "C\u00e2u tr\u01b0\u1edbc";
   prev.disabled = currentIdx === 0;
   prev.addEventListener("click", prevQuestion);
 
   const next = document.createElement("button");
   next.type = "button";
   next.className = "exam-btn exam-btn-ghost";
-  next.innerText = "Cau tiep";
+  next.innerText = "C\u00e2u ti\u1ebfp";
   next.disabled = currentIdx === QUESTIONS.length - 1;
   next.addEventListener("click", nextQuestion);
 
@@ -332,7 +332,7 @@ async function submitExamNow(isAutoSubmit = false) {
   const confirmButton = document.getElementById("confirmSubmitBtn");
   if (confirmButton) {
     confirmButton.disabled = true;
-    confirmButton.innerText = isAutoSubmit ? "Het gio, dang nop..." : "Dang nop...";
+    confirmButton.innerText = isAutoSubmit ? "H\u1ebft gi\u1edd, \u0111ang n\u1ed9p..." : "\u0110ang n\u1ed9p...";
   }
   document.getElementById("submitBtn")?.setAttribute("disabled", "disabled");
 
@@ -355,7 +355,7 @@ async function submitExamNow(isAutoSubmit = false) {
     });
 
     if (!response.ok) {
-      throw new Error(await readErrorMessage(response, "Khong the nop bai thi"));
+      throw new Error(await readErrorMessage(response, "Kh\u00f4ng th\u1ec3 n\u1ed9p b\u00e0i thi"));
     }
 
     const result = await response.json();
@@ -366,7 +366,7 @@ async function submitExamNow(isAutoSubmit = false) {
     closeSubmitModal();
     render();
     window.notify?.(
-      isAutoSubmit ? `Het gio, bai thi da duoc nop. Diem: ${result.diem}` : `Da nop bai. Diem: ${result.diem}`,
+      isAutoSubmit ? `H\u1ebft gi\u1edd, b\u00e0i thi \u0111\u00e3 \u0111\u01b0\u1ee3c n\u1ed9p. \u0110i\u1ec3m: ${result.diem}` : `\u0110\u00e3 n\u1ed9p b\u00e0i. \u0110i\u1ec3m: ${result.diem}`,
       "success"
     );
     if (!result.practice) {
@@ -379,7 +379,7 @@ async function submitExamNow(isAutoSubmit = false) {
     autoSubmitting = false;
     if (confirmButton) {
       confirmButton.disabled = false;
-      confirmButton.innerText = "Nop bai";
+      confirmButton.innerText = "N\u1ed9p b\u00e0i";
     }
   }
 }
@@ -428,7 +428,9 @@ async function autoSaveExamState() {
         timeLeft = data.remaining_seconds;
         renderTimer();
       }
-      if (data.status && data.status !== "DANG_LAM") {
+      if (data.should_submit || data.status === "HET_GIO") {
+        await submitExamNow(true);
+      } else if (data.status && data.status !== "DANG_LAM") {
         examSubmitted = true;
         document.querySelector(".exam-room")?.classList.add("is-submitted");
         document.getElementById("submitBtn")?.setAttribute("disabled", "disabled");
@@ -479,7 +481,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   } catch (error) {
     console.error("Loi tai cau hoi:", error);
     window.notify?.(error.message, "error");
-    setText("examTitle", "Khong the tai cau hoi");
+    setText("examTitle", "Kh\u00f4ng th\u1ec3 t\u1ea3i c\u00e2u h\u1ecfi");
     const host = document.getElementById("questionHost");
     if (host) {
       host.innerHTML = "";

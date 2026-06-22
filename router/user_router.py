@@ -3,11 +3,12 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from core.templates import Jinja2Templates
 from core.session import create_session
 from sqlalchemy.orm.session import Session
-from sqlalchemy import text 
+from sqlalchemy import text
 from schemas.schemas import UserBase, DangNhap, UserBase, DangKy
 from db.database import get_db
 from db import db_user
 from db import db_giaovien 
+from db.model import DbGiaoVien, DbSinhVien, DbLop
 from core.session import delete_session
 from core.auth import get_current_user, require_permission
 from db.roles import Permission
@@ -40,10 +41,63 @@ def dangNhap(request: DangNhap, response: Response, db: Session = Depends(get_db
         path='/'
     )
     return user_data
+def _value(value):
+    return (value or "").strip() if isinstance(value, str) else value
+
+
+def _build_user_profile(db: Session, user: dict) -> dict:
+    role = user.get("role")
+    code = _value(user.get("ma"))
+    profile = {
+        "ma": code or "N/A",
+        "role": role or "N/A",
+        "hoten": _value(" ".join(filter(None, [user.get("ho"), user.get("ten")]))),
+        "sodt": "",
+        "diachi": "",
+        "ngaysinh": "",
+        "lop": "",
+    }
+
+    if role == "GIANGVIEN":
+        teacher = db.query(DbGiaoVien).filter(DbGiaoVien.magv == code).first()
+        if teacher:
+            profile.update({
+                "hoten": _value(f"{_value(teacher.ho)} {_value(teacher.ten)}"),
+                "sodt": _value(teacher.sodtll),
+                "diachi": _value(teacher.diachi),
+            })
+    elif role == "SINHVIEN":
+        student = db.query(DbSinhVien).filter(DbSinhVien.masv == code).first()
+        if student:
+            class_info = db.query(DbLop).filter(DbLop.malop == student.malop).first() if student.malop else None
+            class_text = ""
+            if class_info:
+                class_text = f"{_value(class_info.malop)} - {_value(class_info.tenlop)}"
+            elif student.malop:
+                class_text = _value(student.malop)
+
+            profile.update({
+                "hoten": _value(f"{_value(student.ho)} {_value(student.ten)}"),
+                "diachi": _value(student.diachi),
+                "ngaysinh": student.ngaysinh.strftime("%d/%m/%Y") if student.ngaysinh else "",
+                "lop": class_text,
+            })
+
+    return profile
+
+
 # thong tin nguoi dung
 @router.get("/info", response_class=HTMLResponse)
-async def info(request: Request, user=Depends(get_current_user)):
-    return templates.TemplateResponse("info.html", {"request": request, "user": user})
+def info(
+    request: Request,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
+):
+    profile = _build_user_profile(db, user)
+    return templates.TemplateResponse(
+        "info.html",
+        {"request": request, "user": user, "profile": profile},
+    )
 
 # dang ky
 @router.post("/register")

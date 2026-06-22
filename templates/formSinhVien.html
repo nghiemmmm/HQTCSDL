@@ -1,15 +1,18 @@
 {% extends "base_dashboard.html" %}
+{% set is_student_page = page_mode|default("class") == "student" %}
+{% set is_class_page = not is_student_page %}
 
-{% block title %}Sinh vien{% endblock %}
-{% block page_kicker %}Quan ly lop va sinh vien{% endblock %}
-{% block page_title %}Sinh vien{% endblock %}
+{% block title %}{{ "Sinh vien" if is_student_page else "Lop hoc" }}{% endblock %}
+{% block page_kicker %}{{ "Quan ly sinh vien theo lop" if is_student_page else "Quan ly lop" }}{% endblock %}
+{% block page_title %}{{ "Sinh vien" if is_student_page else "Lop hoc" }}{% endblock %}
 
 {% block page_css %}
-<link rel="stylesheet" href="/static/css/sinhVien.css">
+<link rel="stylesheet" href="/static/css/sinhVien.css?v=6">
 {% endblock %}
 
 {% block content %}
-<main class="page-wrap">
+<main class="page-wrap" data-page-mode="{{ page_mode|default('class') }}">
+    {% if is_class_page %}
     <section class="card" aria-label="Thao tac voi lop">
         <div class="card-head">
             <h3>Thao tac voi lop</h3>
@@ -17,51 +20,7 @@
         </div>
         <p id="selectedClassInfo" class="selection-note">Chua chon lop</p>
         <div id="toolbar">
-            <button id="btnClassAdd" type="button" data-permission="create_class">Them</button>
-            <button id="btnClassDelete" type="button" data-permission="delete_class">Xoa</button>
-            <button id="btnClassEdit" type="button" data-permission="update_class">Hieu chinh</button>
-            <button id="btnClassRestore" type="button" data-any-permission="create_class,update_class,delete_class">Phuc hoi</button>
-            <button id="btnClassSearch" type="button">Tim</button>
-            <button id="btnClassSave" type="button" data-any-permission="create_class,update_class">Ghi</button>
-        </div>
-    </section>
-
-    <section class="grid-layout">
-        <div class="card data-card">
-            <div class="card-head">
-                <h3>Danh sach lop</h3>
-                <span class="chip">Lop hoc</span>
-            </div>
-            <div class="table-wrap">
-                <table id="gridLop">
-                    <thead>
-                        <tr>
-                            <th>Ma lop</th>
-                            <th>Ten lop</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="card data-card">
-            <div class="card-head">
-                <h3>Danh sach sinh vien</h3>
-                <span class="chip">Sinh vien</span>
-            </div>
-            <div class="table-wrap">
-                <table id="gridSV">
-                    <thead>
-                        <tr>
-                            <th>Ma SV</th>
-                            <th>Ho ten</th>
-                            <th>Ngay sinh</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+            <button id="btnClassAdd" type="button" data-permission="create_class">Them lop</button>
         </div>
     </section>
 
@@ -78,7 +37,7 @@
             <button id="btnLopCancel" type="button">Huy</button>
         </div>
 
-        <div class="class-detail" aria-live="polite" style="margin-top: 20px;">
+        <div class="class-detail" id="classDetailPanel" aria-live="polite" style="display: none; margin-top: 20px;">
             <div class="class-detail-head">
                 <h4>Thong tin lop dang chon</h4>
                 <span class="chip">Chi tiet</span>
@@ -89,8 +48,78 @@
             </div>
         </div>
     </section>
+    {% endif %}
 
-    <section class="card form-card" id="formSinhVien" style="display: none;">
+    <section class="grid-layout">
+        <div class="card data-card" id="classListCard">
+            <div class="card-head">
+                <h3>Danh sach lop</h3>
+                <span class="chip">Lop hoc</span>
+            </div>
+            <div class="class-filter" role="search">
+                <input id="classFilterInput" type="search" placeholder="Tim theo ma lop hoac ten lop" aria-label="Tim theo ma lop hoac ten lop">
+                <button id="classFilterClear" type="button">Xoa loc</button>
+            </div>
+            {% if is_class_page %}
+            <div class="class-list-actions" aria-label="Thao tac voi lop dang chon">
+                <button id="btnClassDelete" type="button" data-permission="delete_class">Xoa</button>
+                <button id="btnClassEdit" type="button" data-permission="update_class">Hieu chinh</button>
+            </div>
+            {% endif %}
+            <p id="classFilterSummary" class="filter-summary" aria-live="polite"></p>
+            <div class="table-wrap">
+                <table id="gridLop">
+                    <thead>
+                        <tr>
+                            <th>Ma lop</th>
+                            <th>Ten lop</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        {% if is_student_page %}
+        <div class="card data-card info-placeholder" id="studentPromptCard">
+            <div class="card-head">
+                <h3>Thong tin sinh vien</h3>
+                <span class="chip">Sinh vien</span>
+            </div>
+            <p class="empty-note">Vui long chon lop</p>
+        </div>
+
+        <div class="card data-card" id="studentListCard" style="display: none;">
+            <div class="card-head">
+                <div>
+                    <h3>Danh sach sinh vien</h3>
+                    <p id="studentClassInfo" class="selection-note">Chua chon lop</p>
+                </div>
+                <span class="chip">Sinh vien</span>
+            </div>
+            <div class="student-list-actions" aria-label="Thao tac voi sinh vien">
+                <button id="btnBackToClasses" type="button">Chon lop khac</button>
+                <button id="btnDetailAdd" type="button" data-permission="create_student">Them</button>
+                <button id="btnDetailDelete" type="button" data-permission="delete_student">Xoa</button>
+                <button id="btnDetailEdit" type="button" data-permission="update_student">Hieu chinh</button>
+            </div>
+            <div class="table-wrap">
+                <table id="gridSV">
+                    <thead>
+                        <tr>
+                            <th>Ma SV</th>
+                            <th>Ho ten</th>
+                            <th>Ngay sinh</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+    {% if is_student_page %}
+        <section class="card form-card student-form-card" id="formSinhVien" style="display: none;">
         <h3>Nhap thong tin sinh vien</h3>
         <label for="txtMaSV">Ma SV</label>
         <input type="text" id="txtMaSV" placeholder="VD: B22DCCN001">
@@ -117,19 +146,14 @@
                 <p><span>Ngay sinh:</span> <strong id="viewNgaySinh">Chua chon</strong></p>
                 <p><span>Lop:</span> <strong id="viewMaLop">Chua chon</strong></p>
             </div>
-            <div class="student-detail-actions" aria-label="Thao tac sinh vien">
-                <button id="btnDetailAdd" type="button" data-permission="create_student">Them</button>
-                <button id="btnDetailDelete" type="button" data-permission="delete_student">Xoa</button>
-                <button id="btnDetailEdit" type="button" data-permission="update_student">Hieu chinh</button>
-                <button id="btnDetailRestore" type="button" data-any-permission="create_student,update_student,delete_student">Phuc hoi</button>
-                <button id="btnDetailSearch" type="button">Tim</button>
-                <button id="btnDetailSave" type="button" data-any-permission="create_student,update_student">Ghi</button>
-            </div>
         </div>
+        </section>
+        {% endif %}
     </section>
+
 </main>
 {% endblock %}
 
 {% block page_js %}
-<script src="/static/js/sinhVien.js?v=20260411-2"></script>
+<script src="/static/js/sinhVien.js?v=20260411-9"></script>
 {% endblock %}

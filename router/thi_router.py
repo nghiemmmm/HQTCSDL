@@ -10,6 +10,7 @@ from core.templates import Jinja2Templates
 from pydantic import BaseModel, Field
 from sqlalchemy.orm.session import Session
 from sqlalchemy import and_, func
+from sqlalchemy.exc import IntegrityError
 from schemas.schemas import SinhVienDisplay, SinhVienBase, SinhVienWithLopDisplay, LopDisplay, ThongTinThi, MonHocDisplay
 from db.database import get_db
 from db import db_lop, db_monhoc, db_sinhvien
@@ -34,6 +35,75 @@ def diem_chu(diem: Optional[float]) -> str:
     if diem >= 5:
         return "Trung binh"
     return "Yeu"
+
+
+def _clean(value: Optional[str]) -> str:
+    return (value or "").strip()
+
+
+def _exam_day_range(exam_date):
+    return datetime.combine(exam_date, time.min), datetime.combine(exam_date, time.max)
+
+
+def _exam_window(exam_info):
+    start_at = exam_info.ngaythi
+    duration = int(exam_info.thoigian or 0)
+    end_at = start_at + timedelta(minutes=duration) if start_at else None
+    return start_at, end_at
+
+
+def _find_exam_registration(db: Session, mamh: str, lan: int, malop: str, exam_date):
+    start_at, end_at = _exam_day_range(exam_date)
+    return db.query(DbGiaoVienDangKy).filter(
+        DbGiaoVienDangKy.mamh == mamh,
+        DbGiaoVienDangKy.lan == lan,
+        DbGiaoVienDangKy.malop == malop,
+        and_(
+            DbGiaoVienDangKy.ngaythi >= start_at,
+            DbGiaoVienDangKy.ngaythi <= end_at
+        )
+    ).first()
+
+
+def _ensure_exam_is_open(exam_info) -> None:
+    start_at, end_at = _exam_window(exam_info)
+    now = datetime.now()
+
+    if not start_at or not end_at:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Lich thi chua co thoi gian thi hop le"
+        )
+
+    if now < start_at:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Chua den gio thi. Thoi gian bat dau: {start_at.strftime('%d/%m/%Y %H:%M')}"
+        )
+
+    if now > end_at:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Da het thoi gian vao thi. Thoi gian ket thuc: {end_at.strftime('%d/%m/%Y %H:%M')}"
+        )
+
+
+def _ensure_teacher_can_access_exam(db: Session, user, malop: str, mamh: str, lan: int) -> None:
+    if user.get("role") != "GIANGVIEN":
+        return
+
+    allowed = db.query(DbGiaoVienDangKy).filter(
+        DbGiaoVienDangKy.malop == malop,
+        DbGiaoVienDangKy.mamh == mamh,
+        DbGiaoVienDangKy.lan == lan,
+        DbGiaoVienDangKy.magv == user.get("ma"),
+    ).first()
+
+    if not allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Khong duoc xem du lieu thi cua lop/mon/lan thi khac giao vien phu trach"
+        )
 
 @router.get("/", response_class=HTMLResponse)
 def read_root(
@@ -212,6 +282,16 @@ def xem_lai_bai_thi(
     target_masv = user.get("ma") if not can_view_student_exam else masv
 
     session_query = db.query(DbPhienThi).filter(DbPhienThi.trangthai == "DA_NOP")
+    if user.get("role") == "GIANGVIEN":
+        session_query = session_query.join(
+            DbGiaoVienDangKy,
+            and_(
+                DbGiaoVienDangKy.malop == DbPhienThi.malop,
+                DbGiaoVienDangKy.mamh == DbPhienThi.mamh,
+                DbGiaoVienDangKy.lan == DbPhienThi.lan,
+                DbGiaoVienDangKy.magv == user.get("ma"),
+            )
+        )
     if session_id:
         session_query = session_query.filter(DbPhienThi.id == session_id)
     if target_masv:
@@ -451,6 +531,17 @@ def ket_qua_sinh_vien(
         .join(DbLop, DbSinhVien.malop == DbLop.malop)
     )
 
+    if user.get("role") == "GIANGVIEN":
+        query = query.join(
+            DbGiaoVienDangKy,
+            and_(
+                DbGiaoVienDangKy.malop == DbSinhVien.malop,
+                DbGiaoVienDangKy.mamh == DbBangDiem.mamh,
+                DbGiaoVienDangKy.lan == DbBangDiem.lan,
+                DbGiaoVienDangKy.magv == user.get("ma"),
+            )
+        )
+
     if malop:
         query = query.filter(DbSinhVien.malop == malop)
     if mamh:
@@ -499,6 +590,7 @@ def bang_diem(
     rows = []
 
     if malop and mamh and lan:
+        _ensure_teacher_can_access_exam(db, user, malop, mamh, lan)
         query = (
             db.query(DbSinhVien, DbBangDiem)
             .outerjoin(
@@ -711,19 +803,8 @@ def layTTThi(
                 detail="Khong duoc xem lich thi cua lop khac"
             )
 
-    start_at = datetime.combine(exam_date, time.min)
-    end_at = datetime.combine(exam_date, time.max)
-
     try:
-        exam_info = db.query(DbGiaoVienDangKy).filter(
-            DbGiaoVienDangKy.mamh == mamonhoc,
-            DbGiaoVienDangKy.lan == lanthi,
-            DbGiaoVienDangKy.malop == malop,
-            and_(
-                DbGiaoVienDangKy.ngaythi >= start_at,
-                DbGiaoVienDangKy.ngaythi <= end_at
-            )
-        ).first()
+        exam_info = _find_exam_registration(db, mamonhoc, lanthi, malop, exam_date)
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -777,19 +858,8 @@ def lay_cau_hoi_thi(
                 detail="Khong duoc lay cau hoi thi cua lop khac"
             )
 
-    start_at = datetime.combine(exam_date, time.min)
-    end_at = datetime.combine(exam_date, time.max)
-
     try:
-        exam_info = db.query(DbGiaoVienDangKy).filter(
-            DbGiaoVienDangKy.mamh == mamonhoc,
-            DbGiaoVienDangKy.lan == lanthi,
-            DbGiaoVienDangKy.malop == malop,
-            and_(
-                DbGiaoVienDangKy.ngaythi >= start_at,
-                DbGiaoVienDangKy.ngaythi <= end_at
-            )
-        ).first()
+        exam_info = _find_exam_registration(db, mamonhoc, lanthi, malop, exam_date)
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -803,6 +873,7 @@ def lay_cau_hoi_thi(
         )
 
     if user.get("role") == "SINHVIEN":
+        _ensure_exam_is_open(exam_info)
         existing_session = db.query(DbPhienThi).filter(
             DbPhienThi.masv == user.get("ma"),
             DbPhienThi.mamh == mamonhoc,
@@ -983,11 +1054,14 @@ def autosave_bai_thi(
 
     remaining = calculate_remaining_seconds(session)
     if remaining <= 0:
+        if session.trangthai == "DANG_LAM":
+            session.dapan_dachon = json.dumps(request.answers)
+            session.cauhoi_hientai = max(0, int(request.current_index or 0))
         session.thoigian_conlai = 0
         session.trangthai = "HET_GIO"
         session.capnhat_luc = datetime.now()
         db.commit()
-        return {"status": session.trangthai, "remaining_seconds": 0}
+        return {"status": session.trangthai, "remaining_seconds": 0, "should_submit": True}
 
     if session.trangthai != "DANG_LAM":
         return {"status": session.trangthai, "remaining_seconds": remaining}
@@ -1018,18 +1092,7 @@ def nop_bai_thi(
             detail="Ngay thi phai co dinh dang YYYY-MM-DD"
         )
 
-    start_at = datetime.combine(exam_date, time.min)
-    end_at = datetime.combine(exam_date, time.max)
-
-    exam_info = db.query(DbGiaoVienDangKy).filter(
-        DbGiaoVienDangKy.mamh == request.mamonhoc,
-        DbGiaoVienDangKy.lan == request.lanthi,
-        DbGiaoVienDangKy.malop == request.malop,
-        and_(
-            DbGiaoVienDangKy.ngaythi >= start_at,
-            DbGiaoVienDangKy.ngaythi <= end_at
-        )
-    ).first()
+    exam_info = _find_exam_registration(db, request.mamonhoc, request.lanthi, request.malop, exam_date)
 
     if not exam_info:
         raise HTTPException(
@@ -1085,18 +1148,6 @@ def nop_bai_thi(
             detail="Khong duoc nop bai thi cua lop khac"
         )
 
-    existing_score = db.query(DbBangDiem).filter(
-        DbBangDiem.masv == sinh_vien.masv,
-        DbBangDiem.mamh == request.mamonhoc,
-        DbBangDiem.lan == request.lanthi
-    ).first()
-
-    if existing_score:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Bai thi nay da duoc nop, khong the nop lai"
-        )
-
     session = None
     if request.session_id:
         session = db.query(DbPhienThi).filter(
@@ -1123,6 +1174,29 @@ def nop_bai_thi(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Phien thi dang o trang thai {session.trangthai}, khong the nop bai"
+        )
+
+    if (
+        _clean(session.mamh) != _clean(request.mamonhoc)
+        or int(session.lan) != int(request.lanthi)
+        or _clean(session.malop) != _clean(request.malop)
+        or session.ngaythi != exam_date
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Phien thi khong khop voi thong tin bai nop"
+        )
+
+    existing_score = db.query(DbBangDiem).filter(
+        DbBangDiem.masv == sinh_vien.masv,
+        DbBangDiem.mamh == session.mamh,
+        DbBangDiem.lan == session.lan
+    ).first()
+
+    if existing_score:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Bai thi nay da duoc nop, khong the nop lai"
         )
 
     submitted_answers = {}
@@ -1155,9 +1229,9 @@ def nop_bai_thi(
 
     bang_diem = DbBangDiem(
         masv=sinh_vien.masv,
-        mamh=request.mamonhoc,
-        lan=request.lanthi,
-        ngaythi=exam_date,
+        mamh=session.mamh,
+        lan=session.lan,
+        ngaythi=session.ngaythi,
         diem=score
     )
 
@@ -1171,6 +1245,12 @@ def nop_bai_thi(
         session.capnhat_luc = session.nopbai_luc
         session.diem = score
         db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Bai thi nay da duoc nop, khong the nop lai"
+        )
     except Exception as exc:
         db.rollback()
         raise HTTPException(

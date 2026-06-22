@@ -5,14 +5,26 @@
 {% block page_title %}Bo de{% endblock %}
 
 {% block page_css %}
-<link rel="stylesheet" href="/static/css/boDe.css">
+<link rel="stylesheet" href="/static/css/boDe.css?v=2">
 {% endblock %}
 
 {% block content %}
-<main class="wrap">
-  <h2>QUAN LY BO DE</h2>
+<main class="wrap bode-page">
+  <div class="bode-head">
+    <div>
+      <h2>QUAN LY BO DE</h2>
+      <p>Quan ly ngan hang cau hoi, loc nhanh va phan trang danh sach.</p>
+    </div>
+    <button id="btnOpenThem" type="button" class="btn-add" onclick="them()" data-permission="create_question">Them cau hoi</button>
+  </div>
 
-  <div class="form-grid">
+  <section id="questionFormPanel" class="question-form-panel" hidden>
+    <div class="form-panel-head">
+      <h3 id="formTitle">Them cau hoi</h3>
+      <button type="button" class="btn-icon" onclick="huy()" aria-label="Dong form">x</button>
+    </div>
+
+    <div class="form-grid">
     <div class="form-row" style="grid-column: span 2;">
       <label>Noi dung cau hoi</label>
       <textarea id="noiDung" rows="3" maxlength="500" placeholder="Nhap noi dung cau hoi" disabled style="width: 100%;"></textarea>
@@ -52,7 +64,13 @@
 
     <label>Giao vien</label>
     <input id="searchGV" list="listGV" placeholder="Nhap ten hoac ma GV..." disabled>
-  </div>
+    </div>
+
+    <div class="toolbar form-actions" id="formActions" hidden>
+      <button id="btnGhi" onclick="ghi()" data-any-permission="create_question,update_question" style="display: none;">Ghi</button>
+      <button id="btnHuy" onclick="huy()" data-any-permission="create_question,update_question" style="display: none;">Huy</button>
+    </div>
+  </section>
 
   <datalist id="listGV">
     {% for gv in giaoviens %}
@@ -62,23 +80,23 @@
   <input type="hidden" id="maGV">
   <input type="hidden" id="cauHoiId">
 
-  <div class="toolbar">
-    <button id="btnThem" onclick="them()" data-permission="create_question">Them</button>
-    <button id="btnSua" onclick="sua()" data-permission="update_question">Sua</button>
-    <button id="btnXoa" onclick="xoa()" data-permission="delete_question">Xoa</button>
-    <button id="btnGhi" onclick="ghi()" data-any-permission="create_question,update_question" style="display: none;">Ghi</button>
-    <button id="btnHuy" onclick="huy()" data-any-permission="create_question,update_question" style="display: none;">Huy</button>
-    <button id="btnUndo" onclick="undo()" data-any-permission="create_question,update_question,delete_question">Undo</button>
-  </div>
+  <div id="errorText" class="feedback-text"></div>
 
-  <div id="errorText" style="color: #dc2626; font-weight: 500; font-size: 14px; margin-top: 10px; text-align: center; min-height: 20px;"></div>
+  <section class="list-card">
+    <div class="list-head">
+      <div>
+        <h3>Danh sach cau hoi</h3>
+        <p id="pageSummary">Dang tai danh sach...</p>
+      </div>
+      <div class="list-actions">
+        <input id="searchBoDe" type="search" placeholder="Nhap noi dung, ma mon hoac ma GV de loc...">
+        <button id="btnSua" type="button" onclick="sua()" data-permission="update_question">Sua</button>
+        <button id="btnXoa" type="button" onclick="xoa()" data-permission="delete_question">Xoa</button>
+        <button id="btnUndo" type="button" onclick="undo()" data-any-permission="create_question,update_question,delete_question">Undo</button>
+      </div>
+    </div>
 
-  <div style="margin: 15px 0; display: flex; align-items: center; gap: 10px;">
-    <label style="font-weight: 600; color: #6b7280; font-size: 13px;">Tim nhanh:</label>
-    <input id="searchBoDe" placeholder="Nhap noi dung, ma mon hoac ma GV de loc..." style="flex: 1;">
-  </div>
-
-  <div style="overflow-x: auto;">
+    <div class="table-wrap">
     <table border="1">
       <thead>
         <tr>
@@ -92,7 +110,19 @@
       </thead>
       <tbody id="tbody"></tbody>
     </table>
-  </div>
+    </div>
+
+    <div class="pagination-bar" id="paginationBar">
+      <button id="prevPageBtn" type="button">Truoc</button>
+      <div id="pageNumbers" class="page-numbers"></div>
+      <button id="nextPageBtn" type="button">Sau</button>
+      <select id="pageSizeSelect" aria-label="So dong moi trang">
+        <option value="5">5 dong</option>
+        <option value="10" selected>10 dong</option>
+        <option value="20">20 dong</option>
+      </select>
+    </div>
+  </section>
 </main>
 {% endblock %}
 
@@ -101,5 +131,5 @@
   window.initialBodes = JSON.parse(`{{ bodes | tojson }}`);
   window.listGiaoViens = JSON.parse(`{{ giaoviens | tojson }}`);
 </script>
-<script src="/static/js/boDe.js?v=1"></script>
+<script src="/static/js/boDe.js?v=2"></script>
 {% endblock %}

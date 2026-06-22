@@ -104,10 +104,6 @@
     background: #1a6fba;
 }
 
-#btnClassRestore {
-    background: #7b6d8d;
-}
-
 #btnClassSearch {
     background: #2c8c64;
 }
@@ -168,6 +164,69 @@
     font-weight: 600;
 }
 
+.class-filter {
+    display: flex;
+    gap: 8px;
+    margin: 0 0 10px;
+}
+
+.class-filter input {
+    min-width: 0;
+    flex: 1;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: #fffeff;
+}
+
+.class-filter input:focus {
+    outline: 2px solid rgba(15, 139, 141, 0.25);
+    border-color: var(--primary);
+}
+
+.class-filter button {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    font-weight: 700;
+    color: var(--text);
+    background: #fff;
+    cursor: pointer;
+}
+
+.filter-summary {
+    margin: 0 0 12px;
+    color: var(--muted);
+    font-size: 0.86rem;
+    font-weight: 600;
+}
+
+.class-list-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 12px;
+}
+
+.class-list-actions button {
+    border: none;
+    border-radius: 999px;
+    padding: 9px 14px;
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: #fff;
+    background: var(--primary);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.class-list-actions button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px rgba(15, 139, 141, 0.18);
+}
+
 .table-wrap {
     overflow-x: auto;
 }
@@ -205,6 +264,25 @@ tbody tr:hover {
     border-bottom-color: rgba(15, 139, 141, 0.2);
 }
 
+.empty-cell {
+    padding: 22px 12px;
+    text-align: center;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.info-placeholder {
+    min-height: 220px;
+}
+
+.empty-note {
+    margin: 42px 0;
+    text-align: center;
+    color: var(--muted);
+    font-weight: 700;
+    font-size: 1rem;
+}
+
 #formInput {
     width: min(460px, 100%);
     display: grid;
@@ -236,6 +314,10 @@ tbody tr:hover {
     width: min(460px, 100%);
     display: grid;
     gap: 8px;
+}
+
+.student-form-card {
+    width: 100%;
 }
 
 .form-card h3 {
@@ -374,6 +456,7 @@ tbody tr:hover {
     font-weight: 600;
 }
 
+.student-list-actions,
 .student-detail-actions {
     margin-top: 14px;
     display: flex;
@@ -381,6 +464,7 @@ tbody tr:hover {
     gap: 10px;
 }
 
+.student-list-actions button,
 .student-detail-actions button {
     border: none;
     border-radius: 999px;
@@ -393,6 +477,10 @@ tbody tr:hover {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+#btnBackToClasses {
+    background: #64748b;
+}
+
 #btnDetailDelete {
     background: var(--accent);
 }
@@ -401,18 +489,7 @@ tbody tr:hover {
     background: #1a6fba;
 }
 
-#btnDetailRestore {
-    background: #7b6d8d;
-}
-
-#btnDetailSearch {
-    background: #2c8c64;
-}
-
-#btnDetailSave {
-    background: #0e7490;
-}
-
+.student-list-actions button:hover,
 .student-detail-actions button:hover {
     transform: translateY(-1px);
     box-shadow: 0 8px 16px rgba(15, 139, 141, 0.18);
@@ -437,7 +514,12 @@ tbody tr:hover {
 
 @media (min-width: 960px) {
     .grid-layout {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .page-wrap[data-page-mode="student"] .grid-layout {
+        grid-template-columns: minmax(0, 1fr) minmax(320px, 0.8fr);
+        align-items: start;
     }
 }
 
@@ -470,7 +552,20 @@ tbody tr:hover {
         flex-direction: column;
     }
 
+    .student-list-actions button,
     .student-detail-actions button {
+        width: 100%;
+    }
+
+    .class-filter {
+        flex-direction: column;
+    }
+
+    .class-filter button {
+        width: 100%;
+    }
+
+    .class-list-actions button {
         width: 100%;
     }
 

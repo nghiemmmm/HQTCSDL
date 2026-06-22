@@ -23,30 +23,39 @@ const searchGVInput = document.getElementById("searchGV");
 const maGVInput = document.getElementById("maGV");
 const searchBoDeInput = document.getElementById("searchBoDe");
 const errorText = document.getElementById("errorText");
+const formPanel = document.getElementById("questionFormPanel");
+const formActions = document.getElementById("formActions");
+const formTitle = document.getElementById("formTitle");
+const pageSummary = document.getElementById("pageSummary");
+const pageNumbers = document.getElementById("pageNumbers");
+const prevPageBtn = document.getElementById("prevPageBtn");
+const nextPageBtn = document.getElementById("nextPageBtn");
+const pageSizeSelect = document.getElementById("pageSizeSelect");
 
-const btnThem = document.getElementById("btnThem");
+const btnOpenThem = document.getElementById("btnOpenThem");
 const btnSua = document.getElementById("btnSua");
 const btnXoa = document.getElementById("btnXoa");
 const btnGhi = document.getElementById("btnGhi");
 const btnHuy = document.getElementById("btnHuy");
 const btnUndo = document.getElementById("btnUndo");
 
+let currentPage = 1;
+let pageSize = parseInt(pageSizeSelect?.value || "10", 10);
+
 function setButtonState(state) {
-  if (state === "default") {
-    if (btnThem) btnThem.style.display = "inline-block";
-    if (btnSua) btnSua.style.display = "inline-block";
-    if (btnXoa) btnXoa.style.display = "inline-block";
-    if (btnUndo) btnUndo.style.display = "inline-block";
-    if (btnGhi) btnGhi.style.display = "none";
-    if (btnHuy) btnHuy.style.display = "none";
-  } else if (state === "editing") {
-    if (btnThem) btnThem.style.display = "none";
-    if (btnSua) btnSua.style.display = "none";
-    if (btnXoa) btnXoa.style.display = "none";
-    if (btnUndo) btnUndo.style.display = "none";
-    if (btnGhi) btnGhi.style.display = "inline-block";
-    if (btnHuy) btnHuy.style.display = "inline-block";
-  }
+  const editing = state === "editing";
+  if (formPanel) formPanel.hidden = !editing;
+  if (formActions) formActions.hidden = !editing;
+  if (btnOpenThem) btnOpenThem.style.display = editing ? "none" : "inline-flex";
+  if (btnSua) btnSua.disabled = editing;
+  if (btnXoa) btnXoa.disabled = editing;
+  if (btnUndo) btnUndo.disabled = editing;
+  if (btnGhi) btnGhi.style.display = editing ? "inline-block" : "none";
+  if (btnHuy) btnHuy.style.display = editing ? "inline-block" : "none";
+}
+
+function setFormTitle(text) {
+  if (formTitle) formTitle.innerText = text;
 }
 
 function showError(msg) {
@@ -81,29 +90,87 @@ async function parseResponse(res) {
   return resData;
 }
 
-function render() {
-  const tbody = document.getElementById("tbody");
-  tbody.innerHTML = "";
-
+function getFilteredRows() {
   const keyword = searchBoDeInput ? searchBoDeInput.value.trim().toLowerCase() : "";
-
-  data.forEach((item, index) => {
-    if (keyword) {
+  return data
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => {
+      if (!keyword) return true;
       const matchNoidung = (item.noidung || "").toLowerCase().includes(keyword);
       const matchMaMH = (item.mamh || "").toLowerCase().includes(keyword);
       const matchMaGV = (item.magv || "").toLowerCase().includes(keyword);
-      if (!matchNoidung && !matchMaMH && !matchMaGV) return;
-    }
+      return matchNoidung || matchMaMH || matchMaGV;
+    });
+}
 
+function clampCurrentPage(totalPages) {
+  currentPage = Math.min(Math.max(currentPage, 1), Math.max(totalPages, 1));
+}
+
+function renderPagination(totalRows, totalPages) {
+  if (pageSummary) {
+    if (!totalRows) {
+      pageSummary.innerText = "Khong co cau hoi phu hop";
+    } else {
+      const from = (currentPage - 1) * pageSize + 1;
+      const to = Math.min(currentPage * pageSize, totalRows);
+      pageSummary.innerText = `Hien thi ${from}-${to} trong ${totalRows} cau hoi`;
+    }
+  }
+
+  if (prevPageBtn) prevPageBtn.disabled = currentPage <= 1;
+  if (nextPageBtn) nextPageBtn.disabled = currentPage >= totalPages;
+
+  if (!pageNumbers) return;
+  pageNumbers.innerHTML = "";
+
+  const maxButtons = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+  let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+  startPage = Math.max(1, endPage - maxButtons + 1);
+
+  for (let page = startPage; page <= endPage; page++) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.innerText = page;
+    if (page === currentPage) button.classList.add("is-active");
+    button.addEventListener("click", () => {
+      currentPage = page;
+      render();
+    });
+    pageNumbers.appendChild(button);
+  }
+}
+
+function render() {
+  const tbody = document.getElementById("tbody");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+
+  const filteredRows = getFilteredRows();
+  const totalRows = filteredRows.length;
+  const totalPages = Math.ceil(totalRows / pageSize) || 1;
+  clampCurrentPage(totalPages);
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const pageRows = filteredRows.slice(startIndex, startIndex + pageSize);
+
+  if (!pageRows.length) {
+    const row = document.createElement("tr");
+    row.innerHTML = `<td colspan="6" class="empty-cell">Khong co cau hoi phu hop.</td>`;
+    tbody.appendChild(row);
+  }
+
+  pageRows.forEach(({ item, index }) => {
     const row = document.createElement("tr");
 
     if (index === selectedIndex) {
-      row.style.background = "#d1e7ff";
+      row.classList.add("is-selected");
     }
 
     row.innerHTML = `
       <td>${item.cauhoi}</td>
-      <td>${item.noidung && item.noidung.length > 50 ? item.noidung.substring(0, 50) + '...' : item.noidung}</td>
+      <td>${item.noidung && item.noidung.length > 70 ? item.noidung.substring(0, 70) + '...' : item.noidung}</td>
       <td>${item.mamh}</td>
       <td>${item.trinhdo}</td>
       <td>${item.dap_an}</td>
@@ -113,6 +180,8 @@ function render() {
     row.onclick = () => selectRow(index);
     tbody.appendChild(row);
   });
+
+  renderPagination(totalRows, totalPages);
 }
 
 function selectRow(index) {
@@ -174,6 +243,8 @@ function them() {
   isThem = true;
   isSua = false;
   selectedIndex = -1;
+  editingCauHoiId = null;
+  setFormTitle("Them cau hoi");
   setButtonState("editing");
   
   clearForm();
@@ -190,6 +261,7 @@ function sua() {
   isSua = true;
   isThem = false;
   editingCauHoiId = data[selectedIndex].cauhoi;
+  setFormTitle("Sua cau hoi");
   setButtonState("editing");
 
   disableAllInputs(false);
@@ -235,6 +307,7 @@ async function ghi() {
       const result = resData.data;
       data.push(result);
       stackUndo.push({ type: "ADD", data: result });
+      currentPage = Math.ceil(getFilteredRows().length / pageSize) || 1;
 
       isThem = false;
       showSuccess(resData.message);
@@ -416,9 +489,28 @@ document.addEventListener("DOMContentLoaded", () => {
   if (searchBoDeInput) {
     searchBoDeInput.addEventListener("input", () => {
       selectedIndex = -1;
+      currentPage = 1;
       clearForm();
       disableAllInputs(true);
       render();
     });
   }
+
+  prevPageBtn?.addEventListener("click", () => {
+    if (currentPage > 1) {
+      currentPage--;
+      render();
+    }
+  });
+
+  nextPageBtn?.addEventListener("click", () => {
+    currentPage++;
+    render();
+  });
+
+  pageSizeSelect?.addEventListener("change", () => {
+    pageSize = parseInt(pageSizeSelect.value, 10) || 10;
+    currentPage = 1;
+    render();
+  });
 });

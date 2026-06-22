@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/dashboard.css?v=4">
+    <link rel="stylesheet" href="/static/css/dashboard.css?v=5">
     {% block page_css %}{% endblock %}
 </head>
 
@@ -25,7 +25,6 @@
                         <span></span>
                     </button>
                     <div>
-                        <p class="topbar-label">Dashboard</p>
                         <h2 id="topbarTitle">{{ self.page_title() }}</h2>
                     </div>
                 </div>
@@ -36,13 +35,7 @@
             </header>
 
             <main class="dashboard-content" id="mainContent">
-                <section class="page-heading">
-                    <div>
-                        <p class="page-kicker">{% block page_kicker %}He thong thi trac nghiem{% endblock %}</p>
-                        <h1>{% block page_title %}Dashboard{% endblock %}</h1>
-                    </div>
-                    {% block page_actions %}{% endblock %}
-                </section>
+                {% block page_heading %}{% endblock %}
 
                 {% block content %}{% endblock %}
             </main>

@@ -22,7 +22,7 @@ def hien_thi_sinh_vien(
     request: Request,
     user=Depends(require_permission(Permission.VIEW_CLASS)),
 ):
-    return templates.TemplateResponse("formSinhVien.html", {"request": request, "user": user})
+    return templates.TemplateResponse("formSinhVien.html", {"request": request, "user": user, "page_mode": "class"})
 
 
 @router.get("/lophoc", response_model=List[LopDisplay])

@@ -5,25 +5,54 @@
 {% block page_title %}Thong tin nguoi dung{% endblock %}
 
 {% block content %}
-<section class="dashboard-card" style="max-width: 720px; padding: 24px;">
+<section class="dashboard-card user-info-card">
     <div id="infoBox">
         <div class="info-row">
             <span>Ma</span>
-            <strong>{{ user.ma if user else 'N/A' }}</strong>
+            <strong>{{ profile.ma if profile else 'N/A' }}</strong>
+        </div>
+        <div class="info-row">
+            <span>Ho ten</span>
+            <strong>{{ profile.hoten if profile and profile.hoten else 'Chua co thong tin' }}</strong>
         </div>
         <div class="info-row">
             <span>Role</span>
-            <strong>{{ user.role if user else 'N/A' }}</strong>
+            <strong>{{ profile.role if profile else 'N/A' }}</strong>
+        </div>
+        {% if profile and profile.ngaysinh %}
+        <div class="info-row">
+            <span>Ngay sinh</span>
+            <strong>{{ profile.ngaysinh }}</strong>
+        </div>
+        {% endif %}
+        {% if profile and profile.lop %}
+        <div class="info-row">
+            <span>Lop</span>
+            <strong>{{ profile.lop }}</strong>
+        </div>
+        {% endif %}
+        <div class="info-row">
+            <span>So dien thoai</span>
+            <strong>{{ profile.sodt if profile and profile.sodt else 'Chua co thong tin' }}</strong>
+        </div>
+        <div class="info-row">
+            <span>Dia chi</span>
+            <strong>{{ profile.diachi if profile and profile.diachi else 'Chua co thong tin' }}</strong>
         </div>
     </div>
 
-    <div style="display: flex; gap: 10px; margin-top: 22px;">
+    <div class="info-actions">
         <a class="btn btn-outline" href="/home">Ve dashboard</a>
         <button type="button" class="btn btn-danger" id="logoutButton">Dang xuat</button>
     </div>
 </section>
 
 <style>
+    .user-info-card {
+        max-width: 760px;
+        padding: 24px;
+    }
+
     .info-row {
         display: grid;
         grid-template-columns: 160px minmax(0, 1fr);
@@ -35,6 +64,24 @@
     .info-row span {
         color: var(--muted);
         font-weight: 600;
+    }
+
+    .info-row strong {
+        overflow-wrap: anywhere;
+    }
+
+    .info-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 22px;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 640px) {
+        .info-row {
+            grid-template-columns: 1fr;
+            gap: 4px;
+        }
     }
 </style>
 {% endblock %}

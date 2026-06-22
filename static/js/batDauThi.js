@@ -1,4 +1,5 @@
 let currentMaLop = "";
+let currentExamInfo = null;
 const isPracticeUser = window.currentUser?.role !== "SINHVIEN";
 
 async function readErrorMessage(response, fallback) {
@@ -22,28 +23,56 @@ function placeholderOption(label) {
   return `<option value="" disabled selected hidden>${label}</option>`;
 }
 
+function getExamAvailability(info) {
+  if (!info || isPracticeUser) return { allowed: true, message: "" };
+
+  const startAt = info.ngaythi ? new Date(info.ngaythi) : null;
+  const durationMinutes = parseInt(info.thoigian, 10) || 0;
+  if (!startAt || Number.isNaN(startAt.getTime()) || durationMinutes <= 0) {
+    return { allowed: false, state: "L\u1ed7i", message: "L\u1ecbch thi ch\u01b0a c\u00f3 th\u1eddi gian h\u1ee3p l\u1ec7." };
+  }
+
+  const now = new Date();
+  const endAt = new Date(startAt.getTime() + durationMinutes * 60000);
+  if (now < startAt) {
+    return {
+      allowed: false,
+      state: "Ch\u01b0a t\u1edbi gi\u1edd",
+      message: `Ch\u01b0a \u0111\u1ebfn gi\u1edd thi. B\u1eaft \u0111\u1ea7u l\u00fac ${startAt.toLocaleString("vi-VN")}.`
+    };
+  }
+  if (now > endAt) {
+    return {
+      allowed: false,
+      state: "H\u1ebft gi\u1edd",
+      message: `\u0110\u00e3 h\u1ebft gi\u1edd v\u00e0o thi. K\u1ebft th\u00fac l\u00fac ${endAt.toLocaleString("vi-VN")}.`
+    };
+  }
+  return { allowed: true, state: "S\u1eb5n s\u00e0ng", message: "" };
+}
+
 function validateExamConfig(showMessage = false) {
   const monhoc = document.getElementById("monhocSelect").value;
   const ngaythi = document.getElementById("ngaythiInput").value;
   const lanthi = document.getElementById("lanthiSelect").value;
 
   if (!monhoc) {
-    if (showMessage) window.notify?.("Vui long chon mon hoc", "warning");
+    if (showMessage) window.notify?.("Vui l\u00f2ng ch\u1ecdn m\u00f4n h\u1ecdc", "warning");
     return false;
   }
 
   if (!ngaythi) {
-    if (showMessage) window.notify?.("Vui long chon ngay thi", "warning");
+    if (showMessage) window.notify?.("Vui l\u00f2ng ch\u1ecdn ng\u00e0y thi", "warning");
     return false;
   }
 
   if (!lanthi) {
-    if (showMessage) window.notify?.("Vui long chon lan thi", "warning");
+    if (showMessage) window.notify?.("Vui l\u00f2ng ch\u1ecdn l\u1ea7n thi", "warning");
     return false;
   }
 
   if (!currentMaLop) {
-    if (showMessage) window.notify?.("Vui long chon lop thi", "error");
+    if (showMessage) window.notify?.("Vui l\u00f2ng ch\u1ecdn l\u1edbp thi", "error");
     return false;
   }
 
@@ -52,19 +81,19 @@ function validateExamConfig(showMessage = false) {
 
 async function handleExamDetailError(response) {
   const fallbackByStatus = {
-    401: "Phien dang nhap het han. Vui long dang nhap lai.",
-    403: "Ban khong co quyen xem thong tin thi nay.",
-    404: "Khong tim thay lich thi phu hop.",
-    422: "Thong tin mon, ngay thi hoac lan thi khong hop le.",
-    500: "Loi may chu khi lay thong tin thi."
+    401: "Phi\u00ean \u0111\u0103ng nh\u1eadp h\u1ebft h\u1ea1n. Vui l\u00f2ng \u0111\u0103ng nh\u1eadp l\u1ea1i.",
+    403: "B\u1ea1n kh\u00f4ng c\u00f3 quy\u1ec1n xem th\u00f4ng tin thi n\u00e0y.",
+    404: "Kh\u00f4ng t\u00ecm th\u1ea5y l\u1ecbch thi ph\u00f9 h\u1ee3p.",
+    422: "Th\u00f4ng tin m\u00f4n, ng\u00e0y thi ho\u1eb7c l\u1ea7n thi kh\u00f4ng h\u1ee3p l\u1ec7.",
+    500: "L\u1ed7i m\u00e1y ch\u1ee7 khi l\u1ea5y th\u00f4ng tin thi."
   };
 
   const message = await readErrorMessage(
     response,
-    fallbackByStatus[response.status] || "Khong the lay thong tin thi."
+    fallbackByStatus[response.status] || "Kh\u00f4ng th\u1ec3 l\u1ea5y th\u00f4ng tin thi."
   );
 
-  setExamDetailState(response.status === 404 ? "Khong co lich" : "Loi");
+  setExamDetailState(response.status === 404 ? "Kh\u00f4ng c\u00f3 l\u1ecbch" : "L\u1ed7i");
   window.notify?.(message, "error");
 
   if (response.status === 401) {
@@ -81,16 +110,16 @@ async function loadClassForStudent(userCode) {
   });
 
   if (!res.ok) {
-    document.getElementById("className").innerText = "Khong tim thay lop";
-    document.getElementById("classCode").innerText = "Ma lop: N/A";
+    document.getElementById("className").innerText = "Kh\u00f4ng t\u00ecm th\u1ea5y l\u1edbp";
+    document.getElementById("classCode").innerText = "M\u00e3 l\u1edbp: N/A";
     return;
   }
 
   const classInfo = await res.json();
   currentMaLop = classInfo.malop.trim();
   document.getElementById("className").innerText = classInfo.tenlop;
-  document.getElementById("classCode").innerText = `Ma lop: ${currentMaLop}`;
-  document.getElementById("studentInfo").innerText = `Ma sinh vien: ${userCode}`;
+  document.getElementById("classCode").innerText = `M\u00e3 l\u1edbp: ${currentMaLop}`;
+  document.getElementById("studentInfo").innerText = `M\u00e3 sinh vi\u00ean: ${userCode}`;
 }
 
 async function loadClassChooserForTeacher() {
@@ -99,15 +128,15 @@ async function loadClassChooserForTeacher() {
   if (label) label.hidden = false;
   if (select) select.hidden = false;
 
-  document.getElementById("studentInfo").innerText = `Giang vien thi thu: ${window.currentUser?.ma || ""}`;
-  document.getElementById("className").innerText = "Chon lop thi thu";
-  document.getElementById("classCode").innerText = "Ma lop: Chua chon";
+  document.getElementById("studentInfo").innerText = `Gi\u1ea3ng vi\u00ean thi th\u1eed: ${window.currentUser?.ma || ""}`;
+  document.getElementById("className").innerText = "Ch\u1ecdn l\u1edbp thi th\u1eed";
+  document.getElementById("classCode").innerText = "M\u00e3 l\u1edbp: Ch\u01b0a ch\u1ecdn";
 
   const response = await fetch("/dangkythi/lophoc");
-  if (!response.ok) throw new Error("Khong the tai danh sach lop thi");
+  if (!response.ok) throw new Error("Kh\u00f4ng th\u1ec3 t\u1ea3i danh s\u00e1ch l\u1edbp thi");
 
   const classes = await response.json();
-  select.innerHTML = placeholderOption("Chon lop thi");
+  select.innerHTML = placeholderOption("Ch\u1ecdn l\u1edbp thi");
   classes.forEach(item => {
     const option = document.createElement("option");
     option.value = item.malop;
@@ -118,8 +147,8 @@ async function loadClassChooserForTeacher() {
   select.addEventListener("change", () => {
     currentMaLop = select.value;
     const selected = classes.find(item => item.malop === currentMaLop);
-    document.getElementById("className").innerText = selected?.tenlop || "Lop thi thu";
-    document.getElementById("classCode").innerText = `Ma lop: ${currentMaLop}`;
+    document.getElementById("className").innerText = selected?.tenlop || "L\u1edbp thi th\u1eed";
+    document.getElementById("classCode").innerText = `M\u00e3 l\u1edbp: ${currentMaLop}`;
     fetchExamDetails();
   });
 }
@@ -127,13 +156,13 @@ async function loadClassChooserForTeacher() {
 async function loadSubjects() {
   const resMonHoc = await fetch('/thi/monhoc-duoc-thi');
   if (!resMonHoc.ok) {
-    window.notify?.("Khong the tai danh sach mon thi", "error");
+    window.notify?.("Kh\u00f4ng th\u1ec3 t\u1ea3i danh s\u00e1ch m\u00f4n thi", "error");
     return;
   }
 
   const subjects = await resMonHoc.json();
   const monhocSelect = document.getElementById("monhocSelect");
-  monhocSelect.innerHTML = placeholderOption("Chon mon hoc");
+  monhocSelect.innerHTML = placeholderOption("Ch\u1ecdn m\u00f4n h\u1ecdc");
   subjects.forEach(mh => {
     const option = document.createElement("option");
     option.value = mh.mamh;
@@ -146,8 +175,8 @@ async function loadSubjects() {
   const userCode = window.currentUser?.ma;
 
   if (!userCode) {
-    document.getElementById("className").innerText = "Khong tim thay thong tin dang nhap";
-    document.getElementById("classCode").innerText = "Ma lop: N/A";
+    document.getElementById("className").innerText = "Kh\u00f4ng t\u00ecm th\u1ea5y th\u00f4ng tin \u0111\u0103ng nh\u1eadp";
+    document.getElementById("classCode").innerText = "M\u00e3 l\u1edbp: N/A";
     return;
   }
 
@@ -160,8 +189,8 @@ async function loadSubjects() {
     await loadSubjects();
   } catch (error) {
     console.error("Loi:", error);
-    document.getElementById("className").innerText = "Loi ket noi may chu";
-    window.notify?.(error.message || "Loi ket noi may chu", "error");
+    document.getElementById("className").innerText = "L\u1ed7i k\u1ebft n\u1ed1i m\u00e1y ch\u1ee7";
+    window.notify?.(error.message || "L\u1ed7i k\u1ebft n\u1ed1i m\u00e1y ch\u1ee7", "error");
   }
 })();
 async function fetchExamDetails() {
@@ -170,6 +199,7 @@ async function fetchExamDetails() {
   const lanthi = document.getElementById("lanthiSelect").value;
 
   if (!validateExamConfig(false)) {
+    currentExamInfo = null;
     setExamDetailState("...");
     return;
   }
@@ -185,16 +215,24 @@ async function fetchExamDetails() {
     const res = await fetch(`/thi/layTTThi?${params.toString()}`);
     if (res.ok) {
       const info = await res.json();
+      currentExamInfo = info;
+      const availability = getExamAvailability(info);
+      if (!availability.allowed) {
+        setExamDetailState(availability.state);
+        window.notify?.(availability.message, "warning");
+        return;
+      }
       document.getElementById("socauDisplay").innerText = info.socauthi;
-      document.getElementById("thoigianDisplay").innerText = `${info.thoigian} phut`;
+      document.getElementById("thoigianDisplay").innerText = `${info.thoigian} ph\u00fat`;
       document.getElementById("trinhdoDisplay").innerText = info.trinhdo;
     } else {
+      currentExamInfo = null;
       await handleExamDetailError(res);
     }
   } catch (error) {
-    console.error("Loi lay thong tin thi:", error);
-    setExamDetailState("Loi");
-    window.notify?.("Loi ket noi may chu khi lay thong tin thi.", "error");
+    console.error("L\u1ed7i l\u1ea5y th\u00f4ng tin thi:", error);
+    setExamDetailState("L\u1ed7i");
+    window.notify?.("L\u1ed7i k\u1ebft n\u1ed1i m\u00e1y ch\u1ee7 khi l\u1ea5y th\u00f4ng tin thi.", "error");
   }
 }
 
@@ -214,12 +252,13 @@ document.querySelector(".startBtn")?.addEventListener("click", () => {
     return;
   }
 
-  if (socau === "..." || socau === "Lỗi" || socau === "Khong co lich" || socau === "Loi") {
-    window.notify?.("Lịch thi không tồn tại hoặc không hợp lệ!", "error");
+  const unavailableStates = ["...", "L\u1ed7i", "Kh\u00f4ng c\u00f3 l\u1ecbch", "L\u1ed7i", "Ch\u01b0a t\u1edbi gi\u1edd", "H\u1ebft gi\u1edd"];
+  const availability = getExamAvailability(currentExamInfo);
+  if (unavailableStates.includes(socau) || !availability.allowed) {
+    window.notify?.(availability.message || "L\u1ecbch thi kh\u00f4ng t\u1ed3n t\u1ea1i ho\u1eb7c kh\u00f4ng h\u1ee3p l\u1ec7!", "error");
     return;
   }
 
-  // Chuyển hướng sang phòng thi với các tham số cấu hình
   const params = new URLSearchParams({
     mamonhoc: monhoc,
     lanthi: lanthi,
