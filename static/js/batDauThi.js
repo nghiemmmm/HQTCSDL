@@ -1,4 +1,5 @@
 let currentMaLop = "";
+const isPracticeUser = window.currentUser?.role !== "SINHVIEN";
 
 async function readErrorMessage(response, fallback) {
   try {
@@ -42,7 +43,7 @@ function validateExamConfig(showMessage = false) {
   }
 
   if (!currentMaLop) {
-    if (showMessage) window.notify?.("Khong tim thay lop cua nguoi dung dang nhap", "error");
+    if (showMessage) window.notify?.("Vui long chon lop thi", "error");
     return false;
   }
 
@@ -73,53 +74,96 @@ async function handleExamDetailError(response) {
   }
 }
 
-(async () => {
-  const masv = window.currentUser?.ma;
+async function loadClassForStudent(userCode) {
+  const res = await fetch(`/thi/nhanLop?masv=${encodeURIComponent(userCode)}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" }
+  });
 
-  if (!masv) {
+  if (!res.ok) {
+    document.getElementById("className").innerText = "Khong tim thay lop";
+    document.getElementById("classCode").innerText = "Ma lop: N/A";
+    return;
+  }
+
+  const classInfo = await res.json();
+  currentMaLop = classInfo.malop.trim();
+  document.getElementById("className").innerText = classInfo.tenlop;
+  document.getElementById("classCode").innerText = `Ma lop: ${currentMaLop}`;
+  document.getElementById("studentInfo").innerText = `Ma sinh vien: ${userCode}`;
+}
+
+async function loadClassChooserForTeacher() {
+  const label = document.getElementById("lopThiLabel");
+  const select = document.getElementById("lopThiSelect");
+  if (label) label.hidden = false;
+  if (select) select.hidden = false;
+
+  document.getElementById("studentInfo").innerText = `Giang vien thi thu: ${window.currentUser?.ma || ""}`;
+  document.getElementById("className").innerText = "Chon lop thi thu";
+  document.getElementById("classCode").innerText = "Ma lop: Chua chon";
+
+  const response = await fetch("/dangkythi/lophoc");
+  if (!response.ok) throw new Error("Khong the tai danh sach lop thi");
+
+  const classes = await response.json();
+  select.innerHTML = placeholderOption("Chon lop thi");
+  classes.forEach(item => {
+    const option = document.createElement("option");
+    option.value = item.malop;
+    option.textContent = `${item.malop} - ${item.tenlop}`;
+    select.appendChild(option);
+  });
+
+  select.addEventListener("change", () => {
+    currentMaLop = select.value;
+    const selected = classes.find(item => item.malop === currentMaLop);
+    document.getElementById("className").innerText = selected?.tenlop || "Lop thi thu";
+    document.getElementById("classCode").innerText = `Ma lop: ${currentMaLop}`;
+    fetchExamDetails();
+  });
+}
+
+async function loadSubjects() {
+  const resMonHoc = await fetch('/thi/monhoc-duoc-thi');
+  if (!resMonHoc.ok) {
+    window.notify?.("Khong the tai danh sach mon thi", "error");
+    return;
+  }
+
+  const subjects = await resMonHoc.json();
+  const monhocSelect = document.getElementById("monhocSelect");
+  monhocSelect.innerHTML = placeholderOption("Chon mon hoc");
+  subjects.forEach(mh => {
+    const option = document.createElement("option");
+    option.value = mh.mamh;
+    option.textContent = mh.tenmh;
+    monhocSelect.appendChild(option);
+  });
+}
+
+(async () => {
+  const userCode = window.currentUser?.ma;
+
+  if (!userCode) {
     document.getElementById("className").innerText = "Khong tim thay thong tin dang nhap";
     document.getElementById("classCode").innerText = "Ma lop: N/A";
     return;
   }
 
   try {
-    const res = await fetch(`/thi/nhanLop?masv=${encodeURIComponent(masv)}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" }
-    });
-
-    if (res.ok) {
-      const classInfo = await res.json();
-      currentMaLop = classInfo.malop.trim();
-      document.getElementById("className").innerText = classInfo.tenlop;
-      document.getElementById("classCode").innerText = `Ma lop: ${currentMaLop}`;
-      document.getElementById("studentInfo").innerText = `Ma sinh vien: ${masv}`;
+    if (isPracticeUser) {
+      await loadClassChooserForTeacher();
     } else {
-      document.getElementById("className").innerText = "Khong tim thay lop";
-      document.getElementById("classCode").innerText = "Ma lop: N/A";
+      await loadClassForStudent(userCode);
     }
-
-    const resMonHoc = await fetch('/thi/monhoc-duoc-thi');
-    if (resMonHoc.ok) {
-      const subjects = await resMonHoc.json();
-      const monhocSelect = document.getElementById("monhocSelect");
-      monhocSelect.innerHTML = placeholderOption("Chon mon hoc");
-
-      subjects.forEach(mh => {
-        const option = document.createElement("option");
-        option.value = mh.mamh;
-        option.textContent = mh.tenmh;
-        monhocSelect.appendChild(option);
-      });
-    } else {
-      window.notify?.("Khong the tai danh sach mon thi", "error");
-    }
+    await loadSubjects();
   } catch (error) {
     console.error("Loi:", error);
     document.getElementById("className").innerText = "Loi ket noi may chu";
+    window.notify?.(error.message || "Loi ket noi may chu", "error");
   }
 })();
-
 async function fetchExamDetails() {
   const monhoc = document.getElementById("monhocSelect").value;
   const ngaythi = document.getElementById("ngaythiInput").value;

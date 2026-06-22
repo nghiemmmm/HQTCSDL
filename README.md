@@ -2,6 +2,18 @@
 
 Du an web quan ly thi trac nghiem dung FastAPI, Jinja2, SQLAlchemy va SQL Server.
 
+## Chuc nang chinh
+
+- Dang nhap bang cookie session, session luu trong RAM va het han sau 1 gio.
+- Phan quyen RBAC cho 3 role: PGV, GIANGVIEN, SINHVIEN.
+- Quan ly mon hoc, lop, sinh vien, giao vien va tai khoan nguoi dung.
+- Quan ly bo de/cau hoi theo giao vien so huu.
+- Dang ky lich thi: xem danh sach, tim kiem, them, sua, xoa.
+- Kiem tra du cau hoi khi dang ky thi theo luat 70/30: neu thieu cau dung trinh do thi chi duoc bu toi da 30% tu trinh do thap hon 1 bac.
+- Sinh vien lam bai, autosave trang thai, tu dong nop bai khi het gio, cham diem va ghi BANGDIEM.
+- Sinh vien xem diem va xem lai chi tiet bai thi: cau da thi, dap an da chon, dap an dung.
+- Giang vien/PGV xem ket qua va bai thi chi tiet cua sinh vien theo lop, mon, lan thi.
+
 ## Cau truc chinh
 
 - `main.py`: khoi tao FastAPI, static files, templates, middleware log request va include router.
@@ -10,155 +22,85 @@ Du an web quan ly thi trac nghiem dung FastAPI, Jinja2, SQLAlchemy va SQL Server
 - `schemas/`: Pydantic schema cho request/response.
 - `core/session.py`: quan ly session dang nhap trong RAM.
 - `core/auth.py`: dependency xac thuc cookie session va kiem tra permission.
-- `templates/base_dashboard.html`: layout dashboard dung chung cho cac trang sau dang nhap.
-- `static/js/dashboard.js`: render sidebar/card/button dong theo role va permission.
-- `static/css/dashboard.css`: design system dung chung cho dashboard.
 - `templates/`: giao dien Jinja2.
 - `static/`: CSS, JavaScript va asset tinh.
 
-## Co che dang nhap
-
-He thong dang dung cookie session:
-
-1. User dang nhap qua `POST /user/login`.
-2. Backend tao `session_id` bang `create_session(user_data)`.
-3. `session_id` duoc gan vao cookie `httponly`.
-4. Thong tin session duoc luu trong RAM tai `core/session.py`.
-5. Session het han sau 1 gio.
-
-Cookie chi luu ma session, khong luu truc tiep thong tin user.
-
-## Phan quyen RBAC
-
-He thong dung RBAC:
-
-- User co `role`.
-- Moi `role` co danh sach `Permission`.
-- Router/API dung dependency de kiem tra permission truoc khi xu ly.
-- Frontend dung `data-permission`, `data-any-permission` va `data-roles` de an/hien sidebar, card va nut bam theo role.
-- Backend van la lop bao ve chinh, nen user khong the truy cap route bi cam bang URL truc tiep.
-
-File dinh nghia role va permission:
-
-- `db/roles.py`
-
-File dependency xac thuc/phan quyen:
-
-- `core/auth.py`
-
-Dependency chinh:
-
-```python
-get_current_user()
-require_permission(permission)
-require_any_permission(*permissions)
-```
-
-Neu chua dang nhap, API tra `401`.
-Neu da dang nhap nhung thieu quyen, API tra `403`.
-
-## Role hien co
-
-- `PGV`: quan ly mon hoc, lop, sinh vien, giao vien, tai khoan/phan quyen va bao cao; khong duoc tham gia thi, quan ly cau hoi hoac dang ky thi.
-- `GIANGVIEN`: quan ly cau hoi cua minh, dang ky/sua lich thi, xem lich thi, xem bao cao diem va duoc thi thu khong luu diem.
-- `SINHVIEN`: lam bai thi va xem diem/bai thi cua minh.
-
-## Doi chieu yeu cau phan quyen
+## Phan quyen
 
 ### PGV
 
-PGV co quyen quan tri:
+PGV co quyen:
 
-- Quan ly mon hoc: xem, them, sua, xoa, tim kiem.
-- Quan ly lop hoc.
-- Quan ly sinh vien.
-- Quan ly giao vien.
-- Tao tai khoan nguoi dung qua `/user/register`.
-- Xem ket qua thi, bai thi sinh vien va in bang diem thong qua cac permission bao cao.
+- Quan ly mon hoc, lop, sinh vien, giao vien.
+- Tao tai khoan nguoi dung.
+- Xem ket qua thi, xem lai bai thi sinh vien va in bang diem.
 
-PGV bi han che:
+PGV khong co quyen:
 
-- Khong co `TAKE_EXAM`.
-- Khong co `PRACTICE_EXAM`.
-- Khong co permission `*_QUESTION` va `*_EXAM_REGISTRATION`, nen khong truy cap duoc `/bode` va `/dangkythi`.
-- Vi `/thi` chi chap nhan `TAKE_EXAM` hoac `PRACTICE_EXAM`, PGV khong duoc tham gia thi.
+- Tham gia thi hoac thi thu.
+- Quan ly bo de/cau hoi.
+- Dang ky/sua/xoa lich thi.
 
-### Giang vien
+### GIANGVIEN
 
 Giang vien co quyen:
 
-- Xem, them, sua, xoa cau hoi thi.
-- Dang ky va cap nhat lich thi cho lop.
-- Xem lich thi.
-- Xem lai bai thi cua sinh vien.
-- Xem/in bang diem mon hoc.
-- Thi thu bang `PRACTICE_EXAM`, khong luu diem.
+- Quan ly cau hoi cua minh.
+- Dang ky, sua, xoa va tim lich thi cua minh.
+- Thi thu, khong ghi diem vao BANGDIEM.
+- Xem ket qua, xem lai bai thi sinh vien va in bang diem.
 
-Giang vien bi han che:
+Giang vien khong co quyen:
 
-- Khong co `CREATE_USER`, nen khong tao duoc tai khoan PGV/Giang vien.
-- Khong co permission quan ly mon hoc, lop, sinh vien, giao vien.
-- Khi thao tac `/bode`, giang vien chi xem/sua/xoa cau hoi co `magv` trung voi ma user dang dang nhap.
+- Tao tai khoan nguoi dung.
+- Quan ly danh muc mon hoc, lop, sinh vien, giao vien.
+- Sua/xoa cau hoi cua giao vien khac.
 
-### Sinh vien
+### SINHVIEN
 
 Sinh vien co quyen:
 
-- Truy cap chuc nang thi bang `TAKE_EXAM`.
-- Xem diem cua minh bang `VIEW_OWN_SCORE`.
-- Xem lai bai thi cua minh bang `VIEW_OWN_EXAM`.
+- Lam bai thi chinh thuc.
+- Xem diem cua minh.
+- Xem lai bai thi cua minh.
 
-Sinh vien bi han che:
+Sinh vien khong co quyen quan tri danh muc, cau hoi, lich thi, tai khoan hay bao cao sinh vien khac.
 
-- Khong co permission quan ly mon hoc, lop, sinh vien, giao vien, cau hoi.
-- Khong co permission dang ky lich thi.
-- Khong co `CREATE_USER`, nen khong tao tai khoan.
-- Khong truy cap duoc cac chuc nang quan tri.
+## Mapping router
 
-## Nhom permission chinh
-
-- User: `CREATE_USER`
-- Mon hoc: `VIEW_SUBJECT`, `CREATE_SUBJECT`, `UPDATE_SUBJECT`, `DELETE_SUBJECT`
-- Lop: `VIEW_CLASS`, `CREATE_CLASS`, `UPDATE_CLASS`, `DELETE_CLASS`
-- Sinh vien: `VIEW_STUDENT`, `CREATE_STUDENT`, `UPDATE_STUDENT`, `DELETE_STUDENT`
-- Giao vien: `VIEW_TEACHER`, `CREATE_TEACHER`, `UPDATE_TEACHER`, `DELETE_TEACHER`
-- Cau hoi/bo de: `VIEW_QUESTION`, `CREATE_QUESTION`, `UPDATE_QUESTION`, `DELETE_QUESTION`
-- Dang ky thi: `VIEW_EXAM_REGISTRATION`, `CREATE_EXAM_REGISTRATION`, `UPDATE_EXAM_REGISTRATION`, `DELETE_EXAM_REGISTRATION`
-- Thi: `TAKE_EXAM`, `PRACTICE_EXAM`
-- Diem/bai thi: `VIEW_OWN_SCORE`, `VIEW_STUDENT_SCORE`, `VIEW_SCORE_REPORT`, `VIEW_OWN_EXAM`, `VIEW_STUDENT_EXAM`, `PRINT_SCORE_TABLE`
-
-## Mapping quyen theo router
-
-- `/home`: can dang nhap hop le; card dashboard duoc loc dong theo role.
+- `/home`: can dang nhap hop le.
 - `/user/register`: can `CREATE_USER`.
-- `/user/info`: can dang nhap hop le.
-- `/monhoc`: dung cac permission `*_SUBJECT`.
-- `/lop`: dung cac permission `*_CLASS`; lay sinh vien theo lop can `VIEW_STUDENT`.
-- `/sinhvien`: dung cac permission `*_STUDENT`.
-- `/giaovien`: dung cac permission `*_TEACHER`.
-- `/bode`: dung cac permission `*_QUESTION`.
-- `/dangkythi`: dung cac permission `*_EXAM_REGISTRATION`.
-- `/thi`: can `TAKE_EXAM` hoac `PRACTICE_EXAM`; PGV khong co hai quyen nay nen khong duoc tham gia thi.
-- `/thi/lich-su`, `/thi/xem-lai`: can `VIEW_OWN_EXAM`.
+- `/monhoc`: can cac permission `*_SUBJECT`.
+- `/lop`: can cac permission `*_CLASS`.
+- `/sinhvien`: can cac permission `*_STUDENT`.
+- `/giaovien`: can cac permission `*_TEACHER`.
+- `/bode`: can cac permission `*_QUESTION`.
+- `/dangkythi`: can cac permission `*_EXAM_REGISTRATION`.
+- `/thi`: can `TAKE_EXAM` hoac `PRACTICE_EXAM`.
+- `/thi/lich-su`, `/thi/xem-lai`: sinh vien xem bai cua minh; GV/PGV xem bai sinh vien khi co quyen `VIEW_STUDENT_EXAM`.
 - `/thi/diem`: can `VIEW_OWN_SCORE`.
 - `/thi/ket-qua`: can `VIEW_STUDENT_SCORE`.
 - `/thi/bang-diem`: can `PRINT_SCORE_TABLE`.
 
-## Kiem tra so huu du lieu
+## Luu y ky thuat
 
-Permission chi tra loi user co duoc thuc hien loai thao tac do hay khong.
-Voi du lieu co chu so huu, he thong can kiem tra them owner.
+- Session luu RAM phu hop demo/do an; neu deploy that nen chuyen sang Redis/database session.
+- Password sinh vien hien van so sanh trong database; neu dung thuc te nen hash bang bcrypt.
+- Can cai ODBC Driver 18 for SQL Server tren may chay ung dung.
+- Cau hinh ket noi SQL Server nam trong `db/database.py`.
 
-Hien tai `/bode` da kiem tra:
+## Chay du an
 
-- `GIANGVIEN` chi duoc sua/xoa cau hoi co `magv` trung voi ma user dang dang nhap.
-- Khi `GIANGVIEN` tao/sua cau hoi, `magv` duoc gan theo session hien tai.
+```bash
+pip install -r requirements.txt
+python main.py
+```
 
-## Luu y hien tai
+Mo Swagger UI tai `/myapi`.
 
-- Session dang luu trong RAM, phu hop demo/do an; neu deploy that nen chuyen sang Redis/database session.
-- Password sinh vien hien van dang so sanh truc tiep trong database; nen hash bang bcrypt truoc khi dung thuc te.
-- Khi parse toan bo repo, `test.py` dang co loi cu phap cu tai dong 16, khong lien quan phan RBAC.
+## Kiem tra
 
-Log này cho thấy browser vẫn đang chạy bản JS cũ: nó còn gọi masv=001 và /monhoc/monhoc, trong khi file tôi đã sửa phải gọi /thi/monhoc-duoc-thi. Tôi sẽ bump version script trong template để phá cache trình duyệt.
- bump version script trong template để phá cache trình duyệt.
+```bash
+python -m pytest
+python -m compileall main.py core db router schemas tests test.py
+```

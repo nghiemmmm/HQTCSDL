@@ -201,22 +201,34 @@ def lich_su_thi(
 def xem_lai_bai_thi(
     request: Request,
     session_id: Optional[int] = Query(None),
+    masv: Optional[str] = Query(None),
+    mamh: Optional[str] = Query(None),
+    lan: Optional[int] = Query(None, ge=1, le=2),
+    malop: Optional[str] = Query(None),
     db: Session = Depends(get_db),
-    user=Depends(require_permission(Permission.VIEW_OWN_EXAM)),
+    user=Depends(require_any_permission(Permission.VIEW_OWN_EXAM, Permission.VIEW_STUDENT_EXAM)),
 ):
-    sinh_vien = db.query(DbSinhVien).filter(DbSinhVien.masv == user.get("ma")).first()
-    if not sinh_vien:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Khong tim thay sinh vien dang dang nhap"
-        )
+    can_view_student_exam = user.get("role") != "SINHVIEN"
+    target_masv = user.get("ma") if not can_view_student_exam else masv
 
-    session_query = db.query(DbPhienThi).filter(
-        DbPhienThi.masv == sinh_vien.masv,
-        DbPhienThi.trangthai == "DA_NOP"
-    )
+    session_query = db.query(DbPhienThi).filter(DbPhienThi.trangthai == "DA_NOP")
     if session_id:
         session_query = session_query.filter(DbPhienThi.id == session_id)
+    if target_masv:
+        session_query = session_query.filter(DbPhienThi.masv == target_masv)
+    if mamh:
+        session_query = session_query.filter(DbPhienThi.mamh == mamh)
+    if lan:
+        session_query = session_query.filter(DbPhienThi.lan == lan)
+    if malop:
+        session_query = session_query.filter(DbPhienThi.malop == malop)
+
+    if can_view_student_exam and not any([session_id, target_masv, mamh, lan, malop]):
+        return templates.TemplateResponse("xemLaiThi.html", {
+            "request": request,
+            "user": user,
+            "has_result": False,
+        })
 
     session = (
         session_query
@@ -230,6 +242,13 @@ def xem_lai_bai_thi(
             "user": user,
             "has_result": False,
         })
+
+    sinh_vien = db.query(DbSinhVien).filter(DbSinhVien.masv == session.masv).first()
+    if not sinh_vien:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Khong tim thay sinh vien cua phien thi"
+        )
 
     subject = db.query(DbMonHoc).filter(DbMonHoc.mamh == session.mamh).first()
     class_info = db.query(DbLop).filter(DbLop.malop == session.malop).first()
@@ -598,19 +617,19 @@ def nhapLop(
         )
 
     sinh_vien = db.query(DbSinhVien).filter(DbSinhVien.masv == masv).first()
-    
+
     if not sinh_vien:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,  
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Không tìm thấy sinh viên với mã này"
         )
-        
+
     if not sinh_vien.lop:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Sinh viên chưa được phân lớp"
         )
-        
+
     return sinh_vien.lop
 
 
@@ -642,7 +661,17 @@ def mon_hoc_duoc_thi(
             .all()
         )
 
-    return db.query(DbMonHoc).all()
+    if user.get("role") == "GIANGVIEN":
+        return (
+            db.query(DbMonHoc)
+            .join(DbGiaoVienDangKy, DbMonHoc.mamh == DbGiaoVienDangKy.mamh)
+            .filter(DbGiaoVienDangKy.magv == user.get("ma"))
+            .distinct()
+            .order_by(DbMonHoc.mamh)
+            .all()
+        )
+
+    return db.query(DbMonHoc).order_by(DbMonHoc.mamh).all()
 
 @router.get("/layTTThi", response_model=ThongTinThi)
 def layTTThi(
@@ -1081,7 +1110,7 @@ def nop_bai_thi(
             DbPhienThi.lan == request.lanthi,
             DbPhienThi.malop == request.malop,
             DbPhienThi.ngaythi == exam_date,
-            DbPhienThi.trangthai == "DANG_LAM"
+            DbPhienThi.trangthai.in_(["DANG_LAM", "HET_GIO"])
         ).first()
 
     if not session:
@@ -1090,7 +1119,7 @@ def nop_bai_thi(
             detail="Khong tim thay phien thi dang lam"
         )
 
-    if session.trangthai != "DANG_LAM":
+    if session.trangthai not in ("DANG_LAM", "HET_GIO"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Phien thi dang o trang thai {session.trangthai}, khong the nop bai"

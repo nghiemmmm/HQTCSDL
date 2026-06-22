@@ -75,7 +75,7 @@ function setSelectedClassInfo() {
     }
 
     if (!selectedMaLop) {
-        selectedClassInfo.textContent = "Chưa chọn lớp";
+        selectedClassInfo.textContent = "Chưa chọn lớp";     
         return;
     }
 
@@ -283,6 +283,7 @@ async function loadLopFromServer() {
 async function loadSVFromServer(maLop) {
     try {
         const response = await fetch(`${API_BASE_URL}/lop/${encodeURIComponent(maLop)}`);
+        // const response = await fetch(`${API_BASE_URL}/sinhvien/lop/${encodeURIComponent(maLop)}`);
         if (!response.ok) {
             throw new Error("Khong the tai danh sach sinh vien");
         }

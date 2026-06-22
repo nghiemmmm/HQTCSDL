@@ -37,3 +37,94 @@
         padding-top: 0;
     }
 }
+
+.registration-page {
+    display: grid;
+    gap: 20px;
+}
+
+.registration-list {
+    display: grid;
+    gap: 12px;
+}
+
+.list-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+}
+
+.list-head h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.search-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.search-row input {
+    min-width: 240px;
+}
+
+.table-wrap {
+    overflow-x: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.registration-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 880px;
+}
+
+.registration-table th,
+.registration-table td {
+    padding: 11px 12px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+    font-size: 13px;
+}
+
+.registration-table th {
+    background: #f8fafc;
+    color: #334155;
+    font-weight: 700;
+}
+
+.registration-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.row-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-sm {
+    padding: 6px 10px;
+    font-size: 12px;
+}
+
+.empty-cell {
+    text-align: center !important;
+    color: #64748b;
+    padding: 20px !important;
+}
+
+@media (max-width: 700px) {
+    .list-head,
+    .search-row {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .search-row input {
+        min-width: 0;
+    }
+}

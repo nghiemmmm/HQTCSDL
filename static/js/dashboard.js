@@ -6,13 +6,11 @@
             'view_class', 'create_class', 'update_class', 'delete_class',
             'view_student', 'create_student', 'update_student', 'delete_student',
             'view_teacher', 'create_teacher', 'update_teacher', 'delete_teacher',
-            'view_question', 'create_question', 'update_question', 'delete_question',
-            'view_exam_registration', 'create_exam_registration', 'update_exam_registration', 'delete_exam_registration',
             'view_student_score', 'view_score_report', 'view_student_exam', 'print_score_table'
         ],
         GIANGVIEN: [
             'view_question', 'create_question', 'update_question', 'delete_question',
-            'view_exam_registration', 'create_exam_registration', 'update_exam_registration',
+            'view_exam_registration', 'create_exam_registration', 'update_exam_registration', 'delete_exam_registration',
             'practice_exam', 'view_student_score', 'view_score_report', 'view_student_exam', 'print_score_table'
         ],
         SINHVIEN: [

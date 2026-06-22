@@ -14,6 +14,7 @@ let questionFontSize = 16;
 let examSubmitted = false;
 let examSessionId = null;
 let autoSaveTimerId = null;
+let autoSubmitting = false;
 
 function setText(id, text) {
   const element = document.getElementById(id);
@@ -115,8 +116,8 @@ function startTimer() {
   timerId = setInterval(() => {
     if (timeLeft > 0) timeLeft--;
     if (timeLeft === 0 && !examSubmitted) {
-      autoSaveExamState();
       window.notify?.("Da het thoi gian lam bai", "error");
+      submitExamNow(true);
     }
     renderTimer();
   }, 1000);
@@ -324,6 +325,64 @@ function submitExam() {
   if (examSubmitted) return;
   openSubmitModal();
 }
+async function submitExamNow(isAutoSubmit = false) {
+  if (examSubmitted || autoSubmitting) return;
+  autoSubmitting = true;
+
+  const confirmButton = document.getElementById("confirmSubmitBtn");
+  if (confirmButton) {
+    confirmButton.disabled = true;
+    confirmButton.innerText = isAutoSubmit ? "Het gio, dang nop..." : "Dang nop...";
+  }
+  document.getElementById("submitBtn")?.setAttribute("disabled", "disabled");
+
+  try {
+    if (!isAutoSubmit) {
+      await autoSaveExamState();
+    }
+
+    const response = await fetch("/thi/nop-bai", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mamonhoc: maMH,
+        session_id: examSessionId,
+        lanthi: parseInt(lanThi, 10),
+        malop: maLop,
+        ngaythi: ngayThi,
+        answers
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(await readErrorMessage(response, "Khong the nop bai thi"));
+    }
+
+    const result = await response.json();
+    examSubmitted = true;
+    document.querySelector(".exam-room")?.classList.add("is-submitted");
+    if (timerId) clearInterval(timerId);
+    if (autoSaveTimerId) clearInterval(autoSaveTimerId);
+    closeSubmitModal();
+    render();
+    window.notify?.(
+      isAutoSubmit ? `Het gio, bai thi da duoc nop. Diem: ${result.diem}` : `Da nop bai. Diem: ${result.diem}`,
+      "success"
+    );
+    if (!result.practice) {
+      window.location.href = `/thi/xem-lai?session_id=${result.session_id || examSessionId}`;
+    }
+  } catch (error) {
+    document.getElementById("submitBtn")?.removeAttribute("disabled");
+    window.notify?.(error.message, "error");
+  } finally {
+    autoSubmitting = false;
+    if (confirmButton) {
+      confirmButton.disabled = false;
+      confirmButton.innerText = "Nop bai";
+    }
+  }
+}
 
 function openSubmitModal() {
   const modal = document.getElementById("submitModal");
@@ -345,52 +404,7 @@ function closeSubmitModal() {
 }
 
 async function confirmSubmitExam() {
-  await autoSaveExamState();
-  const confirmButton = document.getElementById("confirmSubmitBtn");
-  if (confirmButton) {
-    confirmButton.disabled = true;
-    confirmButton.innerText = "Dang nop...";
-  }
-
-  try {
-    const response = await fetch("/thi/nop-bai", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        mamonhoc: maMH,
-        session_id: examSessionId,
-        lanthi: parseInt(lanThi, 10),
-        malop: maLop,
-        ngaythi: ngayThi,
-        answers
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error(await readErrorMessage(response, "Khong the nop bai thi"));
-    }
-
-    const result = await response.json();
-    examSubmitted = true;
-    document.querySelector(".exam-room")?.classList.add("is-submitted");
-    document.getElementById("submitBtn")?.setAttribute("disabled", "disabled");
-    if (timerId) clearInterval(timerId);
-    if (autoSaveTimerId) clearInterval(autoSaveTimerId);
-    closeSubmitModal();
-    render();
-    window.notify?.(`Da nop bai. Diem: ${result.diem}`, "success");
-    if (result.practice) {
-      return;
-    }
-    window.location.href = `/thi/xem-lai?session_id=${result.session_id || examSessionId}`;
-  } catch (error) {
-    window.notify?.(error.message, "error");
-  } finally {
-    if (confirmButton) {
-      confirmButton.disabled = false;
-      confirmButton.innerText = "Nộp bài";
-    }
-  }
+  await submitExamNow(false);
 }
 
 async function autoSaveExamState() {

@@ -53,6 +53,7 @@
           <th>Ngay thi</th>
           <th>Diem</th>
           <th>Diem chu</th>
+          <th>Bai thi</th>
         </tr>
       </thead>
       <tbody>
@@ -67,10 +68,11 @@
           <td>{{ item.ngaythi }}</td>
           <td><strong>{{ "%.2f"|format(item.diem or 0) }}</strong></td>
           <td>{{ item.diem_chu }}</td>
+          <td><a class="btn btn-outline" href="/thi/xem-lai?masv={{ item.masv }}&mamh={{ item.mamh }}&lan={{ item.lan }}&malop={{ item.malop }}">Xem bai</a></td>
         </tr>
         {% else %}
         <tr>
-          <td colspan="9" class="empty-cell">Khong co ket qua phu hop.</td>
+          <td colspan="10" class="empty-cell">Khong co ket qua phu hop.</td>
         </tr>
         {% endfor %}
       </tbody>

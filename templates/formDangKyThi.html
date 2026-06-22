@@ -5,11 +5,11 @@
 {% block page_title %}Dang ky thi{% endblock %}
 
 {% block page_css %}
-<link rel="stylesheet" href="/static/css/dangKyThi.css">
+<link rel="stylesheet" href="/static/css/dangKyThi.css?v=4">
 {% endblock %}
 
 {% block content %}
-<main class="wrap">
+<main class="wrap registration-page">
   <form id="examForm" class="exam-form" novalidate>
     <div class="form-grid">
       <label>Lop</label>
@@ -49,9 +49,9 @@
         <span id="attemptError" class="form-error hidden"></span>
       </div>
 
-      <label>Ngay thi</label>
+      <label>Ngay gio thi</label>
       <div>
-        <input type="date" id="date">
+        <input type="datetime-local" id="date">
         <span id="dateError" class="form-error hidden"></span>
       </div>
 
@@ -69,12 +69,45 @@
     </div>
 
     <div class="toolbar">
-      <button type="submit" class="btn btn-primary" data-permission="create_exam_registration">Ghi</button>
+      <button id="saveBtn" type="submit" class="btn btn-primary" data-permission="create_exam_registration">Ghi</button>
+      <button id="cancelEditBtn" type="button" class="btn btn-outline hidden">Huy sua</button>
     </div>
   </form>
+
+  <section class="registration-list">
+    <div class="list-head">
+      <h2>Danh sach lich thi</h2>
+      <div class="search-row">
+        <input id="searchInput" type="search" placeholder="Tim lop, mon, giao vien">
+        <button id="searchBtn" class="btn btn-outline" type="button">Tim</button>
+        <button id="reloadBtn" class="btn btn-outline" type="button">Tai lai</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="registration-table">
+        <thead>
+          <tr>
+            <th>Lop</th>
+            <th>Mon</th>
+            <th>Lan</th>
+            <th>Trinh do</th>
+            <th>Ngay thi</th>
+            <th>So cau</th>
+            <th>Thoi gian</th>
+            <th>GV</th>
+            <th>Thao tac</th>
+          </tr>
+        </thead>
+        <tbody id="registrationRows">
+          <tr><td colspan="9" class="empty-cell">Dang tai lich thi...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
 </main>
 {% endblock %}
 
 {% block page_js %}
-<script src="/static/js/dangKyThi.js?v=2"></script>
+<script src="/static/js/dangKyThi.js?v=4"></script>
 {% endblock %}

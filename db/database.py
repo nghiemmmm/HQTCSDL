@@ -11,25 +11,25 @@ MY_HOSTNAME = socket.gethostname()
 MY_IP_ADDR = socket.gethostbyname(MY_HOSTNAME)
 
 # Cấu trúc chuỗi kết nối đến SQL Server
-connection_url = URL.create(
-    "mssql+pyodbc",
-    username=password.DB_USER, # Tên đăng nhập 
-    password=password.DB_PASSWORD, # mật khẩu đăng nhập
-    host=MY_IP_ADDR,  # Địa chỉ IP của máy tính
-    port=1433,  # cổng SQL Server
-    database= password.DB_NAME, # Tên của database cần truy cập
-    query={
-        "driver": "ODBC Driver 18 for SQL Server",
-        "TrustServerCertificate": "yes"
-    },
-)
+# connection_url = URL.create(
+#     "mssql+pyodbc",
+#     username=password.DB_USER, # Tên đăng nhập 
+#     password=password.DB_PASSWORD, # mật khẩu đăng nhập
+#     host="localhost\\SQLEXPRESS",  # Kết nối đến SQL Express local
+#     database= password.DB_NAME, # Tên của database cần truy cập
+#     query={
+#         "driver": "ODBC Driver 18 for SQL Server",
+#         "TrustServerCertificate": "yes"
+#     },
+# )
 
-# Kết nối đến SQL Server
+connection_url = "mssql+pyodbc://localhost\\SQLEXPRESS/hqtcsdl?driver=ODBC+Driver+18+for+SQL+Server&trusted_connection=yes&TrustServerCertificate=yes"
+
 engine = create_engine(
     connection_url,
-    pool_pre_ping=True,  # Kích hoạt giúp kiểm tra kết nối trước khi sử dụng. Nếu kết nối đã bị mất, SQLAlchemy sẽ tự động loại bỏ kết nối đó và tạo một kết nối mới.
-    pool_recycle=1800,   # Tái tạo các kết nối sau một khoảng thời gian nhất định. Tái tạo kết nối sau 1800 giây (30 phút)
-    pool_size=20,        # Kích thước pool kết nối
+    pool_pre_ping=True,
+    pool_recycle=1800,
+    pool_size=20,
 )
 
 # Tạo một nhà máy (sessionmaker) tự động tạo các Session
