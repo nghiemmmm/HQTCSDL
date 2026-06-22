@@ -206,7 +206,9 @@ function selectRow(index) {
   
   // Ánh xạ magv sang định dạng "MAGV - Tên" cho ô search
   const gvInfo = window.listGiaoViens ? window.listGiaoViens.find(g => g.magv === item.magv) : null;
-  searchGVInput.value = gvInfo ? `${gvInfo.magv} - ${gvInfo.hoten}` : item.magv;
+  if (searchGVInput) {
+    searchGVInput.value = gvInfo ? `${gvInfo.magv} - ${gvInfo.hoten}` : item.magv;
+  }
   maGVInput.value = item.magv;
 
   render();
@@ -221,7 +223,7 @@ function disableAllInputs(disabled) {
   dapAnDungSelect.disabled = disabled;
   trinhDoSelect.disabled = disabled;
   maMHInput.disabled = disabled;
-  searchGVInput.disabled = disabled;
+  if (searchGVInput) searchGVInput.disabled = disabled;
 }
 
 function clearForm() {
@@ -234,7 +236,7 @@ function clearForm() {
   dapAnDungSelect.value = "";
   trinhDoSelect.value = "";
   maMHInput.value = "";
-  searchGVInput.value = "";
+  if (searchGVInput) searchGVInput.value = "";
   maGVInput.value = "";
 }
 
@@ -271,6 +273,14 @@ function sua() {
 async function ghi() {
   clearError();
 
+  // Xác định magv dựa trên role
+  let magv = "";
+  if (window.userRole === "GIANGVIEN") {
+    magv = window.userMa;
+  } else {
+    magv = searchGVInput ? searchGVInput.value.split(" - ")[0].trim() : "";
+  }
+
   const obj = {
     noidung: noiDungInput.value.trim(),
     a: dapAnAInput.value.trim(),
@@ -280,7 +290,7 @@ async function ghi() {
     dap_an: dapAnDungSelect.value,
     trinhdo: trinhDoSelect.value,
     mamh: maMHInput.value.trim(),
-    magv: searchGVInput.value.split(" - ")[0].trim()
+    magv: magv
   };
 
   if (!obj.noidung) return showError("Nội dung câu hỏi không được để trống!");
@@ -291,7 +301,8 @@ async function ghi() {
   if (!obj.dap_an) return showError("Vui lòng chọn đáp án đúng!");
   if (!obj.trinhdo) return showError("Vui lòng chọn trình độ!");
   if (!obj.mamh) return showError("Mã môn học không được để trống!");
-  if (!obj.magv) return showError("Mã giáo viên không được để trống!");
+  // Chỉ kiểm tra magv nếu không phải giáo viên
+  if (window.userRole !== "GIANGVIEN" && !obj.magv) return showError("Mã giáo viên không được để trống!");
 
   try {
     let res, resData;

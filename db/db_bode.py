@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from db.model import DbBoDe
+from db.model import DbBoDe, DbPhienThi
 from schemas.schemas import CauHoiCreate, CauHoiUpdate
+import json
 
 def get_all_bode(db: Session):
     return db.query(DbBoDe).all()
@@ -62,3 +63,30 @@ def delete_bode(db: Session, cauhoi_id: int):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+def check_cauhoi_da_su_dung(db: Session, cauhoi_id: int):
+    """
+    Kiểm tra xem câu hỏi có được sử dụng trong bất kỳ phiên thi nào không
+    Returns: {cauhoi: int, da_su_dung: bool, co_the_xoa: bool}
+    """
+    # Lấy tất cả phiên thi
+    phien_this = db.query(DbPhienThi).all()
+    
+    da_su_dung = False
+    for phien_thi in phien_this:
+        try:
+            # Parse danh sách câu hỏi từ JSON
+            danhsach = json.loads(phien_thi.danhsach_cauhoi)
+            # Kiểm tra xem câu hỏi có trong danh sách không
+            if isinstance(danhsach, list) and cauhoi_id in danhsach:
+                da_su_dung = True
+                break
+        except (json.JSONDecodeError, TypeError):
+            continue
+    
+    return {
+        "cauhoi": cauhoi_id,
+        "da_su_dung": da_su_dung,
+        "co_the_xoa": not da_su_dung,
+        "co_the_sua": not da_su_dung
+    }

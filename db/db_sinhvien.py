@@ -4,7 +4,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import exc
 from sqlalchemy.orm.session import Session
 
-from db.model import DbLop, DbSinhVien
+from db.model import DbLop, DbSinhVien, DbBangDiem, DbPhienThi
 from schemas.schemas import SinhVienDisplay, SinhVienWithLopDisplay, SinhVienBase
 
 
@@ -355,4 +355,41 @@ def xoa_sinhvien(db: Session, masv: str) -> None:
 		raise HTTPException(
 			status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
 			detail={"message": f"Loi khi xoa sinh vien: {str(e)}"},
+		)
+
+def check_sinhvien_da_dang_ky_hoac_thi(db: Session, masv: str) -> dict:
+	"""
+	Kiểm tra xem sinh viên đã đăng ký thi hoặc đã thi chưa
+	Returns:
+		{
+			masv: str,
+			da_thi: bool,
+			da_dang_ky: bool
+		}
+	"""
+	ma_sv = (masv or "").strip()
+	
+	if not ma_sv:
+		raise HTTPException(
+			status_code=status.HTTP_400_BAD_REQUEST,
+			detail={"message": "Ma sinh vien khong duoc de trong"},
+		)
+	
+	try:
+		# Kiểm tra sinh viên đã thi (có bản ghi trong BANGDIEM)
+		da_thi = db.query(DbBangDiem).filter(DbBangDiem.masv == ma_sv).first() is not None
+		
+		# Kiểm tra sinh viên đã đăng ký thi (có bản ghi trong PHIENTHI)
+		da_dang_ky = db.query(DbPhienThi).filter(DbPhienThi.masv == ma_sv).first() is not None
+		
+		return {
+			"masv": ma_sv,
+			"da_thi": da_thi,
+			"da_dang_ky": da_dang_ky,
+			"co_the_xoa": not (da_thi or da_dang_ky)
+		}
+	except exc.SQLAlchemyError as e:
+		raise HTTPException(
+			status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+			detail={"message": f"Loi khi kiem tra sinh vien: {str(e)}"},
 		)

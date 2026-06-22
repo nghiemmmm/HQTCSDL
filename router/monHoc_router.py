@@ -59,6 +59,18 @@ def search(
 
 
 # =========================
+# CHECK REGISTRATION STATUS
+# =========================
+@router.get("/{mamh}/check-status")
+def check_status(
+    mamh: str,
+    db: Session = Depends(get_db),
+    user=Depends(require_permission(Permission.VIEW_SUBJECT)),
+):
+    return db_monhoc.check_monhoc_da_dk(db, mamh)
+
+
+# =========================
 # GET BY ID
 # =========================
 @router.get("/{mamh}")
@@ -68,6 +80,7 @@ def get_one(
     user=Depends(require_permission(Permission.VIEW_SUBJECT)),
 ):
     return db_monhoc.get_by_id(db, mamh)
+
 
 
 # =========================

@@ -59,6 +59,18 @@ def update_sinh_vien(
 	return db_sinhvien.sua_sinhvien(db, masv, sinhvien)
 
 
+@router.get("/{masv}/check-status")
+def check_sinh_vien_status(
+    masv: str,
+    db: Session = Depends(get_db),
+    user=Depends(require_permission(Permission.VIEW_STUDENT)),
+):
+	"""
+	Kiểm tra xem sinh viên đã đăng ký thi hoặc đã thi chưa
+	"""
+	return db_sinhvien.check_sinhvien_da_dang_ky_hoac_thi(db, masv)
+
+
 @router.delete("/{masv}")
 def delete_sinh_vien(
     masv: str,

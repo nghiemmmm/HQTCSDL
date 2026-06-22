@@ -222,22 +222,46 @@ window.them = function() {
   render();
 };
 
-window.sua = function() {
+window.sua = async function() {
   clearError();
   if (selectedIndex < 0) return showError("Vui lòng chọn dòng cần sửa");
 
-  isSua = true;
-  isThem = false;
-  editingMa = data[selectedIndex].maMH;
-  setButtonState("editing");
+  var item = data[selectedIndex];
 
-  if(maMHInput) {
-      maMHInput.disabled = true;
-      maMHInput.style.backgroundColor = "#e5e7eb";
-  }
-  if(tenMHInput) {
-      tenMHInput.disabled = false;
-      tenMHInput.focus();
+  try {
+    // Kiểm tra xem môn học đó có được đăng ký hay không
+    console.log(`Checking status for edit: /monhoc/${item.maMH}/check-status`);
+    var checkRes = await fetch(`/monhoc/${item.maMH}/check-status`);
+    console.log("Check response status:", checkRes.status);
+    
+    var checkData = await parseResponse(checkRes);
+    console.log("Check data:", checkData);
+
+    if (checkData.da_dangky_thi) {
+      // Nếu đã được đăng ký, hiển thị thông báo
+      console.log("Môn học đã được đăng ký, không cho sửa");
+      showError("Môn này đã được đăng ký. Không thể sửa!");
+      return;
+    }
+
+    // Nếu chưa được đăng ký, cho phép sửa
+    console.log("Môn học chưa được đăng ký, cho phép sửa");
+    isSua = true;
+    isThem = false;
+    editingMa = data[selectedIndex].maMH;
+    setButtonState("editing");
+
+    if(maMHInput) {
+        maMHInput.disabled = true;
+        maMHInput.style.backgroundColor = "#e5e7eb";
+    }
+    if(tenMHInput) {
+        tenMHInput.disabled = false;
+        tenMHInput.focus();
+    }
+  } catch (err) {
+    console.error("Error in sua:", err);
+    showError(err.message);
   }
 };
 
@@ -318,22 +342,44 @@ window.ghi = async function() {
 // ======================
 // XÓA
 // ======================
-window.xoa = function() {
+window.xoa = async function() {
   clearError();
   if (isThem || isSua) return showError("Đang trong chế độ Thêm/Sửa, không thể Xóa!");
   if (selectedIndex < 0) return showError("Vui lòng chọn một dòng để xóa!");
 
   var item = data[selectedIndex];
 
-  if(errorText) {
-      errorText.innerHTML = `
-        <div style="background:#fee2e2;padding:10px;border-radius:6px;">
-          Xóa ${item.tenMH}?
-          <br><br>
-          <button onclick="thucHienXoa()">Xóa</button>
-          <button onclick="huyXoa()">Hủy</button>
-        </div>
-      `;
+  try {
+    // Kiểm tra xem môn học đó có được đăng ký hay không
+    console.log(`Checking status for: /monhoc/${item.maMH}/check-status`);
+    var checkRes = await fetch(`/monhoc/${item.maMH}/check-status`);
+    console.log("Check response status:", checkRes.status);
+    
+    var checkData = await parseResponse(checkRes);
+    console.log("Check data:", checkData);
+
+    if (checkData.da_dangky_thi) {
+      // Nếu đã được đăng ký, hiển thị thông báo
+      console.log("Môn học đã được đăng ký, không cho xóa");
+      showError("Môn này đã được đăng ký. Không thể xóa!");
+      return;
+    }
+
+    // Nếu chưa được đăng ký, hiển thị dialog xác nhận
+    console.log("Môn học chưa được đăng ký, hiển thị dialog");
+    if(errorText) {
+        errorText.innerHTML = `
+          <div style="background:#fee2e2;padding:10px;border-radius:6px;">
+            Xóa ${item.tenMH}?
+            <br><br>
+            <button onclick="thucHienXoa()">Xóa</button>
+            <button onclick="huyXoa()">Hủy</button>
+          </div>
+        `;
+    }
+  } catch (err) {
+    console.error("Error in xoa:", err);
+    showError(err.message);
   }
 };
 

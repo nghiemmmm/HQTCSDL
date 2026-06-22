@@ -289,15 +289,47 @@ function xoa() {
 
   const rowData = data[selectedIndex];
   
-  errorText.innerHTML = `
-    <div style="background: #fee2e2; border: 1px solid #f87171; padding: 10px; border-radius: 4px; display: inline-block; color: #991b1b;">
-      Bạn có chắc muốn xóa giáo viên <b>${rowData.ho} ${rowData.ten}</b> ?
-      <div style="margin-top: 8px;">
-        <button onclick="thucHienXoa()" style="background: #ef4444; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Xóa</button>
-        <button onclick="huyXoa()" style="background: #e5e7eb; color: #374151; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer;">Hủy</button>
-      </div>
-    </div>
-  `;
+  // Kiểm tra xem giáo viên có thể xóa hay không
+  (async () => {
+    try {
+      console.log(`Checking status for teacher: /giaovien/${rowData.magv}/check-status`);
+      const checkRes = await fetch(`/giaovien/${rowData.magv}/check-status`);
+      console.log("Check response status:", checkRes.status);
+      
+      const checkData = await checkRes.json();
+      console.log("Check data:", checkData);
+
+      if (checkData.co_gan_mon || checkData.co_cauhoi) {
+        // Nếu giáo viên được gán môn hoặc có câu hỏi, không cho xóa
+        let errorMsg = "Giáo viên này ";
+        if (checkData.co_gan_mon && checkData.co_cauhoi) {
+          errorMsg += "đã được gán dạy và có soạn câu hỏi";
+        } else if (checkData.co_gan_mon) {
+          errorMsg += "đã được gán dạy môn";
+        } else {
+          errorMsg += "có soạn câu hỏi";
+        }
+        errorMsg += ". Không thể xóa!";
+        console.log(errorMsg);
+        showError(errorMsg);
+        return;
+      }
+
+      // Nếu không, hiển thị dialog xác nhận
+      errorText.innerHTML = `
+        <div style="background: #fee2e2; border: 1px solid #f87171; padding: 10px; border-radius: 4px; display: inline-block; color: #991b1b;">
+          Bạn có chắc muốn xóa giáo viên <b>${rowData.ho} ${rowData.ten}</b> ?
+          <div style="margin-top: 8px;">
+            <button onclick="thucHienXoa()" style="background: #ef4444; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Xóa</button>
+            <button onclick="huyXoa()" style="background: #e5e7eb; color: #374151; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer;">Hủy</button>
+          </div>
+        </div>
+      `;
+    } catch (err) {
+      console.error("Error in xoa:", err);
+      showError(err.message);
+    }
+  })();
 }
 
 function huyXoa() {

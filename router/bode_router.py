@@ -42,6 +42,14 @@ def get_bode_page(
         "giaoviens": giaoviens_data
     })
 
+@router.get("/{cauhoi}/check-status")
+def check_cauhoi_status(
+    cauhoi: int,
+    db: Session = Depends(get_db),
+):
+    """Kiểm tra xem câu hỏi có được sử dụng trong đề thi hay không"""
+    return db_bode.check_cauhoi_da_su_dung(db, cauhoi)
+
 @router.post("/", response_model=BoDeDisplay)
 def create_bode(
     request: CauHoiCreate,

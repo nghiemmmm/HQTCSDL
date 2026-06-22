@@ -30,6 +30,9 @@
       <textarea id="noiDung" rows="3" maxlength="500" placeholder="Nhap noi dung cau hoi" disabled style="width: 100%;"></textarea>
     </div>
 
+    <label>Ma mon hoc</label>
+    <input id="maMH" maxlength="5" disabled>
+
     <label>Dap an A</label>
     <input id="dapAnA" maxlength="200" disabled>
 
@@ -59,11 +62,10 @@
       <option value="C">Trinh do C</option>
     </select>
 
-    <label>Ma mon hoc</label>
-    <input id="maMH" maxlength="5" disabled>
-
+    {% if user.role != 'GIANGVIEN' %}
     <label>Giao vien</label>
     <input id="searchGV" list="listGV" placeholder="Nhap ten hoac ma GV..." disabled>
+    {% endif %}
     </div>
 
     <div class="toolbar form-actions" id="formActions" hidden>
@@ -130,6 +132,8 @@
 <script>
   window.initialBodes = JSON.parse(`{{ bodes | tojson }}`);
   window.listGiaoViens = JSON.parse(`{{ giaoviens | tojson }}`);
+  window.userRole = `{{ user.role if user else '' }}`;
+  window.userMa = `{{ user.ma if user else '' }}`;
 </script>
-<script src="/static/js/boDe.js?v=2"></script>
+<script src="/static/js/boDe.js?v=3"></script>
 {% endblock %}

@@ -1136,15 +1136,35 @@ if (btnDetailDelete) {
 
         const student = dsSV[selectedStudentIndex];
 
-        if (!confirm(`Xóa sinh viên ${student.maSV} - ${student.hoTen}?`)) {
-
-            return;
-
-        }
-
-
-
         try {
+            // Kiểm tra xem sinh viên có thể xóa hay không
+            console.log(`Checking status for student: /sinhvien/${student.maSV}/check-status`);
+            const checkResponse = await fetch(`${API_BASE_URL}/sinhvien/${encodeURIComponent(student.maSV)}/check-status`);
+            console.log("Check response status:", checkResponse.status);
+            
+            const checkData = await checkResponse.json();
+            console.log("Check data:", checkData);
+
+            if (checkData.da_thi || checkData.da_dang_ky) {
+                // Nếu sinh viên đã thi hoặc đã đăng ký, không cho xóa
+                let errorMsg = "Sinh viên này ";
+                if (checkData.da_thi && checkData.da_dang_ky) {
+                    errorMsg += "đã thi và đã đăng ký thi";
+                } else if (checkData.da_thi) {
+                    errorMsg += "đã thi";
+                } else {
+                    errorMsg += "đã đăng ký thi";
+                }
+                errorMsg += ". Không thể xóa!";
+                console.log(errorMsg);
+                alert(errorMsg);
+                return;
+            }
+
+            // Nếu chưa thi và chưa đăng ký, hỏi xác nhận
+            if (!confirm(`Xóa sinh viên ${student.maSV} - ${student.hoTen}?`)) {
+                return;
+            }
 
             const response = await fetch(`${API_BASE_URL}/sinhvien/${encodeURIComponent(student.maSV)}`, {
 

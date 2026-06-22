@@ -55,6 +55,14 @@ def form_giaovien(
     )
 
 
+@router.get("/{magv}/check-status")
+def check_status(
+    magv: str,
+    db: Session = Depends(get_db),
+    user=Depends(require_permission(Permission.VIEW_TEACHER)),
+):
+    return db_giaovien.check_giaovien_co_gan_mon_hoac_cau_hoi(db, magv)
+
 @router.get("/{magv}")
 def get_one(
     magv: str,

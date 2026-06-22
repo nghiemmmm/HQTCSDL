@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm.session import Session
 
-from db.model import DbGiaoVien
+from db.model import DbGiaoVien, DbBoDe, DbGiaoVienDangKy
 from schemas.schemas import GiaoVienDisplay,GiaoVien
 from sqlalchemy import exc, or_
 
@@ -127,3 +127,40 @@ def search(db: Session, keyword: str):
             DbGiaoVien.ten.ilike(f"%{keyword}%")
         )
     ).all()
+
+def check_giaovien_co_gan_mon_hoac_cau_hoi(db: Session, magv: str) -> dict:
+	"""
+	Kiểm tra xem giáo viên có được gán dạy môn hoặc có soạn câu hỏi không
+	Returns:
+		{
+			magv: str,
+			co_gan_mon: bool,
+			co_cauhoi: bool
+		}
+	"""
+	ma_gv = (magv or "").strip()
+	
+	if not ma_gv:
+		raise HTTPException(
+			status_code=400,
+			detail={"message": "Ma giao vien khong duoc de trong"},
+		)
+	
+	try:
+		# Kiểm tra giáo viên có được gán dạy môn (GIAOVIEN_DANGKY)
+		co_gan_mon = db.query(DbGiaoVienDangKy).filter(DbGiaoVienDangKy.magv == ma_gv).first() is not None
+		
+		# Kiểm tra giáo viên có soạn câu hỏi (BODE)
+		co_cauhoi = db.query(DbBoDe).filter(DbBoDe.magv == ma_gv).first() is not None
+		
+		return {
+			"magv": ma_gv,
+			"co_gan_mon": co_gan_mon,
+			"co_cauhoi": co_cauhoi,
+			"co_the_xoa": not (co_gan_mon or co_cauhoi)
+		}
+	except exc.SQLAlchemyError as e:
+		raise HTTPException(
+			status_code=500,
+			detail={"message": f"Loi khi kiem tra giao vien: {str(e)}"},
+		)
