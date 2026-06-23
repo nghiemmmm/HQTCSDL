@@ -19,12 +19,7 @@
             <!-- ROLE -->
             <div class="role-area">
                 <label>
-                    <input type="radio" name="role" value="PGV" checked onclick="doiLabel()">
-                    PGV
-                </label>
-
-                <label>
-                    <input type="radio" name="role" value="GIANGVIEN" onclick="doiLabel()">
+                    <input type="radio" name="role" value="GIANGVIEN" checked onclick="doiLabel()">
                     GIẢNG VIÊN
                 </label>
 
@@ -134,12 +129,6 @@
 
                     if (data?.field === "password") {
                         errPass.innerText = data.message;
-                    }
-
-                    if (!data?.field) {
-                        errPass.innerText = typeof data === "string"
-                            ? data
-                            : "Khong dang nhap duoc. Kiem tra lai tai khoan, mat khau hoac cau hinh SQL Server.";
                     }
                 }
             });

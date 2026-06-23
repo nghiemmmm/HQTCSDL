@@ -6,11 +6,12 @@ Validates the login endpoint response and session cookie behavior.
 
 from unittest.mock import Mock
 
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, status
 from fastapi.testclient import TestClient
 from pytest import MonkeyPatch
 
-from router import user_router
+from router import dependencies, user_router
+from services.exceptions import AuthenticationError
 
 
 def build_client() -> TestClient:
@@ -21,15 +22,15 @@ def build_client() -> TestClient:
     def override_get_db():
         yield Mock()
 
-    app.dependency_overrides[user_router.get_db] = override_get_db
+    app.dependency_overrides[dependencies.get_db] = override_get_db
     return TestClient(app)
 
 
 def test_login_endpoint_sets_session_cookie(monkeypatch: MonkeyPatch) -> None:
     """Successful login should set an HTTP-only session cookie."""
     monkeypatch.setattr(
-        user_router.db_user,
-        "dang_nhap",
+        user_router.user_service,
+        "login",
         lambda db, request: {"ma": "SV001", "ho": "Nguyen", "ten": "An", "role": "SINHVIEN"},
     )
     monkeypatch.setattr(user_router, "create_session", lambda user_data: "session-123")
@@ -52,12 +53,11 @@ def test_login_endpoint_returns_auth_error_from_business_logic(
 ) -> None:
     """Login endpoint should forward business logic authentication errors."""
     def raise_login_error(db, request):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"field": "password", "message": "Sai mat khau"},
+        raise AuthenticationError(
+            {"field": "password", "message": "Sai mat khau"}
         )
 
-    monkeypatch.setattr(user_router.db_user, "dang_nhap", raise_login_error)
+    monkeypatch.setattr(user_router.user_service, "login", raise_login_error)
     client = build_client()
 
     response = client.post(

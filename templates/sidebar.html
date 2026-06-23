@@ -1,5 +1,5 @@
 <aside class="dashboard-sidebar" id="dashboardSidebar">
-    <a class="brand" href="/home" aria-label="Trang chinh">
+    <a class="brand" href="/home" aria-label="Trang tong quan">
         <span class="brand-mark">ET</span>
         <span>
             <strong>ExamCore</strong>
@@ -8,13 +8,13 @@
     </a>
 
     <nav class="sidebar-nav" aria-label="Dieu huong chinh">
-        <a href="/lop/" data-nav="/lop" data-permission="view_class">
-            <span class="nav-icon">LH</span>
-            <span>Lop hoc</span>
-        </a>
         <a href="/monhoc" data-nav="/monhoc" data-permission="view_subject">
             <span class="nav-icon">MH</span>
             <span>Mon hoc</span>
+        </a>
+        <a href="/lop/" data-nav="/lop" data-permission="view_class">
+            <span class="nav-icon">LH</span>
+            <span>Lop hoc</span>
         </a>
         <a href="/sinhvien/" data-nav="/sinhvien" data-permission="view_student">
             <span class="nav-icon">SV</span>
@@ -24,13 +24,17 @@
             <span class="nav-icon">GV</span>
             <span>Giao vien</span>
         </a>
+        <a href="/bode/" data-nav="/bode" data-permission="view_question">
+            <span class="nav-icon">BD</span>
+            <span>Bo de</span>
+        </a>
         <a href="/dangkythi" data-nav="/dangkythi" data-permission="view_exam_registration">
             <span class="nav-icon">DK</span>
             <span>Dang ky thi</span>
         </a>
-        <a href="/bode/" data-nav="/bode" data-permission="view_question">
-            <span class="nav-icon">BD</span>
-            <span>Bo de</span>
+        <a href="/dangkythi/danh-sach" data-nav="/dangkythi/danh-sach" data-permission="view_exam_registration">
+            <span class="nav-icon">DS</span>
+            <span>Danh sach dang ky</span>
         </a>
         <a href="/thi/" data-nav="/thi" data-any-permission="take_exam,practice_exam">
             <span class="nav-icon">TH</span>
@@ -52,7 +56,10 @@
             <span class="nav-icon">KQ</span>
             <span>Ket qua sinh vien</span>
         </a>
-
+        <a href="/thi/bang-diem" data-nav="/thi/bang-diem" data-permission="print_score_table">
+            <span class="nav-icon">IN</span>
+            <span>Bang diem</span>
+        </a>
         <a href="/user/register" data-nav="/user/register" data-permission="create_user">
             <span class="nav-icon">TK</span>
             <span>Tai khoan</span>

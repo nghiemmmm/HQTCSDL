@@ -9,7 +9,7 @@ from fastapi import HTTPException, status
 from pytest import MonkeyPatch
 from starlette.requests import Request
 
-from core import auth
+from router import dependencies as auth
 from db.roles import Permission
 
 

@@ -13,7 +13,11 @@
 <section class="result-empty dashboard-card">
   <h2>Chưa có bài thi đã nộp</h2>
   <p>Hệ thống chưa tìm thấy phiên thi đã nộp để xem lại kết quả.</p>
+  {% if user.role == 'SINHVIEN' %}
   <a href="/thi/lich-su">Quay lại lịch sử thi</a>
+  {% else %}
+  <a href="/thi/ket-qua">Quay lại tra cứu kết quả</a>
+  {% endif %}
 </section>
 {% else %}
 <section class="result-page">
@@ -134,6 +138,11 @@
   <section class="result-actions dashboard-card" aria-label="Hành động">
     <a class="result-btn primary" href="#answerReview">Xem đáp án</a>
     <a class="result-btn" href="#answerReview">Xem lại bài thi</a>
+    {% if user.role == 'SINHVIEN' %}
+    <a class="result-btn" href="/thi/lich-su">Lịch sử thi</a>
+    {% else %}
+    <a class="result-btn" href="/thi/ket-qua">Tra cứu kết quả</a>
+    {% endif %}
     <a class="result-btn" href="/home">Quay về Dashboard</a>
     <button class="result-btn" type="button" disabled>Tải kết quả PDF</button>
   </section>

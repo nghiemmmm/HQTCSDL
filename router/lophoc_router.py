@@ -1,80 +1,91 @@
-from typing import List
+"""HTTP routes for class management."""
+
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
-from core.templates import Jinja2Templates
-from sqlalchemy.orm.session import Session
-from schemas.schemas import LopDisplay, SinhVienWithLopDisplay
-from db.database import get_db
-from db import db_lop, db_sinhvien
-from core.auth import require_permission
-from db.roles import Permission
+from fastapi.templating import Jinja2Templates
 
-router = APIRouter(
-    prefix="/lop",
-    tags=["Lop"]
-)
+from db.roles import Permission
+from router.dependencies import DatabaseDep, require_permission
+from router.error_mapping import raise_http_error
+from schemas.schemas import LopDisplay, Message, SinhVienWithLopDisplay
+from services import class_service, student_service
+from services.exceptions import ServiceError
+
+router = APIRouter(prefix="/lop", tags=["Lop"])
 templates = Jinja2Templates(directory="templates")
 
 
 @router.get("/", response_class=HTMLResponse)
 def hien_thi_sinh_vien(
     request: Request,
-    user=Depends(require_permission(Permission.VIEW_CLASS)),
+    user: Annotated[dict, Depends(require_permission(Permission.VIEW_CLASS))],
 ):
-    return templates.TemplateResponse("formSinhVien.html", {"request": request, "user": user, "page_mode": "class"})
+    """Render the class and student page."""
+    return templates.TemplateResponse(
+        "formSinhVien.html",
+        {"request": request, "user": user},
+    )
 
 
-@router.get("/lophoc", response_model=List[LopDisplay])
+@router.get("/lophoc", response_model=list[LopDisplay])
 def get_all_lophoc(
-    db: Session = Depends(get_db),
-    user=Depends(require_permission(Permission.VIEW_CLASS)),
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.VIEW_CLASS))],
 ):
-    return db_lop.get_all_lop(db)
+    """Return all classes."""
+    return class_service.list_classes(db)
 
 
 @router.post("/", response_model=LopDisplay)
 def them_lop_moi(
     lop: LopDisplay,
-    db: Session = Depends(get_db),
-    user=Depends(require_permission(Permission.CREATE_CLASS)),
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.CREATE_CLASS))],
 ):
-	"""
-	Thêm lớp mới
-	"""
-	return db_lop.them_lop(db, lop)
+    """Create a class."""
+    try:
+        return class_service.create_class(db, lop)
+    except ServiceError as exc:
+        raise_http_error(exc)
 
 
 @router.put("/{malop}", response_model=LopDisplay)
 def sua_lop_existing(
     malop: str,
     lop: LopDisplay,
-    db: Session = Depends(get_db),
-    user=Depends(require_permission(Permission.UPDATE_CLASS)),
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.UPDATE_CLASS))],
 ):
-	"""
-	Sửa thông tin lớp
-	"""
-	return db_lop.sua_lop(db, malop, lop)
+    """Update a class."""
+    try:
+        return class_service.update_class(db, malop, lop)
+    except ServiceError as exc:
+        raise_http_error(exc)
 
 
-@router.delete("/{malop}")
+@router.delete("/{malop}", response_model=Message)
 def xoa_lop_existing(
     malop: str,
-    db: Session = Depends(get_db),
-    user=Depends(require_permission(Permission.DELETE_CLASS)),
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.DELETE_CLASS))],
 ):
-	"""
-	Xóa lớp
-	"""
-	db_lop.xoa_lop(db, malop)
-	return {"message": f"Xóa lớp {malop} thành công"}
+    """Delete a class."""
+    try:
+        return class_service.delete_class(db, malop)
+    except ServiceError as exc:
+        raise_http_error(exc)
 
 
-@router.get("/{malop}", response_model=List[SinhVienWithLopDisplay])
+@router.get("/{malop}", response_model=list[SinhVienWithLopDisplay])
 def get_sinh_vien_by_lop(
     malop: str,
-    db: Session = Depends(get_db),
-    user=Depends(require_permission(Permission.VIEW_STUDENT)),
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.VIEW_STUDENT))],
 ):
-	return db_sinhvien.lay_ds_sinh_vien_mot_lop(db, malop)
+    """Return students in a class."""
+    try:
+        return student_service.list_students_by_class(db, malop)
+    except ServiceError as exc:
+        raise_http_error(exc)

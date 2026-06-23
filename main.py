@@ -1,21 +1,30 @@
 # import tensorflow as tf
-from fastapi import Depends, FastAPI, Request# pip install "fastapi[standard]"
+from fastapi import Depends, FastAPI, Request, Response# pip install "fastapi[standard]"
 from fastapi.staticfiles import StaticFiles
-from core.templates import Jinja2Templates
+from fastapi.templating import Jinja2Templates
 import uvicorn
 import os
 import datetime
 import json
-from fastapi.responses import FileResponse, JSONResponse, HTMLResponse, RedirectResponse
+from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
+from starlette.concurrency import iterate_in_threadpool
 from fastapi_cache.backends.inmemory import InMemoryBackend
 from fastapi_cache import FastAPICache
 from fastapi.middleware.cors import CORSMiddleware
 from db.database import engine
 from db import model
-from router import user_router, giaovien_router, monHoc_router, lophoc_router,sinhvien_router, bode_router, dangKyThi_router, thi_router
+from router import (
+    bode_router,
+    exam_registration_router,
+    giaovien_router,
+    lophoc_router,
+    subject_router,
+    sinhvien_router,
+    thi_router,
+    user_router,
+)
 from logs.logging_config import logger
-from core.auth import get_current_user
-from db.roles import Permission, has_permission
+from router.dependencies import get_current_user
 
 app = FastAPI(
     docs_url="/myapi",  # Đặt đường dẫn Swagger UI thành "/myapi"
@@ -26,7 +35,7 @@ templates = Jinja2Templates(directory="templates")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Vì các api này kết quả trả về không phải json mà là html, dẫn đến lỗi
+# Vì các api này kết quả trả về không phải json mà là html, dẫn đến lỗi 
 EXCLUDED_PATHS = ["/myapi", "/redoc", "/openapi.json", "/modelane/getmode"]
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
@@ -59,17 +68,39 @@ async def log_requests(request: Request, call_next):
         )
         return await call_next(request)
 
-    # Goi API va lay ket qua
+    # Gọi API và lấy kết quả
     response = await call_next(request)
 
+    # Lấy Content-Type của phản hồi
     content_type = response.headers.get("Content-Type", "")
-    content_length = response.headers.get("Content-Length", "unknown")
-    log_result = json.dumps({
-        "status_code": response.status_code,
-        "content_type": content_type,
-        "content_length": content_length,
-    })
 
+    # Đọc nội dung phản hồi
+    response_body = b""
+    async for chunk in response.body_iterator:
+        response_body += chunk
+
+    # Đặt lại body_iterator để phản hồi có thể được gửi lại cho client
+    response.body_iterator = iterate_in_threadpool(iter([response_body]))
+
+    # Xử lý và ghi log dựa trên Content-Type
+    if "application/json" in content_type:
+        try:
+            result = response_body.decode()
+            json_result = json.loads(result)
+            log_result = json.dumps(json_result)
+        except json.JSONDecodeError:
+            # Nếu không phải JSON hợp lệ
+            result = response_body.decode(errors='ignore')
+            log_result = f"Invalid JSON: {result}"
+    elif "text" in content_type:
+        # Đối với các nội dung văn bản
+        result = response_body.decode(errors='ignore')
+        log_result = result
+    else:
+        # Đối với nội dung nhị phân (ví dụ: hình ảnh)
+        log_result = f"Binary data of length {len(response_body)}"
+
+    # Ghi log
     logger.info(
         "",
         extra={
@@ -80,21 +111,28 @@ async def log_requests(request: Request, call_next):
         }
     )
 
-    return response
+    # Trả về phản hồi gốc mà không thay đổi
+    return Response(
+        content=response_body,
+        status_code=response.status_code,
+        headers=dict(response.headers),
+        media_type=content_type
+    )
 
 # Khởi tạo in-memory cache trong event startup
 @app.on_event("startup")
 async def on_startup() -> None:
     in_memory_cache = InMemoryBackend()
     FastAPICache.init(in_memory_cache)
+    model.Base.metadata.create_all(engine)
     print("Thong bao: FastAPI da khoi chay thanh cong!")
 
 # app.include_router(employee_router.router)
 app.include_router(user_router.router)
 app.include_router(giaovien_router.router)
-app.include_router(monHoc_router.router)
+app.include_router(subject_router.router)
 app.include_router(lophoc_router.router)
-app.include_router(dangKyThi_router.router)
+app.include_router(exam_registration_router.router)
 app.include_router(sinhvien_router.router)
 app.include_router(bode_router.router)
 # app.include_router(authentication.router)
@@ -113,16 +151,9 @@ async def read_root(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
 
-@app.get("/home")
-async def home(user=Depends(get_current_user)):
-    role = user.get("role")
-    if has_permission(role, Permission.VIEW_CLASS):
-        return RedirectResponse(url="/lop/", status_code=303)
-    if has_permission(role, Permission.VIEW_EXAM_REGISTRATION):
-        return RedirectResponse(url="/dangkythi", status_code=303)
-    if has_permission(role, Permission.TAKE_EXAM) or has_permission(role, Permission.PRACTICE_EXAM):
-        return RedirectResponse(url="/thi/", status_code=303)
-    return RedirectResponse(url="/user/info", status_code=303)
+@app.get("/home", response_class=HTMLResponse)
+async def home(request: Request, user=Depends(get_current_user)):
+    return templates.TemplateResponse("home.html", {"request": request, "user": user})
 
 # Tạo icon cho trang web api, nó sẽ hiển thị hình ảnh favicon ở thư mục `static/favicon.ico`
 @app.get('/favicon.ico')
@@ -133,11 +164,10 @@ async def favicon():
 
 
 # Tạo Bảng trong DB nếu nó chưa tồn tại
-model.Base.metadata.create_all(engine)
 
 """
-Cho phép các trang web, app, api trên cùng 1 máy tính có thể truy cập đến api này
-Mặc định các api trên cùng 1 máy không thể chia sẻ tài nguyên cho nhau
+Cho phép các trang web, app, api trên cùng 1 máy tính có thể truy cập đến api này  
+Mặc định các api trên cùng 1 máy không thể chia sẻ tài nguyên cho nhau  
 Điều này phục vụ cho mục đích test, vì không thể lúc nào cũng có sẵn 2 máy tính khác nhau để test
 """
 # origins = [

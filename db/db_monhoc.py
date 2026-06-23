@@ -1,141 +1,88 @@
+"""Subject repository containing SQLAlchemy persistence operations only."""
+
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
-from sqlalchemy import exc, or_
-from fastapi import HTTPException, status
 
-from db.model import DbMonHoc, DbGiaoVienDangKy
-from schemas.schemas import MonHocBase,MonHocDisplay
-
-# ======================
-# GET ALL
-# ======================
-def get_all(db: Session):
-    try:
-        mon_hocs = db.query(DbMonHoc).all()
-    except exc.SQLAlchemyError as e:
-        db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Lỗi cơ sở dữ liệu khi truy xuất môn học: {str(e)}"
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Lỗi hệ thống không xác định: {str(e)}"
-        )
-    return mon_hocs
+from db.model import DbGiaoVienDangKy, DbMonHoc
+from schemas.schemas import MonHocBase
 
 
-# ======================
-# GET BY ID
-# ======================
-def get_by_id(db: Session, mamh: str):
-    monhoc = db.query(DbMonHoc).filter(DbMonHoc.mamh == mamh).first()
-    if not monhoc:
-        raise HTTPException(404, "Không tìm thấy môn học")
-    return monhoc
+def get_all(db: Session) -> list[DbMonHoc]:
+    """Return all subjects."""
+    return db.query(DbMonHoc).all()
 
 
-# ======================
-# CREATE
-# ======================
-def create(db: Session, request: MonHocBase):
-    dup = check_duplicate_monhoc(db, request.mamh, request.tenmh)
-
-    if dup["duplicate_mamh"]:
-        raise HTTPException(400, "Mã môn học đã tồn tại")
-
-    if dup["duplicate_tenmh"]:
-        raise HTTPException(400, "Tên môn học đã tồn tại")
-
-    obj = DbMonHoc(**request.dict())
-
-    try:
-        db.add(obj)
-        db.commit()
-        db.refresh(obj)
-        return {
-            "message": f"Thêm thành công môn học: {obj.tenmh}",
-            "data": {"mamh": obj.mamh, "tenmh": obj.tenmh}
-        }
-    except exc.SQLAlchemyError as e:
-        db.rollback()
-        raise HTTPException(500, str(e))
+def get_by_id(db: Session, mamh: str) -> DbMonHoc | None:
+    """Return one subject by code."""
+    return db.query(DbMonHoc).filter(DbMonHoc.mamh == mamh).first()
 
 
-# ======================
-# UPDATE
-# ======================
-def update(db: Session, mamh: str, request: MonHocBase):
-    obj = get_by_id(db, mamh)
-
-    if check_monhoc_da_dk(db, mamh)["da_dangky_thi"]:
-        raise HTTPException(400, "Đã đăng ký thi không được sửa")
-
-    try:
-        obj.tenmh = request.tenmh
-        db.commit()
-        db.refresh(obj)
-        return {
-            "message": f"Sửa thành công môn học: {obj.tenmh}",
-            "data": {"mamh": obj.mamh, "tenmh": obj.tenmh}
-        }
-    except exc.SQLAlchemyError as e:
-        db.rollback()
-        raise HTTPException(500, str(e))
+def get_by_name(db: Session, tenmh: str) -> DbMonHoc | None:
+    """Return one subject by name."""
+    return db.query(DbMonHoc).filter(DbMonHoc.tenmh == tenmh).first()
 
 
-# ======================
-# DELETE
-# ======================
-def delete(db: Session, mamh: str):
-    obj = get_by_id(db, mamh)
-
-    if check_monhoc_da_dk(db, mamh)["da_dangky_thi"]:
-        raise HTTPException(400, "Đã đăng ký thi không được xóa")
-
-    try:
-        db.delete(obj)
-        db.commit()
-        return {"message": f"Xóa thành công môn học: {obj.tenmh}"}
-    except exc.SQLAlchemyError as e:
-        db.rollback()
-        raise HTTPException(500, str(e))
+def create(db: Session, request: MonHocBase) -> DbMonHoc:
+    """Insert and return a subject."""
+    subject = DbMonHoc(**request.model_dump())
+    db.add(subject)
+    db.commit()
+    db.refresh(subject)
+    return subject
 
 
-# ======================
-# SEARCH
-# ======================
-def search(db: Session, keyword: str):
-    if not keyword:
-        return get_all(db)
+def update(db: Session, subject: DbMonHoc, request: MonHocBase) -> DbMonHoc:
+    """Persist changes to an existing subject."""
+    subject.tenmh = request.tenmh
+    db.commit()
+    db.refresh(subject)
+    return subject
 
+
+def delete(db: Session, subject: DbMonHoc) -> None:
+    """Delete an existing subject."""
+    db.delete(subject)
+    db.commit()
+
+
+def search(db: Session, keyword: str) -> list[DbMonHoc]:
+    """Search subjects by code or name."""
     return db.query(DbMonHoc).filter(
         or_(
             DbMonHoc.mamh.ilike(f"%{keyword}%"),
-            DbMonHoc.tenmh.ilike(f"%{keyword}%")
+            DbMonHoc.tenmh.ilike(f"%{keyword}%"),
         )
     ).all()
 
 
-# ======================
-# CHECK REGISTER
-# ======================
-def check_monhoc_da_dk(db: Session, mamh: str):
-    exists = db.query(DbGiaoVienDangKy).filter(
+def has_exam_registration(db: Session, mamh: str) -> bool:
+    """Return whether the subject is referenced by an exam registration."""
+    return db.query(DbGiaoVienDangKy).filter(
         DbGiaoVienDangKy.mamh == mamh
     ).first() is not None
 
-    return {
-        "mamh": mamh,
-        "da_dangky_thi": exists
-    }
+
+def check_subject_existence(db: Session, mamh: str, tenmh: str) -> int:
+    """Check if subject code or name exists using SP_KT_MonHoc_Ton_Tai."""
+    from sqlalchemy import text
+    query = text("EXEC SP_KT_MonHoc_Ton_Tai @MAMH = :mamh, @TENMH = :tenmh")
+    row = db.execute(query, {
+        "mamh": mamh.strip(),
+        "tenmh": tenmh.strip()
+    }).fetchone()
+    
+    if row:
+        return int(row[0])
+    return 0
 
 
-# ======================
-# CHECK DUPLICATE
-# ======================
-def check_duplicate_monhoc(db: Session, mamh: str, tenmh: str):
-    return {
-        "duplicate_mamh": db.query(DbMonHoc).filter(DbMonHoc.mamh == mamh).first() is not None,
-        "duplicate_tenmh": db.query(DbMonHoc).filter(DbMonHoc.tenmh == tenmh).first() is not None,
-    }
+def check_subject_update_conflict(db: Session, mamh: str, tenmh: str) -> None:
+    """Check if the new subject name conflicts with another subject using SP_KT_Sua_MonHoc_Ton_Tai."""
+    from sqlalchemy import text
+    query = text("EXEC SP_KT_Sua_MonHoc_Ton_Tai @MAMH = :mamh, @TENMH = :tenmh")
+    db.execute(query, {
+        "mamh": mamh.strip(),
+        "tenmh": tenmh.strip()
+    })
+
+

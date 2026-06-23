@@ -1,84 +1,82 @@
-from typing import List, Optional
+"""HTTP routes for student management."""
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
-from core.templates import Jinja2Templates
-from sqlalchemy.orm.session import Session
-from schemas.schemas import SinhVienDisplay, SinhVienBase, SinhVienWithLopDisplay
-from db.database import get_db
-from db import db_lop, db_monhoc, db_sinhvien
-from core.auth import require_permission
-from db.roles import Permission
+from fastapi.templating import Jinja2Templates
 
-router = APIRouter(
-    prefix="/sinhvien",
-    tags=["Sinhvien"]
-)
+from db.roles import Permission
+from router.dependencies import DatabaseDep, require_permission
+from router.error_mapping import raise_http_error
+from schemas.schemas import Message, SinhVienBase, SinhVienDisplay, SinhVienWithLopDisplay
+from services import student_service
+from services.exceptions import ServiceError
+
+router = APIRouter(prefix="/sinhvien", tags=["Sinhvien"])
 templates = Jinja2Templates(directory="templates")
 
 
 @router.get("/", response_class=HTMLResponse)
-def hienThiMonHoc(
+def hien_thi_mon_hoc(
     request: Request,
-    user=Depends(require_permission(Permission.VIEW_STUDENT)),
+    user: Annotated[dict, Depends(require_permission(Permission.VIEW_STUDENT))],
 ):
-    return templates.TemplateResponse("formSinhVien.html", {"request": request, "user": user, "page_mode": "student"})
+    """Render the student management page."""
+    return templates.TemplateResponse(
+        "formSinhVien.html",
+        {"request": request, "user": user},
+    )
 
 
-@router.get("/lop/{malop}", response_model=List[SinhVienWithLopDisplay])
+@router.get("/lop/{malop}", response_model=list[SinhVienWithLopDisplay])
 def get_sinh_vien_by_lop(
     malop: str,
-    db: Session = Depends(get_db),
-    user=Depends(require_permission(Permission.VIEW_STUDENT)),
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.VIEW_STUDENT))],
 ):
-    return db_sinhvien.lay_ds_sinh_vien_mot_lop(db, malop=malop)
+    """Return students in a class."""
+    try:
+        return student_service.list_students_by_class(db, malop)
+    except ServiceError as exc:
+        raise_http_error(exc)
 
 
 @router.post("/", response_model=SinhVienDisplay)
 def create_sinh_vien(
     sinhvien: SinhVienBase,
-    db: Session = Depends(get_db),
-    user=Depends(require_permission(Permission.CREATE_STUDENT)),
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.CREATE_STUDENT))],
 ):
-	"""
-	Thêm sinh viên mới
-	"""
-	return db_sinhvien.them_sinhvien(db, sinhvien)
+    """Create a student."""
+    try:
+        return student_service.create_student(db, sinhvien)
+    except ServiceError as exc:
+        raise_http_error(exc)
 
 
 @router.put("/{masv}", response_model=SinhVienDisplay)
 def update_sinh_vien(
     masv: str,
     sinhvien: SinhVienBase,
-    db: Session = Depends(get_db),
-    user=Depends(require_permission(Permission.UPDATE_STUDENT)),
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.UPDATE_STUDENT))],
 ):
-	"""
-	Cập nhật thông tin sinh viên
-	"""
-	return db_sinhvien.sua_sinhvien(db, masv, sinhvien)
+    """Update a student."""
+    try:
+        return student_service.update_student(db, masv, sinhvien)
+    except ServiceError as exc:
+        raise_http_error(exc)
 
 
-@router.get("/{masv}/check-status")
-def check_sinh_vien_status(
-    masv: str,
-    db: Session = Depends(get_db),
-    user=Depends(require_permission(Permission.VIEW_STUDENT)),
-):
-	"""
-	Kiểm tra xem sinh viên đã đăng ký thi hoặc đã thi chưa
-	"""
-	return db_sinhvien.check_sinhvien_da_dang_ky_hoac_thi(db, masv)
-
-
-@router.delete("/{masv}")
+@router.delete("/{masv}", response_model=Message)
 def delete_sinh_vien(
     masv: str,
-    db: Session = Depends(get_db),
-    user=Depends(require_permission(Permission.DELETE_STUDENT)),
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.DELETE_STUDENT))],
 ):
-	"""
-	Xóa sinh viên
-	"""
-	db_sinhvien.xoa_sinhvien(db, masv)
-	return {"message": f"Xóa sinh viên {masv} thành công"}
+    """Delete a student."""
+    try:
+        return student_service.delete_student(db, masv)
+    except ServiceError as exc:
+        raise_http_error(exc)
