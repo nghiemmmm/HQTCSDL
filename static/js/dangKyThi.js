@@ -1,6 +1,14 @@
 let editingKey = null;
 let registrations = [];
 
+function shouldShowTeacherColumn() {
+  return window.currentUser?.role !== "GIANGVIEN";
+}
+
+function tableColumnCount() {
+  return shouldShowTeacherColumn() ? 9 : 8;
+}
+
 function clearErrors() {
   document.querySelectorAll('span[id$="Error"]').forEach(span => {
     span.classList.add('hidden');
@@ -22,7 +30,7 @@ function placeholderOption(label) {
 
 function setLoading(message) {
   const rows = document.getElementById("registrationRows");
-  if (rows) rows.innerHTML = `<tr><td colspan="9" class="empty-cell">${message}</td></tr>`;
+  if (rows) rows.innerHTML = `<tr><td colspan="${tableColumnCount()}" class="empty-cell">${message}</td></tr>`;
 }
 
 function toInputDateTime(value) {
@@ -53,8 +61,8 @@ function validateForm(data) {
   if (!data.trinhdo) { showError("level", "Vui long chon trinh do."); hasError = true; }
   if (!data.lan) { showError("attempt", "Vui long chon lan thi."); hasError = true; }
   if (!data.ngaythi) { showError("date", "Vui long chon ngay gio thi."); hasError = true; }
-  if (!data.thoigian || data.thoigian < 15 || data.thoigian > 60) {
-    showError("duration", "Thoi gian thi phai tu 15 den 60 phut.");
+  if (!data.thoigian || data.thoigian < 5 || data.thoigian > 60) {
+    showError("duration", "Thoi gian thi phai tu 5 den 60 phut.");
     hasError = true;
   }
   if (!data.socauthi || data.socauthi < 10 || data.socauthi > 100) {
@@ -67,8 +75,28 @@ function validateForm(data) {
 async function readError(response, fallback) {
   const data = await response.json().catch(() => ({}));
   if (typeof data.detail === "string") return data.detail;
+  if (data.detail && typeof data.detail.message === "string") return data.detail.message;
   if (Array.isArray(data.detail)) return data.detail.map(item => item.msg).join("; ");
   return data.message || fallback;
+}
+
+async function checkQuestionAvailability(data) {
+  const params = new URLSearchParams({
+    mamh: data.mamh,
+    trinhdo: data.trinhdo,
+    socauthi: String(data.socauthi)
+  });
+  const response = await fetch(`/dangkythi/check-cauhoi?${params.toString()}`);
+  if (!response.ok) {
+    throw new Error(await readError(response, "Khong the kiem tra so cau hoi"));
+  }
+  const result = await response.json();
+  if (!result.is_hop_le) {
+    showError("questionCount", result.thong_bao || "Khong du cau hoi trong bo de.");
+    window.notify?.(result.thong_bao || "Khong du cau hoi trong bo de.", "error");
+    return false;
+  }
+  return true;
 }
 
 async function loadOptions() {
@@ -85,10 +113,7 @@ async function loadOptions() {
     classSelect.appendChild(option);
   });
 
-  const magv = window.currentUser?.ma || "";
-  const subjectUrl = window.currentUser?.role === "GIANGVIEN"
-    ? `/dangkythi/monhocdk?magv=${encodeURIComponent(magv)}`
-    : "/dangkythi/monhoc";
+  const subjectUrl = "/dangkythi/monhoc";
   const subjectResponse = await fetch(subjectUrl);
   if (!subjectResponse.ok) throw new Error("Khong the tai danh sach mon hoc");
 
@@ -123,8 +148,10 @@ function renderRegistrations() {
   const rows = document.getElementById("registrationRows");
   if (!rows) return;
 
+  document.getElementById("teacherHeader")?.classList.toggle("hidden", !shouldShowTeacherColumn());
+
   if (!registrations.length) {
-    rows.innerHTML = '<tr><td colspan="9" class="empty-cell">Chua co lich thi phu hop.</td></tr>';
+    rows.innerHTML = `<tr><td colspan="${tableColumnCount()}" class="empty-cell">Chua co lich thi phu hop.</td></tr>`;
     return;
   }
 
@@ -139,7 +166,7 @@ function renderRegistrations() {
       <td>${item.ngaythi_text || ""}</td>
       <td>${item.socauthi || ""}</td>
       <td>${item.thoigian || ""} phut</td>
-      <td>${item.magv || ""}</td>
+      ${shouldShowTeacherColumn() ? `<td>${item.magv || ""}</td>` : ""}
       <td class="row-actions">
         <button class="btn btn-outline btn-sm" type="button" data-action="edit" data-permission="update_exam_registration">Sua</button>
         <button class="btn btn-danger btn-sm" type="button" data-action="delete" data-permission="delete_exam_registration">Xoa</button>
@@ -156,9 +183,12 @@ function renderRegistrations() {
 }
 
 function setKeyFieldsDisabled(disabled) {
-  document.getElementById("class").disabled = disabled;
-  document.getElementById("subject").disabled = disabled;
-  document.getElementById("attempt").disabled = disabled;
+  ["class", "subject", "attempt"].forEach(id => {
+    const element = document.getElementById(id);
+    element.disabled = disabled;
+    element.classList.toggle("locked-field", disabled);
+    element.title = disabled ? "Thong tin khoa lich thi, khong duoc sua" : "";
+  });
 }
 
 function startEdit(item) {
@@ -208,6 +238,13 @@ async function submitForm(event) {
     data.lan = editingKey.lan;
   }
   if (!validateForm(data)) return;
+  try {
+    if (!(await checkQuestionAvailability(data))) return;
+  } catch (error) {
+    showError("questionCount", error.message);
+    window.notify?.(error.message, "error");
+    return;
+  }
 
   const url = editingKey
     ? `/dangkythi/${encodeURIComponent(editingKey.malop)}/${encodeURIComponent(editingKey.mamh)}/${editingKey.lan}`
@@ -230,6 +267,11 @@ async function submitForm(event) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput && !shouldShowTeacherColumn()) {
+    searchInput.placeholder = "Tim lop, mon";
+  }
+
   document.getElementById("examForm")?.addEventListener("submit", submitForm);
   document.getElementById("cancelEditBtn")?.addEventListener("click", cancelEdit);
   document.getElementById("searchBtn")?.addEventListener("click", loadRegistrations);

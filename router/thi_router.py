@@ -246,6 +246,15 @@ def mon_hoc_duoc_thi(db: DatabaseDep, user: ExamUserDep):
         raise_http_error(exc)
 
 
+@router.get("/lophoc-duoc-thi", response_model=list[LopDisplay])
+def lop_hoc_duoc_thi(db: DatabaseDep, user: ExamUserDep):
+    """Return classes available to the current exam actor for practice."""
+    try:
+        return exam_service.list_available_classes(db, user)
+    except ServiceError as exc:
+        raise_http_error(exc)
+
+
 @router.get("/layTTThi", response_model=ThongTinThi)
 def lay_thong_tin_thi(
     mamonhoc: str,

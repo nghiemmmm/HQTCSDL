@@ -299,3 +299,5 @@ MAMH
 TRINHDO
 Số lượng câu cần lấy
 SP không lọc theo MAGV, nên mọi câu hỏi thuộc cùng môn và trình độ phù hợp đều có thể được chọn, bất kể giảng viên biên soạn.
+
+ngày thi phải lớn hơn thời gian hiện tại ít nhất 30 phút giải quyết các bài toán thực tế sau đây trong hệ thống thi trắc nghiệm

@@ -91,7 +91,11 @@
         <p id="pageSummary">Dang tai danh sach...</p>
       </div>
       <div class="list-actions">
-        <input id="searchBoDe" type="search" placeholder="Nhap noi dung, ma mon hoac ma GV de loc...">
+        <input
+          id="searchBoDe"
+          type="search"
+          placeholder="{% if user.role == 'GIANGVIEN' %}Nhap noi dung hoac ma mon de loc...{% else %}Nhap noi dung, ma mon hoac ma GV de loc...{% endif %}"
+        >
         <button id="btnSua" type="button" onclick="sua()" data-permission="update_question">Sua</button>
         <button id="btnXoa" type="button" onclick="xoa()" data-permission="delete_question">Xoa</button>
         <button id="btnUndo" type="button" onclick="undo()" data-any-permission="create_question,update_question,delete_question">Undo</button>
@@ -107,7 +111,9 @@
           <th>Ma MH</th>
           <th>Trinh do</th>
           <th>Dap an dung</th>
+          {% if user.role != 'GIANGVIEN' %}
           <th>Giao vien tao</th>
+          {% endif %}
         </tr>
       </thead>
       <tbody id="tbody"></tbody>

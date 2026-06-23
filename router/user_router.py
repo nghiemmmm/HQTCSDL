@@ -51,11 +51,40 @@ def dang_nhap(
 
 
 @router.get("/info", response_class=HTMLResponse)
-def info(request: Request, user: CurrentUserDep):
+def info(request: Request, user: CurrentUserDep, db: DatabaseDep):
     """Render the authenticated user information page."""
+    from db import db_giaovien, db_sinhvien
+
+    profile = None
+    role = user.get("role")
+    ma = user.get("ma")
+
+    if role == "SINHVIEN":
+        student = db_sinhvien.get_by_id(db, ma)
+        if student:
+            profile = {
+                "ma": student.masv.strip() if student.masv else "",
+                "hoten": f"{student.ho or ''} {student.ten or ''}".strip(),
+                "role": "SINHVIEN",
+                "ngaysinh": student.ngaysinh.strftime("%d/%m/%Y") if student.ngaysinh else None,
+                "lop": f"{student.malop.strip() if student.malop else ''} - {student.lop.tenlop.strip() if student.lop and student.lop.tenlop else ''}".strip() if student.lop else (student.malop.strip() if student.malop else ""),
+                "sodt": None,
+                "diachi": student.diachi.strip() if student.diachi else None,
+            }
+    else:
+        teacher = db_giaovien.get_by_id(db, ma)
+        if teacher:
+            profile = {
+                "ma": teacher.magv.strip() if teacher.magv else "",
+                "hoten": f"{teacher.ho or ''} {teacher.ten or ''}".strip(),
+                "role": role,
+                "sodt": teacher.sodtll.strip() if teacher.sodtll else None,
+                "diachi": teacher.diachi.strip() if teacher.diachi else None,
+            }
+
     return templates.TemplateResponse(
         "info.html",
-        {"request": request, "user": user},
+        {"request": request, "user": user, "profile": profile},
     )
 
 

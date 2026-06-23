@@ -48,6 +48,14 @@ async function loadStudentInfo() {
     .trim();
   const displayName = fullName || masv;
 
+  if (window.currentUser?.role === "GIANGVIEN") {
+    const parentSpan = document.querySelector(".exam-student span");
+    if (parentSpan) parentSpan.innerText = "Chế độ thi thử";
+    setText("studentName", `Giảng viên: ${displayName}`);
+    setText("className", "");
+    return;
+  }
+
   if (!masv) {
     setText("studentName", "Kh\u00f4ng t\u00ecm th\u1ea5y th\u00f4ng tin \u0111\u0103ng nh\u1eadp");
     setText("className", "Lop: N/A");

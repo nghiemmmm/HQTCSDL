@@ -111,12 +111,34 @@ def get_student_class(db: Session, student_id: str, user: dict[str, Any]):
 
 def list_available_subjects(db: Session, user: dict[str, Any]):
     """Return subjects available to the current exam actor."""
-    if user.get("role") != "SINHVIEN":
-        return db_exam.list_all_subjects(db)
-    student = _student_for_user(db, user)
-    if not student.malop:
-        raise ResourceNotFoundError("Sinh vien chua duoc phan lop")
-    return db_exam.list_subjects_for_class(db, student.malop)
+    if user.get("role") == "SINHVIEN":
+        student = _student_for_user(db, user)
+        if not student.malop:
+            raise ResourceNotFoundError("Sinh vien chua duoc phan lop")
+        return db_exam.list_subjects_for_class(db, student.malop)
+
+    from db.model import DbMonHoc, DbGiaoVienDangKy
+    magv = user.get("ma")
+    return (
+        db.query(DbMonHoc)
+        .join(DbGiaoVienDangKy, DbMonHoc.mamh == DbGiaoVienDangKy.mamh)
+        .filter(DbGiaoVienDangKy.magv == magv)
+        .distinct()
+        .all()
+    )
+
+
+def list_available_classes(db: Session, user: dict[str, Any]):
+    """Return classes registered by the teacher for practice."""
+    from db.model import DbLop, DbGiaoVienDangKy
+    magv = user.get("ma")
+    return (
+        db.query(DbLop)
+        .join(DbGiaoVienDangKy, DbLop.malop == DbGiaoVienDangKy.malop)
+        .filter(DbGiaoVienDangKy.magv == magv)
+        .distinct()
+        .all()
+    )
 
 
 def get_exam_info(
@@ -327,15 +349,10 @@ def submit(
     user: dict[str, Any],
 ) -> dict:
     """Grade and atomically persist a submitted exam."""
-    if user.get("role") != "SINHVIEN":
-        raise PermissionDeniedError("Chi sinh vien moi duoc nop bai thi chinh thuc")
+    role = user.get("role")
+    is_practice = (role != "SINHVIEN")
     exam_date = parse_exam_date(request.ngaythi)
-    student = _student_for_user(db, user)
-    _assert_student_class(
-        student,
-        request.malop,
-        "Khong duoc nop bai thi cua lop khac",
-    )
+
     registration = db_exam.get_registration(
         db,
         request.mamonhoc,
@@ -345,15 +362,50 @@ def submit(
     )
     if registration is None:
         raise ResourceNotFoundError("Khong tim thay lich thi phu hop")
-    if db_exam.has_student_taken_exam(db, student.masv, request.mamonhoc, request.lanthi):
+
+    total = int(registration.socauthi or 0)
+
+    if is_practice:
+        # Grade the practice exam temporarily on the backend (no DB session writes)
+        q_ids = [int(k) for k in request.answers.keys() if str(k).isdigit()]
+        questions = db_exam.get_questions_by_ids(db, q_ids, registration.mamh)
+        correct = sum(
+            1
+            for question in questions
+            if (request.answers.get(str(question.cauhoi)) or "").strip().upper()
+            == (question.dap_an or "").strip().upper()
+        )
+        score_value = round(correct / total * 10, 2) if total else 0
+        return {
+            "message": "Nop bai thi thu thanh cong",
+            "session_id": None,
+            "masv": user.get("ma", ""),
+            "mamonhoc": request.mamonhoc.strip(),
+            "lanthi": request.lanthi,
+            "socauthi": total,
+            "socaudung": correct,
+            "diem": score_value,
+            "practice": True,
+        }
+
+    # Student submission flow (persisted in DB)
+    student = _student_for_user(db, user)
+    actor_id = student.masv
+    _assert_student_class(
+        student,
+        request.malop,
+        "Khong duoc nop bai thi cua lop khac",
+    )
+
+    if db_exam.has_student_taken_exam(db, actor_id, request.mamonhoc, request.lanthi):
         raise ConflictError("Bai thi nay da duoc nop, khong the nop lai")
 
     session = (
-        db_exam.get_session(db, request.session_id, student.masv)
+        db_exam.get_session(db, request.session_id, actor_id)
         if request.session_id
         else db_exam.get_latest_session(
             db,
-            student.masv,
+            actor_id,
             request.mamonhoc,
             request.lanthi,
             request.malop,
@@ -382,10 +434,10 @@ def submit(
         if answers.get(question.cauhoi)
         == (question.dap_an or "").strip().upper()
     )
-    total = int(registration.socauthi or 0)
     score_value = round(correct / total * 10, 2) if total else 0
     session.thoigian_conlai = calculate_remaining_seconds(session)
     session.cauhoi_hientai = 0
+
     try:
         db_exam.submit_exam_with_procedure(
             db,
@@ -398,15 +450,17 @@ def submit(
     except SQLAlchemyError as exc:
         db.rollback()
         raise RepositoryError(f"Loi database khi luu diem thi: {exc}") from exc
+
     return {
         "message": "Nop bai thanh cong",
         "session_id": session.id,
-        "masv": (student.masv or "").strip(),
+        "masv": actor_id,
         "mamonhoc": request.mamonhoc.strip(),
         "lanthi": request.lanthi,
         "socauthi": total,
         "socaudung": correct,
         "diem": score_value,
+        "practice": False,
     }
 
 

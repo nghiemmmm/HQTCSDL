@@ -1,6 +1,6 @@
 let currentMaLop = "";
 let currentExamInfo = null;
-const isPracticeUser = window.currentUser?.role !== "SINHVIEN";
+const isPracticeUser = window.currentUser?.role === "GIANGVIEN";
 
 async function readErrorMessage(response, fallback) {
   try {
@@ -129,8 +129,8 @@ async function loadClassChooserForTeacher() {
   if (select) select.hidden = false;
 
   document.getElementById("studentInfo").innerText = `Gi\u1ea3ng vi\u00ean thi th\u1eed: ${window.currentUser?.ma || ""}`;
-  document.getElementById("className").innerText = "Ch\u1ecdn l\u1edbp thi th\u1eed";
-  document.getElementById("classCode").innerText = "M\u00e3 l\u1edbp: Ch\u01b0a ch\u1ecdn";
+  document.getElementById("className").innerText = "";
+  document.getElementById("classCode").innerText = "";
 
   const response = await fetch("/thi/lophoc-duoc-thi");
   if (!response.ok) throw new Error("Không thể tải danh sách lớp thi");

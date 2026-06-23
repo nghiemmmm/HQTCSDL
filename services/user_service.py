@@ -15,7 +15,7 @@ from services.exceptions import (
 def login(db: Session, request: DangNhap) -> dict[str, str]:
     """Authenticate a user according to the selected role."""
     role = request.role.value if hasattr(request.role, "value") else str(request.role)
-    if role in {"GIANGVIEN", "PGV"}:
+    if role in {"GIANGVIEN","PGV"}:
         return _login_staff(db, request)
     if role == "SINHVIEN":
         return _login_student(db, request)

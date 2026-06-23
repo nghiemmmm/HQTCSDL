@@ -2,6 +2,7 @@
     const ROLE_PERMISSIONS = {
         PGV: [
             'create_user',
+            'view_exam_registration', 'create_exam_registration', 'update_exam_registration', 'delete_exam_registration',
             'view_subject', 'create_subject', 'update_subject', 'delete_subject',
             'view_class', 'create_class', 'update_class', 'delete_class',
             'view_student', 'create_student', 'update_student', 'delete_student',
@@ -118,14 +119,38 @@
         }
 
         const initials = (user.ten || user.ma || 'U').charAt(0).toUpperCase();
+        const fullName = user.ho ? `${user.ho} ${user.ten}`.trim() : (user.ten || user.ma || 'Nguoi dung');
+
         authArea.innerHTML = `
-            <span class="role-pill">${role || 'USER'}</span>
-            <button id="avatarBtn" class="avatar" type="button" aria-label="Thong tin nguoi dung">${initials}</button>
-            <button id="logoutBtn" class="btn btn-danger" type="button">Dang xuat</button>
+            <div class="auth-container">
+                <button id="avatarBtn" class="avatar" type="button" aria-label="Thong tin nguoi dung">${initials}</button>
+                <div id="userDropdown" class="user-dropdown">
+                    <div class="dropdown-header">
+                        <div class="dropdown-user-name">${fullName}</div>
+                        <div class="dropdown-user-role">${role || 'USER'}</div>
+                        <div class="dropdown-user-ma">Mã: ${user.ma}</div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-actions">
+                        <a href="/user/info" class="dropdown-item btn-profile">Hồ sơ cá nhân</a>
+                        <button id="logoutBtn" class="dropdown-item btn-logout" type="button">Đăng xuất</button>
+                    </div>
+                </div>
+            </div>
         `;
 
-        document.getElementById('avatarBtn')?.addEventListener('click', () => {
-            window.location.href = '/user/info';
+        const avatarBtn = document.getElementById('avatarBtn');
+        const userDropdown = document.getElementById('userDropdown');
+
+        avatarBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userDropdown?.classList.toggle('show');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (userDropdown && !userDropdown.contains(e.target) && e.target !== avatarBtn) {
+                userDropdown.classList.remove('show');
+            }
         });
 
         document.getElementById('logoutBtn')?.addEventListener('click', async () => {

@@ -38,6 +38,7 @@ const btnXoa = document.getElementById("btnXoa");
 const btnGhi = document.getElementById("btnGhi");
 const btnHuy = document.getElementById("btnHuy");
 const btnUndo = document.getElementById("btnUndo");
+const showTeacherColumn = window.userRole !== "GIANGVIEN";
 
 let currentPage = 1;
 let pageSize = parseInt(pageSizeSelect?.value || "10", 10);
@@ -159,7 +160,7 @@ function render() {
 
   if (!pageRows.length) {
     const row = document.createElement("tr");
-    row.innerHTML = `<td colspan="6" class="empty-cell">Khong co cau hoi phu hop.</td>`;
+    row.innerHTML = `<td colspan="${showTeacherColumn ? 6 : 5}" class="empty-cell">Khong co cau hoi phu hop.</td>`;
     tbody.appendChild(row);
   }
 
@@ -179,7 +180,7 @@ function render() {
       <td>${item.mamh}</td>
       <td>${item.trinhdo}</td>
       <td>${item.dap_an}</td>
-      <td>${gvDisplay}</td>
+      ${showTeacherColumn ? `<td>${gvDisplay}</td>` : ""}
     `;
 
     row.onclick = () => selectRow(index);

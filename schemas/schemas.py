@@ -231,7 +231,7 @@ class DangKyThi(BaseModel):
     ngaythi: Optional[datetime] = None
     lan: int = Field(..., ge=1, le=2)
     socauthi: Optional[int] = Field(None, ge=10, le=100)
-    thoigian: Optional[int] = Field(None, ge=15, le=60)
+    thoigian: Optional[int] = Field(None, ge=5, le=60)
 
 
 class ThongTinThi(DangKyThi):

@@ -17,6 +17,14 @@
     width: 100%;
 }
 
+.exam-form .locked-field:disabled {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #0f172a;
+    cursor: not-allowed;
+    opacity: 1;
+}
+
 .form-error {
     display: block;
     color: #dc2626;
