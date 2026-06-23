@@ -40,7 +40,9 @@ function readFormData() {
     ngaythi: document.getElementById("date").value.trim(),
     thoigian: parseInt(document.getElementById("duration").value, 10),
     socauthi: parseInt(document.getElementById("questionCount").value, 10),
-    magv: window.currentUser?.role === "GIANGVIEN" ? (window.currentUser?.ma || "") : null
+    magv: ["GIANGVIEN", "PGV"].includes(window.currentUser?.role)
+      ? (window.currentUser?.ma || "")
+      : null
   };
 }
 

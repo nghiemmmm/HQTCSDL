@@ -8,7 +8,12 @@ from sqlalchemy.orm import Session
 from db import db_dangkythi
 from db.model import DbGiaoVienDangKy, DbMonHoc
 from schemas.schemas import DangKyThi
-from services.exceptions import ConflictError, RepositoryError, ResourceNotFoundError
+from services.exceptions import (
+    ConflictError,
+    RepositoryError,
+    ResourceNotFoundError,
+    ValidationError,
+)
 
 
 def create_registration(
@@ -22,9 +27,13 @@ def create_registration(
     if db_dangkythi.get_class(db, request.malop) is None:
         raise ResourceNotFoundError(f"Lớp với mã {request.malop} không tồn tại")
 
-    if user.get("role") == "GIANGVIEN":
-        request.magv = user.get("ma")
-    if request.magv and db_dangkythi.get_teacher(db, request.magv) is None:
+    if user.get("role") in {"GIANGVIEN", "PGV"}:
+        request.magv = (user.get("ma") or "").strip()
+    if not request.magv:
+        raise ValidationError(
+            "Không xác định được MAGV từ tài khoản đang đăng nhập"
+        )
+    if db_dangkythi.get_teacher(db, request.magv) is None:
         raise ResourceNotFoundError(
             f"Giáo viên với mã {request.magv} không tồn tại"
         )

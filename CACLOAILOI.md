@@ -243,3 +243,59 @@ Xu ly:
 - Khi so sánh ngày thi, backend không so sánh trực tiếp `DateTime == string`, mà lọc theo khoảng thời gian trong ngày từ `00:00:00` đến `23:59:59`.
 Note : khi bắt đầu thi nên load tất cả môn học có trong table môn học hay chỉ load tất cả các môn đã được giáo viên đăng ký 
 khi chọn đủ đầu đủ các trường thì nên có nút lọc hay cho nó tự động , nếu các nút tự động lọc thì nó nên hiển thị supform cho chi tiết bài thi 
+
+Trong bảng GIAOVIEN_DANGKY, cột MAGV luôn lưu mã giảng viên trong bảng GIAOVIEN, kể cả khi người đăng ký là Phòng Giáo vụ.
+
+Lý do: database không có bảng NHANVIEN/PGV; các login thuộc nhóm PGV/COSO vẫn được ánh xạ với MAGV trong bảng GIAOVIEN. Bảng GIAOVIEN_DANGKY cũng có cột MAGV để lưu người lập lịch thi.
+Login thuộc nhóm PGV thì cũng là MAGV trong table GIANGVIEN.
+Nếu login PGV cũng có mã tương ứng trong bảng GIAOVIEN, hướng xử lý đơn giản hơn:
+Cấp quyền CREATE_EXAM_REGISTRATION cho PGV.
+Backend luôn lấy MAGV từ session cho cả PGV và GIANGVIEN.
+Không nhận MAGV do frontend gửi lên.
+Kiểm tra user["ma"] tồn tại trong bảng GIAOVIEN.
+
+Dạ trường hợp này trong phạm vi nghiệp vụ của đề tài không xử lý việc phát hiện câu hỏi trùng nội dung giữa các giảng viên.
+
+Theo quy trình thực tế, ngân hàng câu hỏi trước khi đưa vào sử dụng sẽ được Hội đồng chuyên môn/Hội đồng thẩm định rà soát, chuẩn hóa và loại bỏ các câu hỏi trùng lặp. Vì vậy hệ thống giả định rằng các câu hỏi trong ngân hàng đề đã được kiểm duyệt và không tồn tại các câu hỏi trùng nhau về nội dung.
+
+Do đó khi tạo đề thi, hệ thống sẽ lấy ngẫu nhiên từ toàn bộ ngân hàng câu hỏi của môn học (bao gồm câu hỏi của tất cả giảng viên) mà không cần kiểm tra trùng nội dung giữa các câu hỏi.
+
+Dạ thưa thầy,
+
+Em có một số câu hỏi về đề 4:
+
+1. Ở mục 4.8, hệ thống yêu cầu liệt kê lại các câu sinh viên đã thi kèm theo câu trả lời mà sinh viên đã chọn. Tuy nhiên trong mô hình dữ liệu hiện tại em chưa thấy bảng nào lưu đáp án sinh viên chọn cho từng câu hỏi. Trường hợp này bọn em có được phép tạo thêm bảng để lưu thông tin đó không ạ?
+
+2. Thầy có trao đổi rằng nếu sinh viên đang làm bài mà bị cúp điện hoặc sự cố làm gián đoạn kỳ thi thì lần đăng nhập sau vẫn phải tiếp tục làm đúng bộ đề đang thi. Để hỗ trợ chức năng này, bọn em có được phép thiết kế và bổ sung thêm bảng dữ liệu phục vụ việc lưu trạng thái phiên thi không ạ?
+
+Em cảm ơn thầy.
+Câu 1: Được phép tạo thêm bảng (thường là CT_BAITHI hoặc bảng lưu đáp án đã chọn).
+Câu 2: Được phép tạo thêm bảng (thường là bảng PHIENTHI để lưu bộ đề, thời gian còn lại, đáp án đã chọn, trạng thái làm bài).
+Nhóm đã được phép bổ sung bảng PHIENTHI. Bảng này đồng thời lưu bộ đề cố định, đáp án đã chọn và trạng thái phiên thi. Các trường danh sách câu hỏi và đáp án được lưu dưới dạng JSON. Hệ thống tự động lưu tiến độ định kỳ, cho phép sinh viên đăng nhập lại và tiếp tục đúng bộ đề đang làm.
+
+Điểm cần cải thiện: chức năng xem lại hiện tìm phiên bằng MASV + MAMH + LAN; an toàn hơn nếu SP nhận trực tiếp PHIENTHI_ID để tránh nhầm khi có nhiều phiên.
+
+
+
+Một lớp chỉ thuộc một trình độ duy nhất. Trình độ (A/B/C) được xác định khi giảng viên hoặc Phòng Giáo vụ đăng ký lịch thi cho lớp đó và áp dụng chung cho toàn bộ sinh viên trong lớp ở lần thi đó.
+
+Vì vậy sẽ không có trường hợp trong cùng một lớp, cùng một môn học, cùng một lần thi mà có nhiều trình độ khác nhau.
+
+Nếu phân tích theo nghiệp vụ của bảng GIAOVIEN_DANGKY thì khóa đăng ký là (MALOP, MAMH, LAN) và mỗi bản ghi chỉ có một giá trị TRINHDO, nên một lớp thi một môn ở một lần thi chỉ có một trình độ tương ứng.
+Đúng, dự án hiện phù hợp với quy tắc nghiệp vụ này.
+Trong GIAOVIEN_DANGKY:
+Khóa chính là (MALOP, MAMH, LAN).
+TRINHDO là thuộc tính của bản ghi đăng ký.
+Do khóa chính duy nhất, không thể tạo hai lịch cùng lớp, môn, lần thi với các trình độ khác nhau.
+Khi sinh viên bắt đầu thi, hệ thống lấy TRINHDO từ lịch đăng ký và dùng chung để gọi SP_GET_CauHoi.
+PHIENTHI lưu lại trình độ đó nhằm cố định trạng thái bài thi.
+
+Dạ, khi tạo đề thi cho một môn học, hệ thống sẽ lấy câu hỏi từ toàn bộ ngân hàng câu hỏi của môn học đó, không phân biệt câu hỏi được tạo bởi giảng viên nào.
+
+Nói cách khác, tất cả các câu hỏi có cùng MAMH đều có thể được sử dụng để sinh đề thi. Cột MAGV trong bảng BODE chỉ dùng để xác định giảng viên là người soạn câu hỏi, không dùng để giới hạn phạm vi lấy câu hỏi khi tạo đề.
+Đúng, dự án hiện thực hiện đúng nghiệp vụ này.
+SP_GET_CauHoi chọn câu hỏi dựa trên:
+MAMH
+TRINHDO
+Số lượng câu cần lấy
+SP không lọc theo MAGV, nên mọi câu hỏi thuộc cùng môn và trình độ phù hợp đều có thể được chọn, bất kể giảng viên biên soạn.

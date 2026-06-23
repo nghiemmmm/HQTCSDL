@@ -56,6 +56,9 @@ ROLE_PERMISSIONS = {
     quyen.PGV: [
         Permission.CREATE_USER,
         Permission.VIEW_EXAM_REGISTRATION,
+        Permission.CREATE_EXAM_REGISTRATION,
+        Permission.UPDATE_EXAM_REGISTRATION,
+        Permission.DELETE_EXAM_REGISTRATION,
 
         Permission.VIEW_SUBJECT,
         Permission.CREATE_SUBJECT,
