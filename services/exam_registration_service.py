@@ -30,15 +30,15 @@ def create_registration(
         raise ResourceNotFoundError(f"Mon hoc voi ma {request.mamh} khong ton tai")
     if db_dangkythi.get_class(db, request.malop) is None:
         raise ResourceNotFoundError(f"Lop voi ma {request.malop} khong ton tai")
+    _ensure_teacher_subject_allowed(db, request.mamh, user)
 
     if request.ngaythi:
-        min_allowed_time = datetime.now() + timedelta(
-            minutes=MIN_REGISTRATION_LEAD_TIME_MINUTES
+        tomorrow_start = (datetime.now() + timedelta(days=1)).replace(
+            hour=0, minute=0, second=0, microsecond=0
         )
-        if request.ngaythi < min_allowed_time:
+        if request.ngaythi < tomorrow_start:
             raise ValidationError(
-                f"Ngay thi phai lon hon thoi gian hien tai it nhat "
-                f"{MIN_REGISTRATION_LEAD_TIME_MINUTES} phut."
+                "Ngày thi đăng ký phải bắt đầu từ ngày mai trở đi."
             )
 
     if user.get("role") in {"GIANGVIEN", "PGV"}:
@@ -62,6 +62,7 @@ def create_registration(
             f"lan {request.lan} da duoc dang ky."
         )
 
+    _validate_attempt_sequence(db, request)
     _validate_question_count(db, request)
     try:
         return db_dangkythi.create(db, request)
@@ -81,24 +82,26 @@ def update_registration(
     """Update an exam registration when no exam data exists yet."""
     registration = _get_registration_or_raise(db, malop, mamh, lan)
     _ensure_registration_owner(registration, user)
-    _ensure_registration_not_used(db, malop, mamh, lan)
+    _ensure_registration_not_used(registration)
 
     if db_dangkythi.get_subject(db, request.mamh) is None:
         raise ResourceNotFoundError(f"Mon hoc voi ma {request.mamh} khong ton tai")
     if db_dangkythi.get_class(db, request.malop) is None:
         raise ResourceNotFoundError(f"Lop voi ma {request.malop} khong ton tai")
+    _ensure_teacher_subject_allowed(db, request.mamh, user)
     if request.malop != malop or request.mamh != mamh or request.lan != lan:
         raise ValidationError("Khong duoc thay doi lop, mon hoc hoac lan thi khi sua lich")
 
     if request.ngaythi:
-        min_allowed_time = datetime.now() + timedelta(
-            minutes=MIN_REGISTRATION_LEAD_TIME_MINUTES
+        tomorrow_start = (datetime.now() + timedelta(days=1)).replace(
+            hour=0, minute=0, second=0, microsecond=0
         )
-        if request.ngaythi < min_allowed_time:
+        if request.ngaythi < tomorrow_start:
             raise ValidationError(
-                f"Ngay thi phai lon hon thoi gian hien tai it nhat "
-                f"{MIN_REGISTRATION_LEAD_TIME_MINUTES} phut."
+                "Ngày thi đăng ký phải bắt đầu từ ngày mai trở đi."
             )
+
+    _validate_attempt_sequence(db, request)
 
     question_setup_changed = (
         (registration.trinhdo or "").strip() != (request.trinhdo or "").strip()
@@ -125,7 +128,7 @@ def delete_registration(
     """Delete an unused exam registration."""
     registration = _get_registration_or_raise(db, malop, mamh, lan)
     _ensure_registration_owner(registration, user)
-    _ensure_registration_not_used(db, malop, mamh, lan)
+    _ensure_registration_not_used(registration)
 
     try:
         db_dangkythi.delete(db, registration)
@@ -162,15 +165,27 @@ def _ensure_registration_owner(
 
 
 def _ensure_registration_not_used(
-    db: Session,
-    malop: str,
-    mamh: str,
-    lan: int,
+    registration: DbGiaoVienDangKy,
 ) -> None:
-    if db_dangkythi.has_exam_result(db, malop, mamh, lan):
-        raise ConflictError("Khong the sua/xoa lich thi da co sinh vien thi")
-    if db_dangkythi.has_exam_session(db, malop, mamh, lan):
-        raise ConflictError("Khong the sua/xoa lich thi da co phien thi")
+    if registration.ngaythi and registration.ngaythi <= datetime.now():
+        raise ConflictError(
+            "Chỉ được sửa hoặc xóa lịch thi chưa đến ngày thi."
+        )
+
+
+def _ensure_teacher_subject_allowed(
+    db: Session,
+    mamh: str,
+    user: dict[str, Any],
+) -> None:
+    """Ensure teachers only register exams for subjects they have questions in."""
+    if user.get("role") != "GIANGVIEN":
+        return
+    teacher_id = (user.get("ma") or "").strip()
+    if not db_dangkythi.teacher_has_questions_for_subject(db, teacher_id, mamh):
+        raise PermissionDeniedError(
+            "Giao vien chi duoc dang ky thi cho mon hoc da co cau hoi trong bo de cua minh."
+        )
 
 
 def _validate_question_count(db: Session, request: DangKyThi) -> None:
@@ -183,6 +198,34 @@ def _validate_question_count(db: Session, request: DangKyThi) -> None:
     )
     if not result["is_hop_le"]:
         raise ConflictError(result["thong_bao"])
+
+
+def _validate_attempt_sequence(db: Session, request: DangKyThi) -> None:
+    """Validate attempt 1/2 business rules for an exam registration."""
+    if request.lan == 1:
+        return
+
+    if request.lan != 2:
+        raise ValidationError("Lan thi chi duoc la 1 hoac 2")
+
+    first_attempt = db_dangkythi.get_registration(
+        db,
+        request.malop,
+        request.mamh,
+        1,
+    )
+    if first_attempt is None:
+        raise ConflictError(
+            "Phai dang ky lich thi lan 1 truoc khi dang ky lan 2."
+        )
+
+    if not request.ngaythi or not first_attempt.ngaythi:
+        raise ValidationError("Ngay thi lan 1 va lan 2 phai hop le.")
+
+    if request.ngaythi.date() <= first_attempt.ngaythi.date():
+        raise ValidationError(
+            "Ngay thi lan 2 phai sau ngay thi lan 1 it nhat 1 ngay."
+        )
 
 
 def check_question_availability(
@@ -200,30 +243,42 @@ def check_question_availability(
             socauthi,
         )
         if row:
-            return {
-                "is_hop_le": bool(row[0]),
-                "so_cau_co_san": row[1],
-                "so_cau_yeu_cau": socauthi,
-                "thong_bao": row[2],
-            }
+            return _question_count_result(
+                int(row[1] or 0),
+                socauthi,
+                mamh,
+                trinhdo,
+            )
     except Exception:
         count = db_dangkythi.count_questions(db, mamh, trinhdo)
-        return _question_count_result(count, socauthi)
+        return _question_count_result(count, socauthi, mamh, trinhdo)
 
     count = db_dangkythi.count_questions(db, mamh, trinhdo)
-    return _question_count_result(count, socauthi)
+    return _question_count_result(count, socauthi, mamh, trinhdo)
 
 
-def _question_count_result(count: int, required: int) -> dict:
+def _question_count_result(
+    count: int,
+    required: int,
+    mamh: str,
+    trinhdo: str,
+) -> dict:
     is_valid = count >= required
+    subject = (mamh or "").strip()
+    level = (trinhdo or "").strip()
     return {
         "is_hop_le": is_valid,
         "so_cau_co_san": count,
         "so_cau_yeu_cau": required,
         "thong_bao": (
-            "Du cau hoi thi"
+            f"Đủ câu hỏi thi cho môn {subject}, trình độ {level}. "
+            f"Yêu cầu {required} câu, hiện có {count} câu."
             if is_valid
-            else f"Khong du cau hoi. Yeu cau: {required}, Hien co: {count}"
+            else (
+                f"Không đủ câu hỏi cho môn {subject}, trình độ {level}. "
+                f"Yêu cầu {required} câu, hiện có {count} câu. "
+                "Vui lòng giảm số câu thi hoặc bổ sung câu hỏi vào bộ đề."
+            )
         ),
     }
 
@@ -244,9 +299,14 @@ def list_classes(db: Session) -> list[DbLop]:
         raise RepositoryError(f"Khong the lay danh sach lop: {exc}") from exc
 
 
-def list_subjects(db: Session) -> list[DbMonHoc]:
+def list_subjects(db: Session, user: dict[str, Any]) -> list[DbMonHoc]:
     """Return subjects available for exam registration."""
     try:
+        if user.get("role") == "GIANGVIEN":
+            return db_dangkythi.get_subjects_by_question_teacher(
+                db,
+                (user.get("ma") or "").strip(),
+            )
         return db_dangkythi.get_all_subjects(db)
     except SQLAlchemyError as exc:
         raise RepositoryError(f"Khong the lay danh sach mon hoc: {exc}") from exc

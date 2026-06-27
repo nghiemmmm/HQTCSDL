@@ -1,87 +1,96 @@
 {% extends "base_dashboard.html" %}
 
 {% block title %}Thi{% endblock %}
-{% block page_kicker %}Lam bai thi{% endblock %}
-{% block page_title %}Bat dau thi{% endblock %}
+{% block page_kicker %}Làm bài thi{% endblock %}
+{% block page_title %}Bắt đầu thi{% endblock %}
 
 {% block page_css %}
-<link rel="stylesheet" href="/static/css/batDauThi.css">
+<link rel="stylesheet" href="/static/css/batDauThi.css?v=3">
 {% endblock %}
 
 {% block content %}
 <main class="exam-start">
   <section class="hero">
     <div>
-      <p id="studentInfo">Thong tin sinh vien</p>
-      <h2 id="className">Dang tai ten lop...</h2>
-      <p id="classCode">Ma lop: Dang tai...</p>
+      <p id="studentInfo">Thông tin sinh viên</p>
+      <h2 id="className">Đang tải tên lớp...</h2>
+      <p id="classCode">Mã lớp: Đang tải...</p>
     </div>
     <div>
-      <p>Ngay hom nay</p>
+      <p>Ngày hôm nay</p>
       <p id="todayText"></p>
     </div>
   </section>
 
   <div class="grid">
     <div class="card">
-      <h3>Cau hinh bai thi</h3>
+      <h3>Chọn lịch thi</h3>
 
       <form>
-        <label id="lopThiLabel" hidden>Lop thi</label>
+        <label id="lopThiLabel" hidden>Lớp thi</label>
         <select id="lopThiSelect" hidden>
-          <option value="" disabled selected hidden>Chon lop thi</option>
+          <option value="" disabled selected hidden>Chọn lớp thi</option>
         </select>
 
-        <label>Mon hoc</label>
-        <select id="monhocSelect" required>
-          <option value="" disabled selected hidden>Chon mon hoc</option>
+        <label id="lichThiLabel">Lịch thi của bạn</label>
+        <select id="lichThiSelect" class="schedule-select">
+          <option value="" disabled selected hidden>Đang tải lịch thi...</option>
         </select>
 
-        <div class="row">
+        <div id="scheduleSummary" class="schedule-summary" hidden></div>
+
+        <label id="monhocLabel" hidden>Môn học</label>
+        <select id="monhocSelect" required hidden>
+          <option value="" disabled selected hidden>Chọn môn học</option>
+        </select>
+
+        <div class="row" id="manualExamFieldsRow" hidden>
           <div>
-            <label>Ngay thi</label>
+            <label>Ngày thi</label>
             <input type="date" id="ngaythiInput">
           </div>
           <div>
-            <label>Lan thi</label>
+            <label>Lần thi</label>
             <select id="lanthiSelect" required>
-              <option value="" disabled selected hidden>Chon lan thi</option>
-              <option value="1">Lan 1</option>
-              <option value="2">Lan 2</option>
+              <option value="" disabled selected hidden>Chọn lần thi</option>
+              <option value="1">Lần 1</option>
+              <option value="2">Lần 2</option>
             </select>
           </div>
         </div>
 
-        <div class="note">Kiem tra ky thong tin truoc khi bat dau thi</div>
+        <div class="note">Hệ thống tự lấy lịch thi theo lớp của sinh viên. Bạn chỉ có thể bắt đầu khi lịch thi được mở trong ngày hôm nay.</div>
       </form>
     </div>
 
     <aside class="card">
-      <h3>Chi tiet bai thi</h3>
+      <h3>Chi tiết bài thi</h3>
 
       <div class="item">
-        <span>So cau</span>
+        <span>Số câu</span>
         <b id="socauDisplay">...</b>
       </div>
 
       <div class="item">
-        <span>Thoi gian</span>
+        <span>Thời gian</span>
         <b id="thoigianDisplay">...</b>
       </div>
 
       <div class="item">
-        <span>Trinh do</span>
+        <span>Trình độ</span>
         <b id="trinhdoDisplay">...</b>
       </div>
 
-      <button class="startBtn">Bat dau thi</button>
+      <p id="examDetailMessage" class="exam-detail-message" hidden></p>
+
+      <button class="startBtn">Bắt đầu thi</button>
     </aside>
   </div>
 </main>
 {% endblock %}
 
 {% block page_js %}
-<script src="/static/js/batDauThi.js?v=11"></script>
+<script src="/static/js/batDauThi.js?v=18"></script>
 <script>
   const todayText = document.getElementById('todayText');
   if (todayText) todayText.textContent = new Date().toLocaleDateString('vi-VN');

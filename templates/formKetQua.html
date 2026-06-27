@@ -14,7 +14,7 @@
     border: 1px solid var(--border-color);
     margin-bottom: 24px;
   }
-  
+
   .filter-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -22,19 +22,19 @@
     margin-bottom: 24px;
     align-items: flex-end;
   }
-  
+
   .filter-grid .field {
     display: flex;
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .filter-grid label {
     font-size: 13px;
     font-weight: 600;
     color: var(--text-secondary);
   }
-  
+
   .filter-grid select {
     padding: 10px 14px;
     border-radius: 8px;
@@ -45,12 +45,12 @@
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
-  
+
   .filter-grid select:focus {
     border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
   }
-  
+
   .btn-search {
     background-color: var(--primary);
     color: white;
@@ -64,108 +64,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 8px;
     transition: background-color 0.2s;
-  }
-  
-  .btn-search:hover {
-    background-color: var(--primary-hover);
   }
 
-  .result-card {
-    display: none;
-    border-radius: 12px;
-    background-color: var(--background);
-    border: 1px solid var(--border-color);
-    padding: 24px;
-    margin-top: 24px;
-    animation: fadeIn 0.3s ease;
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-  .result-header {
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 16px;
-    margin-bottom: 20px;
-  }
-  
-  .result-header h3 {
-    margin: 0 0 4px 0;
-    font-size: 18px;
-    color: var(--text-primary);
-  }
-  
-  .result-header p {
-    margin: 0;
-    font-size: 14px;
-    color: var(--text-secondary);
-  }
-  
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-  
-  .stat-card {
-    background-color: var(--surface-card);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 16px;
-    text-align: center;
-  }
-  
-  .stat-card .label {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-  
-  .stat-card .value {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--text-primary);
-  }
-  
-  .stat-card.score .value {
-    color: var(--primary);
-  }
-  
-  .btn-detail {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background-color: var(--primary);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 14px;
-    transition: background-color 0.2s;
-  }
-  
-  .btn-detail:hover {
-    background-color: var(--primary-hover);
-  }
-  
-  .no-result {
-    display: none;
-    text-align: center;
-    padding: 32px;
-    color: var(--text-secondary);
-    border: 1px dashed var(--border-color);
-    border-radius: 12px;
-    margin-top: 24px;
-    background-color: var(--background);
-  }
-  
+  .btn-search:hover { background-color: var(--primary-hover); }
+
   .error-text {
     color: #dc2626;
     font-weight: 500;
@@ -174,41 +78,118 @@
     text-align: center;
     display: none;
   }
+
+  /* ── Result table ── */
+  .table-container {
+    display: none;
+    margin-top: 24px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  table.result-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--surface-card);
+    font-size: 14px;
+    text-align: left;
+  }
+
+  table.result-table th,
+  table.result-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  table.result-table th {
+    background-color: var(--background);
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  table.result-table tr:hover { background-color: rgba(243, 244, 246, 0.05); }
+
+  .badge-chuathi {
+    display: inline-block;
+    background-color: rgba(156, 163, 175, 0.15);
+    color: #9ca3af;
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .btn-view {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: var(--primary);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background-color 0.2s;
+  }
+  .btn-view:hover { background-color: var(--primary-hover); }
+
+  .table-summary {
+    display: flex;
+    gap: 24px;
+    padding: 12px 16px;
+    background-color: var(--background);
+    border-top: 1px solid var(--border-color);
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .table-summary span { font-weight: 700; color: var(--text-primary); }
 </style>
 {% endblock %}
 
 {% block content %}
 <main class="report-wrap">
-  <h2>TRA CỨU KẾT QUẢ BÀI THI</h2>
-  
+  <h2>KẾT QUẢ SINH VIÊN</h2>
+
   <div class="filter-grid">
+    {% if user.role == "GIANGVIEN" %}
+    <div class="field" style="grid-column: 1 / -1;">
+      <label for="selectMyExam">⚡ Kỳ thi của tôi</label>
+      <select id="selectMyExam" onchange="onMyExamSelect()">
+        <option value="">-- Chọn nhanh kỳ thi --</option>
+      </select>
+      <span id="myExamLoading" style="font-size:12px; color:var(--text-secondary); display:none;">Đang tải danh sách kỳ thi...</span>
+    </div>
+    <hr style="grid-column: 1 / -1; border: none; border-top: 1px solid var(--border-color); margin: 0;">
+    {% endif %}
+
     <div class="field">
       <label for="selectClass">Lớp học</label>
-      <select id="selectClass" onchange="onClassChange()">
+      <select id="selectClass">
         <option value="">-- Chọn lớp học --</option>
         {% for c in classes %}
-        <option value="{{ c.malop }}">{{ c.malop }} - {{ c.tenlop }}</option>
+        <option value="{{ c.malop | trim }}">{{ c.malop | trim }} - {{ c.tenlop }}</option>
         {% endfor %}
       </select>
     </div>
-    
-    <div class="field">
-      <label for="selectStudent">Sinh viên</label>
-      <select id="selectStudent" disabled>
-        <option value="">-- Vui lòng chọn lớp --</option>
-      </select>
-    </div>
-    
+
     <div class="field">
       <label for="selectSubject">Môn học</label>
       <select id="selectSubject">
         <option value="">-- Chọn môn học --</option>
         {% for s in subjects %}
-        <option value="{{ s.mamh }}">{{ s.mamh }} - {{ s.tenmh }}</option>
+        <option value="{{ s.mamh | trim }}">{{ s.mamh | trim }} - {{ s.tenmh }}</option>
         {% endfor %}
       </select>
     </div>
-    
+
     <div class="field">
       <label for="selectAttempt">Lần thi</label>
       <select id="selectAttempt">
@@ -216,149 +197,170 @@
         <option value="2">Lần 2</option>
       </select>
     </div>
-    
+
     <div>
-      <button class="btn-search" onclick="searchResult()">Tìm kiếm</button>
+      <button class="btn-search" onclick="fetchResults()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Xem kết quả
+      </button>
     </div>
   </div>
-  
+
   <div id="errorText" class="error-text"></div>
-  
-  <!-- RESULT DISPLAY -->
-  <div id="resultCard" class="result-card">
-    <div class="result-header">
-      <h3 id="resStudentName">Nguyễn Văn A</h3>
-      <p id="resExamInfo">Môn thi: Cấu trúc dữ liệu - Lần thi: 1</p>
+
+  <!-- RESULT TABLE -->
+  <div id="tableContainer" class="table-container">
+    <table class="result-table">
+      <thead>
+        <tr>
+          <th style="width:50px; text-align:center;">STT</th>
+          <th style="width:110px;">Mã SV</th>
+          <th>Họ tên</th>
+          <th style="width:90px; text-align:center;">Điểm</th>
+          <th style="width:150px; text-align:center;">Thời gian nộp</th>
+          <th style="width:120px; text-align:center;">Chi tiết</th>
+        </tr>
+      </thead>
+      <tbody id="resultBody"></tbody>
+    </table>
+    <div class="table-summary">
+      Đã thi: <span id="sumSubmitted">0</span> &nbsp;|&nbsp;
+      Chưa thi: <span id="sumPending">0</span> &nbsp;|&nbsp;
+      Tổng: <span id="sumTotal">0</span>
     </div>
-    
-    <div class="stats-grid">
-      <div class="stat-card score">
-        <div class="label">Điểm thi</div>
-        <div class="value" id="resScore">8.5</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Số câu đúng</div>
-        <div class="value" id="resCorrectRatio">17/20</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Thời gian nộp</div>
-        <div class="value" id="resSubmittedAt" style="font-size: 14px; padding-top: 8px;">18/06/2026 12:00:00</div>
-      </div>
-    </div>
-    
-    <div style="text-align: right;">
-      <a id="btnDetailLink" href="#" class="btn-detail">
-        <span>Xem chi tiết bài làm</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-      </a>
-    </div>
-  </div>
-  
-  <!-- NO RESULT -->
-  <div id="noResult" class="no-result">
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 12px; color: #9ca3af;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-    <p style="margin: 0; font-size: 15px; font-weight: 500;">Không tìm thấy kết quả bài thi phù hợp</p>
-    <p style="margin: 4px 0 0 0; font-size: 13px;">Sinh viên có thể chưa thực hiện bài thi này.</p>
   </div>
 </main>
 {% endblock %}
 
 {% block page_js %}
 <script>
+  /* ── Quick-select: load teacher's own registrations ── */
+  {% if user.role == "GIANGVIEN" %}
+  (async function loadMyExams() {
+    const sel = document.getElementById("selectMyExam");
+    const loading = document.getElementById("myExamLoading");
+    if (!sel) return;
+    loading.style.display = "inline";
+    try {
+      const res = await fetch("/thi/api/danh-sach-ky-thi-gv");
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      data.registrations.forEach(r => {
+        const opt = document.createElement("option");
+        opt.value = JSON.stringify({ malop: r.malop, mamh: r.mamh, lan: r.lan });
+        opt.text = `${r.tenmh} (${r.mamh}) — ${r.tenlop} — Lần ${r.lan} — 📅 ${r.ngaythi}`;
+        sel.appendChild(opt);
+      });
+    } catch (_) {
+      sel.disabled = true;
+      sel.options[0].text = "Không tải được danh sách kỳ thi";
+    } finally {
+      loading.style.display = "none";
+    }
+  })();
+
+  function onMyExamSelect() {
+    const sel = document.getElementById("selectMyExam");
+    if (!sel.value) return;
+    const { malop, mamh, lan } = JSON.parse(sel.value);
+
+    const classSelect   = document.getElementById("selectClass");
+    const subjectSelect = document.getElementById("selectSubject");
+    const attemptSelect = document.getElementById("selectAttempt");
+
+    for (const opt of classSelect.options)   { if (opt.value.trim() === malop.trim())       { opt.selected = true; break; } }
+    for (const opt of subjectSelect.options) { if (opt.value.trim() === mamh.trim())        { opt.selected = true; break; } }
+    for (const opt of attemptSelect.options) { if (opt.value.trim() === String(lan).trim()) { opt.selected = true; break; } }
+
+    fetchResults();
+  }
+  {% endif %}
+
   function showError(msg) {
     const err = document.getElementById("errorText");
-    if (msg) {
-      err.innerText = msg;
-      err.style.display = "block";
-    } else {
-      err.style.display = "none";
-    }
+    if (msg) { err.innerText = msg; err.style.display = "block"; }
+    else      { err.style.display = "none"; }
   }
 
-  async function onClassChange() {
-    const malop = document.getElementById("selectClass").value;
-    const selectStudent = document.getElementById("selectStudent");
-    
-    // Clear student options
-    selectStudent.innerHTML = "";
+  async function fetchResults() {
     showError("");
-    document.getElementById("resultCard").style.display = "none";
-    document.getElementById("noResult").style.display = "none";
-    
-    if (!malop) {
-      selectStudent.innerHTML = '<option value="">-- Vui lòng chọn lớp --</option>';
-      selectStudent.disabled = true;
-      return;
-    }
-    
-    selectStudent.innerHTML = '<option value="">Đang tải sinh viên...</option>';
-    selectStudent.disabled = true;
-    
+    document.getElementById("tableContainer").style.display = "none";
+
+    const malop = document.getElementById("selectClass").value.trim();
+    const mamh  = document.getElementById("selectSubject").value.trim();
+    const lan   = document.getElementById("selectAttempt").value;
+
+    if (!malop) { showError("Vui lòng chọn lớp học."); return; }
+    if (!mamh)  { showError("Vui lòng chọn môn học."); return; }
+
     try {
-      const res = await fetch(`/thi/api/sinhvien-by-lop?malop=${encodeURIComponent(malop)}`);
-      if (!res.ok) throw new Error("Không thể tải danh sách sinh viên.");
-      const students = await res.json();
-      
-      selectStudent.innerHTML = '<option value="">-- Chọn sinh viên --</option>';
-      if (students.length === 0) {
-        selectStudent.innerHTML = '<option value="">Không có sinh viên trong lớp</option>';
-      } else {
-        students.forEach(s => {
-          const opt = document.createElement("option");
-          opt.value = s.masv;
-          opt.innerText = `${s.masv} - ${s.hoten}`;
-          selectStudent.appendChild(opt);
-        });
-        selectStudent.disabled = false;
+      const res = await fetch(`/thi/api/ket-qua-ky-thi?malop=${encodeURIComponent(malop)}&mamh=${encodeURIComponent(mamh)}&lan=${lan}`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Lỗi máy chủ khi tải kết quả.");
       }
-    } catch (err) {
-      showError(err.message);
-      selectStudent.innerHTML = '<option value="">Lỗi tải dữ liệu</option>';
-    }
-  }
-
-  async function searchResult() {
-    showError("");
-    document.getElementById("resultCard").style.display = "none";
-    document.getElementById("noResult").style.display = "none";
-    
-    const masv = document.getElementById("selectStudent").value;
-    const mamh = document.getElementById("selectSubject").value;
-    const lan = document.getElementById("selectAttempt").value;
-    
-    if (!masv) {
-      showError("Vui lòng chọn sinh viên.");
-      return;
-    }
-    if (!mamh) {
-      showError("Vui lòng chọn môn học.");
-      return;
-    }
-    
-    try {
-      const res = await fetch(`/thi/api/tra-cuu-bai-thi?masv=${encodeURIComponent(masv)}&mamh=${encodeURIComponent(mamh)}&lan=${lan}`);
-      if (!res.ok) throw new Error("Lỗi máy chủ khi tra cứu bài thi.");
       const data = await res.json();
-      
-      if (!data.session_id) {
-        document.getElementById("noResult").style.display = "block";
-        return;
-      }
-      
-      // Update result details
-      const studentSelect = document.getElementById("selectStudent");
-      const studentName = studentSelect.options[studentSelect.selectedIndex].text.split(" - ")[1];
-      const subjectSelect = document.getElementById("selectSubject");
-      const subjectName = subjectSelect.options[subjectSelect.selectedIndex].text.split(" - ")[1];
-      
-      document.getElementById("resStudentName").innerText = studentName;
-      document.getElementById("resExamInfo").innerText = `Môn thi: ${subjectName} - Lần thi: ${lan}`;
-      document.getElementById("resScore").innerText = data.score !== null ? data.score.toFixed(2) : "0.00";
-      document.getElementById("resCorrectRatio").innerText = `${data.correct_count}/${data.total_count} câu`;
-      document.getElementById("resSubmittedAt").innerText = data.submitted_at || "Chưa xác định";
-      
-      document.getElementById("btnDetailLink").href = `/thi/xem-lai?session_id=${data.session_id}`;
-      document.getElementById("resultCard").style.display = "block";
+
+      const tbody = document.getElementById("resultBody");
+      tbody.innerHTML = "";
+
+      let submitted = 0, pending = 0;
+
+      data.students.forEach(s => {
+        const tr = document.createElement("tr");
+
+        const tdStt = document.createElement("td");
+        tdStt.innerText = s.stt;
+        tdStt.style.textAlign = "center";
+
+        const tdMasv = document.createElement("td");
+        tdMasv.innerText = s.masv;
+
+        const tdHoten = document.createElement("td");
+        tdHoten.innerText = s.hoten;
+
+        const tdDiem = document.createElement("td");
+        tdDiem.style.textAlign = "center";
+        tdDiem.style.fontWeight = "700";
+        if (s.diem !== null && s.diem !== undefined) {
+          tdDiem.innerText = typeof s.diem === "number" ? s.diem.toFixed(2) : s.diem;
+          if (typeof s.diem === "number" && s.diem < 4.0) tdDiem.style.color = "#dc2626";
+        } else {
+          tdDiem.innerHTML = '<span class="badge-chuathi">Chưa thi</span>';
+        }
+
+        const tdTime = document.createElement("td");
+        tdTime.style.textAlign = "center";
+        tdTime.style.fontSize = "12px";
+        tdTime.innerText = s.submitted_at || "—";
+
+        const tdAction = document.createElement("td");
+        tdAction.style.textAlign = "center";
+        if (s.session_id) {
+          submitted++;
+          tdAction.innerHTML = `<a class="btn-view" href="/thi/xem-lai?session_id=${s.session_id}" target="_blank">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            Xem bài
+          </a>`;
+        } else {
+          pending++;
+          tdAction.innerHTML = '<span style="color:#9ca3af; font-size:12px;">Chưa nộp</span>';
+        }
+
+        tr.appendChild(tdStt);
+        tr.appendChild(tdMasv);
+        tr.appendChild(tdHoten);
+        tr.appendChild(tdDiem);
+        tr.appendChild(tdTime);
+        tr.appendChild(tdAction);
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById("sumSubmitted").innerText = submitted;
+      document.getElementById("sumPending").innerText   = pending;
+      document.getElementById("sumTotal").innerText     = data.students.length;
+      document.getElementById("tableContainer").style.display = "block";
+
     } catch (err) {
       showError(err.message);
     }

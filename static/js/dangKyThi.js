@@ -72,6 +72,39 @@ function validateForm(data) {
   return !hasError;
 }
 
+function sameExamRegistration(item, data, attempt) {
+  return item.malop === data.malop
+    && item.mamh === data.mamh
+    && Number(item.lan) === attempt;
+}
+
+function validateAttemptSequence(data) {
+  if (data.lan === 1) return true;
+
+  if (data.lan !== 2) {
+    showError("attempt", "Lan thi chi duoc la 1 hoac 2.");
+    return false;
+  }
+
+  const firstAttempt = registrations.find(item => sameExamRegistration(item, data, 1));
+  if (!firstAttempt) {
+    showError("attempt", "Phai dang ky lich thi lan 1 truoc khi dang ky lan 2.");
+    return false;
+  }
+
+  const firstDate = new Date(firstAttempt.ngaythi);
+  const secondDate = new Date(data.ngaythi);
+  firstDate.setHours(0, 0, 0, 0);
+  secondDate.setHours(0, 0, 0, 0);
+
+  if (secondDate <= firstDate) {
+    showError("date", "Ngay thi lan 2 phai sau ngay thi lan 1 it nhat 1 ngay.");
+    return false;
+  }
+
+  return true;
+}
+
 async function readError(response, fallback) {
   const data = await response.json().catch(() => ({}));
   if (typeof data.detail === "string") return data.detail;
@@ -88,12 +121,16 @@ async function checkQuestionAvailability(data) {
   });
   const response = await fetch(`/dangkythi/check-cauhoi?${params.toString()}`);
   if (!response.ok) {
-    throw new Error(await readError(response, "Khong the kiem tra so cau hoi"));
+    throw new Error(await readError(
+      response,
+      "Không thể kiểm tra số câu hỏi trong bộ đề. Vui lòng kiểm tra lại môn học, trình độ và số câu thi."
+    ));
   }
   const result = await response.json();
   if (!result.is_hop_le) {
-    showError("questionCount", result.thong_bao || "Khong du cau hoi trong bo de.");
-    window.notify?.(result.thong_bao || "Khong du cau hoi trong bo de.", "error");
+    const message = result.thong_bao || "Không đủ câu hỏi trong bộ đề.";
+    showError("questionCount", message);
+    window.notify?.(message, "error");
     return false;
   }
   return true;
@@ -123,7 +160,7 @@ async function loadOptions() {
   subjects.forEach(mh => {
     const option = document.createElement("option");
     option.value = mh.mamh;
-    option.textContent = `${mh.mamh} - ${mh.tenmh}`;
+    option.textContent = mh.tenmh;
     subjectSelect.appendChild(option);
   });
 }
@@ -172,12 +209,32 @@ function renderRegistrations() {
         <button class="btn btn-danger btn-sm" type="button" data-action="delete" data-permission="delete_exam_registration">Xoa</button>
       </td>
     `;
+    const isPast = new Date(item.ngaythi) <= new Date();
+
     const editBtn = tr.querySelector('[data-action="edit"]');
-    if (!window.hasPermission || window.hasPermission("update_exam_registration")) editBtn.addEventListener("click", () => startEdit(item));
-    else editBtn.remove();
+    if (isPast) {
+      editBtn.disabled = true;
+      editBtn.title = "Lịch thi đã đến giờ hoặc đã qua, không được sửa";
+      editBtn.style.opacity = "0.5";
+      editBtn.style.cursor = "not-allowed";
+    } else if (!window.hasPermission || window.hasPermission("update_exam_registration")) {
+      editBtn.addEventListener("click", () => startEdit(item));
+    } else {
+      editBtn.remove();
+    }
+
     const deleteBtn = tr.querySelector('[data-action="delete"]');
-    if (!window.hasPermission || window.hasPermission("delete_exam_registration")) deleteBtn.addEventListener("click", () => deleteRegistration(item));
-    else deleteBtn.remove();
+    if (isPast) {
+      deleteBtn.disabled = true;
+      deleteBtn.title = "Lịch thi đã đến giờ hoặc đã qua, không được xóa";
+      deleteBtn.style.opacity = "0.5";
+      deleteBtn.style.cursor = "not-allowed";
+    } else if (!window.hasPermission || window.hasPermission("delete_exam_registration")) {
+      deleteBtn.addEventListener("click", () => deleteRegistration(item));
+    } else {
+      deleteBtn.remove();
+    }
+
     rows.appendChild(tr);
   });
 }
@@ -238,6 +295,7 @@ async function submitForm(event) {
     data.lan = editingKey.lan;
   }
   if (!validateForm(data)) return;
+  if (!validateAttemptSequence(data)) return;
   try {
     if (!(await checkQuestionAvailability(data))) return;
   } catch (error) {

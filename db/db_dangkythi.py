@@ -26,6 +26,26 @@ def get_all_subjects(db: Session) -> list[DbMonHoc]:
     return db.query(DbMonHoc).order_by(DbMonHoc.mamh).all()
 
 
+def get_subjects_by_question_teacher(db: Session, magv: str) -> list[DbMonHoc]:
+    """Return subjects that have questions created by a teacher."""
+    return (
+        db.query(DbMonHoc)
+        .join(DbBoDe, DbMonHoc.mamh == DbBoDe.mamh)
+        .filter(DbBoDe.magv == magv)
+        .distinct()
+        .order_by(DbMonHoc.mamh)
+        .all()
+    )
+
+
+def teacher_has_questions_for_subject(db: Session, magv: str, mamh: str) -> bool:
+    """Return whether a teacher has at least one question for a subject."""
+    return db.query(DbBoDe).filter(
+        DbBoDe.magv == magv,
+        DbBoDe.mamh == mamh,
+    ).first() is not None
+
+
 def get_class(db: Session, malop: str) -> DbLop | None:
     """Return a class."""
     return db.query(DbLop).filter(DbLop.malop == malop).first()

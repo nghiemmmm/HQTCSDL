@@ -47,6 +47,65 @@ def list_subjects_for_class(db: Session, class_id: str) -> list[DbMonHoc]:
     )
 
 
+def list_classes_by_teacher(db: Session, teacher_id: str) -> list[DbLop]:
+    """Return distinct classes for which a teacher has created exam registrations."""
+    return (
+        db.query(DbLop)
+        .join(DbGiaoVienDangKy, DbLop.malop == DbGiaoVienDangKy.malop)
+        .filter(DbGiaoVienDangKy.magv == teacher_id.strip())
+        .distinct()
+        .order_by(DbLop.malop.asc())
+        .all()
+    )
+
+
+def list_subjects_by_teacher(db: Session, teacher_id: str) -> list[DbMonHoc]:
+    """Return distinct subjects for which a teacher has created exam registrations."""
+    return (
+        db.query(DbMonHoc)
+        .join(DbGiaoVienDangKy, DbMonHoc.mamh == DbGiaoVienDangKy.mamh)
+        .filter(DbGiaoVienDangKy.magv == teacher_id.strip())
+        .distinct()
+        .order_by(DbMonHoc.tenmh.asc())
+        .all()
+    )
+
+
+def list_registrations_by_teacher(db: Session, teacher_id: str) -> list:
+    """Return all exam registrations for a teacher with subject and class info, newest first."""
+    from sqlalchemy import desc
+    rows = (
+        db.query(DbGiaoVienDangKy, DbMonHoc, DbLop)
+        .join(DbMonHoc, DbGiaoVienDangKy.mamh == DbMonHoc.mamh)
+        .join(DbLop, DbGiaoVienDangKy.malop == DbLop.malop)
+        .filter(DbGiaoVienDangKy.magv == teacher_id.strip())
+        .order_by(desc(DbGiaoVienDangKy.ngaythi))
+        .all()
+    )
+    return [
+        {
+            "malop": (reg.malop or "").strip(),
+            "tenlop": (lop.tenlop or "").strip(),
+            "mamh": (reg.mamh or "").strip(),
+            "tenmh": (mh.tenmh or "").strip(),
+            "lan": reg.lan,
+            "ngaythi": reg.ngaythi.strftime("%d/%m/%Y") if reg.ngaythi else "",
+            "ngaythi_sort": reg.ngaythi.isoformat() if reg.ngaythi else "",
+        }
+        for reg, mh, lop in rows
+    ]
+
+
+def list_exam_schedules_for_student(db: Session, student_id: str) -> list:
+    """Return exam schedules for a student through SP_GET_LICHTHI_SINHVIEN."""
+    from sqlalchemy import text
+
+    return db.execute(
+        text("EXEC dbo.SP_GET_LICHTHI_SINHVIEN @MASV = :masv"),
+        {"masv": student_id},
+    ).fetchall()
+
+
 def get_registration(
     db: Session,
     subject_id: str,
@@ -266,4 +325,3 @@ def get_student_subjects_taken(db: Session, student_id: str) -> list:
     from sqlalchemy import text
     query = text("EXEC SP_GET_MH_DATHI_SV @MASV = :masv")
     return db.execute(query, {"masv": student_id}).fetchall()
-

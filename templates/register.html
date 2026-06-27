@@ -13,10 +13,12 @@
     <form id="registerForm" novalidate>
         <div class="form-group">
             <label>Ho va ten nhan vien</label>
-            <input type="text" id="employeeName" list="employeeList" placeholder="Nhap ho va ten nhan vien" autocomplete="off">
+            <input type="text" id="employeeName" list="employeeList" placeholder="Nhap ho va ten nhan vien"
+                autocomplete="off">
             <datalist id="employeeList">
                 {% for gv in giang_viens %}
-                <option value="{{ gv.hoten }}" data-magv="{{ gv.magv }}" data-trangthai="{{ gv.trangthai }}"></option>
+                <option value="{{ gv.hoten }}" data-magv="{{ gv.magv }}" data-trangthai="{{ gv.trangthai }}"
+                    data-loginname="{{ gv.loginname }}" data-role="{{ gv.role }}"></option>
                 {% endfor %}
             </datalist>
 
@@ -64,17 +66,11 @@
     const inputPassword = document.getElementById("password");
     const selectRole = document.getElementById("role");
     const errorMsg = document.getElementById("error-message");
+    let selectedHasAccount = false;
 
     function findEmployeeByName(name) {
         const normalizedName = name.trim().toLowerCase();
         return employeeOptions.find(option => option.value.trim().toLowerCase() === normalizedName);
-    }
-
-    function syncMaNvFromAccount() {
-        const account = inputUsername.value.trim();
-        if (account) {
-            manvInput.value = account.toUpperCase();
-        }
     }
 
     employeeNameInput.addEventListener("input", function () {
@@ -82,19 +78,29 @@
 
         if (selectedOption) {
             const magv = selectedOption.dataset.magv || "";
-            manvInput.value = magv;
-            inputUsername.value = magv;
-
             const trangthai = selectedOption.dataset.trangthai;
-            const disabled = trangthai == "1";
-            btnSubmit.style.display = "";
+            const hasAccount = trangthai == "1";
+            selectedHasAccount = hasAccount;
+
+            manvInput.value = magv;
+            if (hasAccount) {
+                inputUsername.value = selectedOption.dataset.loginname || magv;
+                selectRole.value = selectedOption.dataset.role || "";
+            } else {
+                inputUsername.value = magv;
+                selectRole.value = "";
+            }
+            btnSubmit.style.display = hasAccount ? "none" : "";
             btnSubmit.innerText = "Tao tai khoan";
-            inputUsername.disabled = false;
-            inputPassword.disabled = false;
-            selectRole.disabled = false;
-            errorMsg.innerText = "";
+            inputUsername.disabled = hasAccount;
+            inputPassword.disabled = hasAccount;
+            selectRole.disabled = hasAccount;
+            errorMsg.innerText = hasAccount
+                ? "Nhan vien nay da co quyen/tai khoan. Chi duoc xoa thong tin dang chon, khong tao moi."
+                : "";
         } else {
-            syncMaNvFromAccount();
+            selectedHasAccount = false;
+            manvInput.value = "";
             btnSubmit.style.display = "";
             btnSubmit.innerText = "Tao tai khoan";
             inputUsername.disabled = false;
@@ -103,14 +109,27 @@
         }
     });
 
-    inputUsername.addEventListener("input", syncMaNvFromAccount);
+    let previousValue = "";
+    employeeNameInput.addEventListener("focus", function () {
+        previousValue = this.value;
+        this.value = "";
+    });
+
+    employeeNameInput.addEventListener("blur", function () {
+        setTimeout(() => {
+            const selectedOption = findEmployeeByName(this.value);
+            if (this.value.trim() !== "" && !selectedOption) {
+                this.value = previousValue;
+                employeeNameInput.dispatchEvent(new Event("input"));
+            }
+        }, 200);
+    });
 
     document.getElementById('registerForm').addEventListener('submit', function (e) {
         e.preventDefault();
         errorMsg.innerText = "";
 
         const password = inputPassword.value;
-        syncMaNvFromAccount();
         const hoten = employeeNameInput.value.trim();
         const manv = manvInput.value.trim();
         const role = selectRole.value;
@@ -155,7 +174,7 @@
             .then(res => {
                 if (!res.ok) {
                     return res.json().then(data => {
-                        throw new Error(data.detail || "Tao tai khoan that bai");
+                        throw new Error(data.detail?.message || data.detail || "Tao tai khoan that bai");
                     });
                 }
                 return res.json();
@@ -171,10 +190,37 @@
             });
     });
 
-    document.getElementById('btnClearForm').addEventListener('click', function () {
+    document.getElementById('btnClearForm').addEventListener('click', async function () {
+        if (selectedHasAccount) {
+            const loginname = inputUsername.value.trim();
+            if (!loginname) {
+                errorMsg.innerText = "Khong xac dinh duoc login can xoa";
+                return;
+            }
+            if (!confirm(`Xoa tai khoan login ${loginname}?`)) return;
+
+            try {
+                const res = await fetch(`/user/register/${encodeURIComponent(loginname)}`, {
+                    method: "DELETE"
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    throw new Error(data.detail?.message || data.detail || "Xoa tai khoan that bai");
+                }
+                window.notify?.(data.message || "Xoa tai khoan thanh cong", "success");
+                const selectedOption = findEmployeeByName(employeeNameInput.value);
+                if (selectedOption) selectedOption.dataset.trangthai = "0";
+            } catch (err) {
+                errorMsg.innerText = err.message;
+                window.notify?.(err.message, "error");
+                return;
+            }
+        }
+
         document.getElementById('registerForm').reset();
         manvInput.value = "";
         errorMsg.innerText = "";
+        selectedHasAccount = false;
         btnSubmit.style.display = "";
         btnSubmit.innerText = "Tao tai khoan";
         inputUsername.disabled = false;

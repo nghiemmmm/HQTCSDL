@@ -54,6 +54,8 @@ def list_registration_candidates(db: Session) -> list[dict]:
                 f"{getattr(row, 'TEN', '') or ''}"
             ).strip(),
             "trangthai": getattr(row, "TRANGTHAI", None),
+            "loginname": getattr(row, "LOGINNAME", None),
+            "role": getattr(row, "ROLENAME", None),
         }
         for row in db_giaovien.get_ds_gv_chua_quyen(db)
     ]

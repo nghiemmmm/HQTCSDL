@@ -90,3 +90,55 @@ def create_sql_account(
                 "role": sql_role,
             },
         )
+
+
+def delete_sql_account(
+    login_name: str,
+    database_engine: Engine = engine,
+) -> None:
+    """Drop the database user and SQL Server login for an account."""
+    with database_engine.connect().execution_options(
+        isolation_level="AUTOCOMMIT"
+    ) as connection:
+        connection.execute(
+            text(
+                """
+                DECLARE @login sysname = :loginname;
+                DECLARE @db_user sysname;
+                DECLARE @sql nvarchar(max);
+
+                SELECT @db_user = dp.name
+                FROM sys.database_principals dp
+                INNER JOIN sys.server_principals sp ON dp.sid = sp.sid
+                WHERE sp.name = @login;
+
+                IF @db_user IS NOT NULL
+                BEGIN
+                    SET @sql = N'';
+                    SELECT @sql = @sql
+                        + CASE WHEN LEN(@sql) > 0 THEN N'; ' ELSE N'' END
+                        + N'ALTER ROLE ' + QUOTENAME(role_principal.name)
+                        + N' DROP MEMBER ' + QUOTENAME(member_principal.name)
+                    FROM sys.database_role_members drm
+                    INNER JOIN sys.database_principals role_principal
+                        ON drm.role_principal_id = role_principal.principal_id
+                    INNER JOIN sys.database_principals member_principal
+                        ON drm.member_principal_id = member_principal.principal_id
+                    WHERE member_principal.name = @db_user;
+
+                    IF @sql IS NOT NULL AND LEN(@sql) > 0
+                        EXEC sp_executesql @sql;
+
+                    SET @sql = N'DROP USER ' + QUOTENAME(@db_user);
+                    EXEC sp_executesql @sql;
+                END
+
+                IF EXISTS (SELECT 1 FROM sys.server_principals WHERE name = @login)
+                BEGIN
+                    SET @sql = N'DROP LOGIN ' + QUOTENAME(@login);
+                    EXEC sp_executesql @sql;
+                END
+                """
+            ),
+            {"loginname": login_name},
+        )

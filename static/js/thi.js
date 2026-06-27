@@ -15,6 +15,10 @@ let examSubmitted = false;
 let examSessionId = null;
 let autoSaveTimerId = null;
 let autoSubmitting = false;
+let tabSwitchCount = 0;
+let handlingTabSwitch = false;
+
+const MAX_TAB_SWITCHES = 3;
 
 function setText(id, text) {
   const element = document.getElementById(id);
@@ -25,6 +29,7 @@ async function readErrorMessage(response, fallback) {
   try {
     const data = await response.json();
     if (typeof data.detail === "string") return data.detail;
+    if (data.detail && typeof data.detail.message === "string") return data.detail.message;
     if (Array.isArray(data.detail)) return data.detail.map(item => item.msg).join("; ");
     return data.message || fallback;
   } catch {
@@ -333,14 +338,14 @@ function submitExam() {
   if (examSubmitted) return;
   openSubmitModal();
 }
-async function submitExamNow(isAutoSubmit = false) {
+async function submitExamNow(isAutoSubmit = false, autoSubmitReason = "time") {
   if (examSubmitted || autoSubmitting) return;
   autoSubmitting = true;
 
   const confirmButton = document.getElementById("confirmSubmitBtn");
   if (confirmButton) {
     confirmButton.disabled = true;
-    confirmButton.innerText = isAutoSubmit ? "H\u1ebft gi\u1edd, \u0111ang n\u1ed9p..." : "\u0110ang n\u1ed9p...";
+    confirmButton.innerText = isAutoSubmit ? "\u0110ang n\u1ed9p..." : "\u0110ang n\u1ed9p...";
   }
   document.getElementById("submitBtn")?.setAttribute("disabled", "disabled");
 
@@ -373,10 +378,12 @@ async function submitExamNow(isAutoSubmit = false) {
     if (autoSaveTimerId) clearInterval(autoSaveTimerId);
     closeSubmitModal();
     render();
-    window.notify?.(
-      isAutoSubmit ? `H\u1ebft gi\u1edd, b\u00e0i thi \u0111\u00e3 \u0111\u01b0\u1ee3c n\u1ed9p. \u0110i\u1ec3m: ${result.diem}` : `\u0110\u00e3 n\u1ed9p b\u00e0i. \u0110i\u1ec3m: ${result.diem}`,
-      "success"
-    );
+    const successMessage = isAutoSubmit && autoSubmitReason === "tab-switch"
+      ? `B\u00e0i thi \u0111\u00e3 \u0111\u01b0\u1ee3c t\u1ef1 \u0111\u1ed9ng n\u1ed9p do r\u1eddi kh\u1ecfi m\u00e0n h\u00ecnh thi qu\u00e1 s\u1ed1 l\u1ea7n cho ph\u00e9p. \u0110i\u1ec3m: ${result.diem}`
+      : isAutoSubmit
+        ? `H\u1ebft gi\u1edd, b\u00e0i thi \u0111\u00e3 \u0111\u01b0\u1ee3c n\u1ed9p. \u0110i\u1ec3m: ${result.diem}`
+        : `\u0110\u00e3 n\u1ed9p b\u00e0i. \u0110i\u1ec3m: ${result.diem}`;
+    window.notify?.(successMessage, "success");
     if (!result.practice) {
       window.location.href = `/thi/xem-lai?session_id=${result.session_id || examSessionId}`;
     }
@@ -452,6 +459,41 @@ async function autoSaveExamState() {
   }
 }
 
+function shouldTrackTabSwitch() {
+  return (
+    window.currentUser?.role === "SINHVIEN"
+    && Boolean(examSessionId)
+    && !examSubmitted
+  );
+}
+
+async function handleTabVisibilityChange() {
+  if (!document.hidden || !shouldTrackTabSwitch() || handlingTabSwitch) return;
+
+  handlingTabSwitch = true;
+  tabSwitchCount += 1;
+
+  try {
+    await autoSaveExamState();
+
+    if (tabSwitchCount >= MAX_TAB_SWITCHES) {
+      window.notify?.(
+        "Ban da roi khoi man hinh thi qua so lan cho phep. He thong se tu dong nop bai.",
+        "error"
+      );
+      await submitExamNow(true, "tab-switch");
+      return;
+    }
+
+    window.notify?.(
+      `Canh bao ${tabSwitchCount}/${MAX_TAB_SWITCHES}: Khong duoc chuyen tab trong khi thi.`,
+      "warning"
+    );
+  } finally {
+    handlingTabSwitch = false;
+  }
+}
+
 function bindControls() {
   document.getElementById("backBtn")?.addEventListener("click", () => {
     window.location.href = "/thi/";
@@ -465,6 +507,7 @@ function bindControls() {
   document.getElementById("submitModal")?.addEventListener("click", (event) => {
     if (event.target.id === "submitModal") closeSubmitModal();
   });
+  document.addEventListener("visibilitychange", handleTabVisibilityChange);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
