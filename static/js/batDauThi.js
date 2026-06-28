@@ -186,41 +186,88 @@ async function loadClassForStudent(userCode) {
 }
 
 async function loadClassChooserForTeacher() {
-  setManualExamFieldsVisible(true);
-  setStartButtonVisible(true);
+  // Show the schedule select like students, hide manual fields initially
   const scheduleLabel = document.getElementById("lichThiLabel");
   const scheduleSelect = document.getElementById("lichThiSelect");
-  if (scheduleLabel) scheduleLabel.hidden = true;
-  if (scheduleSelect) scheduleSelect.hidden = true;
+  const lopLabel = document.getElementById("lopThiLabel");
+  const lopSelect = document.getElementById("lopThiSelect");
 
-  const label = document.getElementById("lopThiLabel");
-  const select = document.getElementById("lopThiSelect");
-  if (label) label.hidden = false;
-  if (select) select.hidden = false;
+  if (scheduleLabel) { scheduleLabel.hidden = false; scheduleLabel.innerText = "Kỳ thi đã đăng ký"; }
+  if (lopLabel) lopLabel.hidden = true;
+  if (lopSelect) lopSelect.hidden = true;
+  setManualExamFieldsVisible(false);
+  setStartButtonVisible(false);
 
   document.getElementById("studentInfo").innerText = `Giảng viên thi thử: ${window.currentUser?.ma || ""}`;
   document.getElementById("className").innerText = "";
   document.getElementById("classCode").innerText = "";
 
-  const response = await fetch("/thi/lophoc-duoc-thi");
-  if (!response.ok) throw new Error("Không thể tải danh sách lớp thi");
+  if (!scheduleSelect) return;
 
-  const classes = await response.json();
-  select.innerHTML = placeholderOption("Chọn lớp thi");
-  classes.forEach(item => {
-    const option = document.createElement("option");
-    option.value = item.malop;
-    option.textContent = `${item.malop} - ${item.tenlop}`;
-    select.appendChild(option);
+  scheduleSelect.hidden = false;
+  scheduleSelect.innerHTML = placeholderOption("Đang tải kỳ thi...");
+
+  const response = await fetch("/thi/api/danh-sach-ky-thi-gv");
+  if (!response.ok) throw new Error("Không thể tải danh sách kỳ thi đã đăng ký");
+
+  const data = await response.json();
+  const registrations = data.registrations || [];
+
+  scheduleSelect.innerHTML = placeholderOption(
+    registrations.length ? "Chọn kỳ thi" : "Chưa có kỳ thi nào đăng ký"
+  );
+
+  registrations.forEach((reg, index) => {
+    const opt = document.createElement("option");
+    opt.value = String(index);
+    opt.textContent = `${reg.tenmh} (${reg.mamh}) — ${reg.tenlop} — Lần ${reg.lan} — 📅 ${reg.ngaythi}`;
+    scheduleSelect.appendChild(opt);
   });
 
-  select.addEventListener("change", () => {
-    currentMaLop = select.value;
-    const selected = classes.find(item => item.malop === currentMaLop);
-    document.getElementById("className").innerText = selected?.tenlop || "Lớp thi thử";
+  scheduleSelect.addEventListener("change", () => {
+    const reg = registrations[Number(scheduleSelect.value)];
+    if (!reg) return;
+
+    // Auto-fill hidden fields
+    currentMaLop = reg.malop.trim();
+    document.getElementById("className").innerText = reg.tenlop;
     document.getElementById("classCode").innerText = `Mã lớp: ${currentMaLop}`;
+
+    // Populate monhocSelect with the selected subject
+    const monhocSelect = document.getElementById("monhocSelect");
+    monhocSelect.innerHTML = "";
+    const subjectOption = document.createElement("option");
+    subjectOption.value = reg.mamh.trim();
+    subjectOption.textContent = `${reg.mamh.trim()} - ${reg.tenmh}`;
+    subjectOption.selected = true;
+    monhocSelect.appendChild(subjectOption);
+
+    // Fill ngaythi and lanthi
+    const ngaythiInput = document.getElementById("ngaythiInput");
+    const lanthiSelect = document.getElementById("lanthiSelect");
+    ngaythiInput.value = reg.ngaythi_sort ? reg.ngaythi_sort.slice(0, 10) : "";
+    lanthiSelect.value = String(reg.lan);
+
+    // Show summary card like students
+    renderScheduleSummary({
+      tenmh: reg.tenmh,
+      mamh: reg.mamh,
+      lan: reg.lan,
+      ngaythi_text: reg.ngaythi,
+      thoigian: "...",
+      trangthai: "Thi thử (giảng viên)",
+    });
+
+    setStartButtonVisible(true);
     fetchExamDetails();
   });
+
+  if (!registrations.length) {
+    setExamDetailState("Không có lịch");
+    setExamDetailMessage("Bạn chưa đăng ký kỳ thi nào.");
+    setStartButtonVisible(false);
+    renderScheduleSummary(null);
+  }
 }
 
 function setStudentScheduleFields(schedule) {
@@ -334,7 +381,6 @@ async function loadSubjects() {
   try {
     if (isPracticeUser) {
       await loadClassChooserForTeacher();
-      await loadSubjects();
     } else {
       await loadClassForStudent(userCode);
       await loadStudentSchedules();

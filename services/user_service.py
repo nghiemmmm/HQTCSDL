@@ -150,6 +150,16 @@ def register(request: DangKy) -> dict[str, str]:
             sql_role,
         )
     except Exception as exc:
+        err_str = str(exc)
+        # SQL Server raises error 50000 "Login name bị trùng" when loginname exists
+        if "trùng" in err_str or "50000" in err_str or "duplicate" in err_str.lower():
+            from services.exceptions import ConflictError
+            raise ConflictError(
+                {
+                    "field": "loginname",
+                    "message": f"Tài khoản '{request.loginname}' đã tồn tại. Vui lòng chọn tên đăng nhập khác.",
+                }
+            ) from exc
         raise RepositoryError(
             {
                 "field": "system",
