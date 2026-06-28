@@ -13,12 +13,16 @@
     <form id="registerForm" novalidate>
         <div class="form-group">
             <label>Ho va ten nhan vien</label>
-            <input type="text" id="employeeName" list="employeeList" placeholder="Nhap ho va ten nhan vien" autocomplete="off">
-            <datalist id="employeeList">
+            <select id="employeeName">
+                <option value="">-- Chon nhan vien --</option>
                 {% for gv in giang_viens %}
-                <option value="{{ gv.hoten }}" data-magv="{{ gv.magv }}" data-trangthai="{{ gv.trangthai }}"></option>
+                <option value="{{ gv.hoten }}"
+                    data-magv="{{ gv.magv }}"
+                    data-trangthai="{{ gv.trangthai }}"
+                    data-loginname="{{ gv.loginname }}"
+                    data-role="{{ gv.role }}">{{ gv.hoten }}</option>
                 {% endfor %}
-            </datalist>
+            </select>
 
             <label style="width: 80px; margin-left: 10px;">Ma NV</label>
             <input type="text" id="manvInput" readonly>
@@ -56,130 +60,117 @@
 
 {% block page_js %}
 <script>
-    const employeeNameInput = document.getElementById("employeeName");
-    const employeeOptions = Array.from(document.querySelectorAll("#employeeList option"));
-    const manvInput = document.getElementById("manvInput");
-    const btnSubmit = document.querySelector('button[type="submit"]');
-    const inputUsername = document.getElementById("username");
-    const inputPassword = document.getElementById("password");
-    const selectRole = document.getElementById("role");
-    const errorMsg = document.getElementById("error-message");
+    const employeeSelect = document.getElementById("employeeName");
+    const manvInput      = document.getElementById("manvInput");
+    const btnSubmit      = document.querySelector('button[type="submit"]');
+    const inputUsername  = document.getElementById("username");
+    const inputPassword  = document.getElementById("password");
+    const selectRole     = document.getElementById("role");
+    const errorMsg       = document.getElementById("error-message");
+    let selectedHasAccount = false;
 
-    function findEmployeeByName(name) {
-        const normalizedName = name.trim().toLowerCase();
-        return employeeOptions.find(option => option.value.trim().toLowerCase() === normalizedName);
-    }
+    /* Áp dụng thông tin nhân viên vào các ô */
+    function applyEmployee(opt) {
+        const magv       = opt.dataset.magv || "";
+        const hasAccount = opt.dataset.trangthai == "1";
+        selectedHasAccount = hasAccount;
 
-    function syncMaNvFromAccount() {
-        const account = inputUsername.value.trim();
-        if (account) {
-            manvInput.value = account.toUpperCase();
-        }
-    }
-
-    employeeNameInput.addEventListener("input", function () {
-        const selectedOption = findEmployeeByName(this.value);
-
-        if (selectedOption) {
-            const magv = selectedOption.dataset.magv || "";
-            manvInput.value = magv;
-            inputUsername.value = magv;
-
-            const trangthai = selectedOption.dataset.trangthai;
-            const disabled = trangthai == "1";
-            btnSubmit.style.display = "";
-            btnSubmit.innerText = "Tao tai khoan";
-            inputUsername.disabled = false;
-            inputPassword.disabled = false;
-            selectRole.disabled = false;
-            errorMsg.innerText = "";
+        manvInput.value = magv;
+        if (hasAccount) {
+            inputUsername.value  = opt.dataset.loginname || magv;
+            selectRole.value     = opt.dataset.role || "";
         } else {
-            syncMaNvFromAccount();
-            btnSubmit.style.display = "";
-            btnSubmit.innerText = "Tao tai khoan";
-            inputUsername.disabled = false;
-            inputPassword.disabled = false;
-            selectRole.disabled = false;
+            inputUsername.value  = magv;
+            selectRole.value     = "";
+        }
+        inputUsername.disabled = hasAccount;
+        inputPassword.disabled = hasAccount;
+        selectRole.disabled    = hasAccount;
+        btnSubmit.style.display = hasAccount ? "none" : "";
+        errorMsg.innerText = hasAccount
+            ? "Nhan vien nay da co quyen/tai khoan. Chi duoc xoa thong tin dang chon, khong tao moi."
+            : "";
+    }
+
+    /* Xóa toàn bộ ô khi không chọn nhân viên */
+    function clearFields() {
+        selectedHasAccount     = false;
+        manvInput.value        = "";
+        inputUsername.value    = "";
+        inputPassword.value    = "";
+        selectRole.value       = "";
+        inputUsername.disabled = false;
+        inputPassword.disabled = false;
+        selectRole.disabled    = false;
+        btnSubmit.style.display = "";
+        errorMsg.innerText     = "";
+    }
+
+    /* Khi chọn nhân viên từ dropdown */
+    employeeSelect.addEventListener("change", function () {
+        const opt = this.options[this.selectedIndex];
+        if (!opt || !opt.value) {
+            clearFields();
+        } else {
+            applyEmployee(opt);
         }
     });
 
-    inputUsername.addEventListener("input", syncMaNvFromAccount);
-
-    document.getElementById('registerForm').addEventListener('submit', function (e) {
+    /* Submit tạo tài khoản */
+    document.getElementById("registerForm").addEventListener("submit", function (e) {
         e.preventDefault();
         errorMsg.innerText = "";
 
-        const password = inputPassword.value;
-        syncMaNvFromAccount();
-        const hoten = employeeNameInput.value.trim();
-        const manv = manvInput.value.trim();
-        const role = selectRole.value;
+        const hoten    = employeeSelect.options[employeeSelect.selectedIndex]?.text?.trim() || "";
+        const manv     = manvInput.value.trim();
         const username = inputUsername.value.trim();
+        const password = inputPassword.value;
+        const role     = selectRole.value;
 
-        if (!hoten) {
-            errorMsg.innerText = "Vui long nhap ho va ten nhan vien";
-            return;
-        }
+        if (!hoten || !manv)    { errorMsg.innerText = "Vui long chon nhan vien"; return; }
+        if (!username)          { errorMsg.innerText = "Vui long nhap tai khoan"; return; }
+        if (!password)          { errorMsg.innerText = "Vui long nhap mat khau"; return; }
+        if (!role)              { errorMsg.innerText = "Vui long chon nhom quyen"; return; }
 
-        if (!username) {
-            errorMsg.innerText = "Vui long nhap tai khoan";
-            return;
-        }
-
-        if (!manv) {
-            errorMsg.innerText = "Ma NV chua duoc tao tu tai khoan";
-            return;
-        }
-
-        if (!password) {
-            errorMsg.innerText = "Vui long nhap mat khau";
-            return;
-        }
-
-        if (!role) {
-            errorMsg.innerText = "Vui long chon nhom quyen";
-            return;
-        }
-
-        fetch('/user/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                loginname: username,
-                password: password,
-                username: manv,
-                role: role,
-                hoten: hoten
-            })
+        fetch("/user/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ loginname: username, password, username: manv, role, hoten })
         })
-            .then(res => {
-                if (!res.ok) {
-                    return res.json().then(data => {
-                        throw new Error(data.detail || "Tao tai khoan that bai");
-                    });
-                }
-                return res.json();
-            })
-            .then(data => {
-                window.notify?.(data.message || "Tao tai khoan thanh cong", "success");
-                document.getElementById('registerForm').reset();
-                manvInput.value = "";
-            })
-            .catch(err => {
-                errorMsg.innerText = err.message;
-                window.notify?.(err.message, "error");
-            });
+        .then(res => {
+            if (!res.ok) return res.json().then(d => { throw new Error(d.detail?.message || d.detail || "Tao tai khoan that bai"); });
+            return res.json();
+        })
+        .then(data => {
+            window.notify?.(data.message || "Tao tai khoan thanh cong", "success");
+            document.getElementById("registerForm").reset();
+            clearFields();
+        })
+        .catch(err => { errorMsg.innerText = err.message; window.notify?.(err.message, "error"); });
     });
 
-    document.getElementById('btnClearForm').addEventListener('click', function () {
-        document.getElementById('registerForm').reset();
-        manvInput.value = "";
-        errorMsg.innerText = "";
-        btnSubmit.style.display = "";
-        btnSubmit.innerText = "Tao tai khoan";
-        inputUsername.disabled = false;
-        inputPassword.disabled = false;
-        selectRole.disabled = false;
+    /* Nút Xóa (xóa tài khoản hoặc reset form) */
+    document.getElementById("btnClearForm").addEventListener("click", async function () {
+        if (selectedHasAccount) {
+            const loginname = inputUsername.value.trim();
+            if (!loginname) { errorMsg.innerText = "Khong xac dinh duoc login can xoa"; return; }
+            if (!confirm(`Xoa tai khoan login ${loginname}?`)) return;
+            try {
+                const res  = await fetch(`/user/register/${encodeURIComponent(loginname)}`, { method: "DELETE" });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.detail?.message || data.detail || "Xoa tai khoan that bai");
+                window.notify?.(data.message || "Xoa tai khoan thanh cong", "success");
+                // Cập nhật trangthai trong DOM để phản ánh đúng
+                const opt = employeeSelect.options[employeeSelect.selectedIndex];
+                if (opt) opt.dataset.trangthai = "0";
+            } catch (err) {
+                errorMsg.innerText = err.message;
+                window.notify?.(err.message, "error");
+                return;
+            }
+        }
+        document.getElementById("registerForm").reset();
+        clearFields();
     });
 </script>
 {% endblock %}

@@ -9,6 +9,9 @@ let isSua = false;
 let editingCauHoiId = null;
 let stackUndo = [];
 
+const userRole = (window.currentUser?.role || window.userRole || "").trim().toUpperCase();
+const userMa = (window.currentUser?.ma || window.userMa || "").trim();
+
 // DOM Elements
 const cauHoiIdInput = document.getElementById("cauHoiId");
 const noiDungInput = document.getElementById("noiDung");
@@ -38,7 +41,7 @@ const btnXoa = document.getElementById("btnXoa");
 const btnGhi = document.getElementById("btnGhi");
 const btnHuy = document.getElementById("btnHuy");
 const btnUndo = document.getElementById("btnUndo");
-const showTeacherColumn = window.userRole !== "GIANGVIEN";
+const showTeacherColumn = userRole !== "GIANGVIEN";
 
 let currentPage = 1;
 let pageSize = parseInt(pageSizeSelect?.value || "10", 10);
@@ -80,6 +83,20 @@ function clearError() {
   }
 }
 
+function normalizeAnswerText(value) {
+  return (value || "").trim().toLowerCase();
+}
+
+function hasDuplicateAnswers(question) {
+  const answers = [
+    normalizeAnswerText(question.a),
+    normalizeAnswerText(question.b),
+    normalizeAnswerText(question.c),
+    normalizeAnswerText(question.d)
+  ];
+  return new Set(answers).size !== answers.length;
+}
+
 async function parseResponse(res) {
   let resData = {};
   try {
@@ -88,9 +105,23 @@ async function parseResponse(res) {
     resData = {};
   }
   if (!res.ok) {
-    const detail = resData.detail;
-    const message = detail?.message || detail?.detail || resData.message || detail;
-    throw new Error(typeof message === "string" ? message : "Loi khong xac dinh");
+    let msg = "Lỗi không xác định";
+    if (resData.detail) {
+      if (typeof resData.detail === "string") {
+        msg = resData.detail;
+      } else if (typeof resData.detail === "object") {
+        if (resData.detail.message) {
+          msg = resData.detail.message;
+        } else if (Array.isArray(resData.detail)) {
+          msg = resData.detail.map(err => `${err.loc.join('.')}: ${err.msg}`).join("; ");
+        } else {
+          msg = JSON.stringify(resData.detail);
+        }
+      }
+    } else if (resData.message) {
+      msg = resData.message;
+    }
+    throw new Error(msg);
   }
   return resData;
 }
@@ -298,8 +329,8 @@ async function ghi() {
 
   // Xác định magv dựa trên role
   let magv = "";
-  if (window.userRole === "GIANGVIEN") {
-    magv = window.userMa;
+  if (userRole === "GIANGVIEN") {
+    magv = userMa;
   } else {
     magv = searchGVInput ? searchGVInput.value.split(" - ")[0].trim() : "";
   }
@@ -324,8 +355,9 @@ async function ghi() {
   if (!obj.dap_an) return showError("Vui lòng chọn đáp án đúng!");
   if (!obj.trinhdo) return showError("Vui lòng chọn trình độ!");
   if (!obj.mamh) return showError("Mã môn học không được để trống!");
+  if (hasDuplicateAnswers(obj)) return showError("Bốn đáp án A, B, C, D không được trùng nội dung.");
   // Chỉ kiểm tra magv nếu không phải giáo viên
-  if (window.userRole !== "GIANGVIEN" && !obj.magv) return showError("Mã giáo viên không được để trống!");
+  if (userRole !== "GIANGVIEN" && !obj.magv) return showError("Mã giáo viên không được để trống!");
 
   try {
     let res, resData;

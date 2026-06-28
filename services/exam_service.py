@@ -49,6 +49,7 @@ def parse_json_list(value: str | None) -> list[int]:
         return []
 
 
+
 def calculate_remaining_seconds(session: DbPhienThi) -> int:
     """Calculate authoritative remaining seconds from the start time."""
     elapsed = int((datetime.now() - session.batdau_luc).total_seconds())
@@ -128,6 +129,74 @@ def list_available_subjects(db: Session, user: dict[str, Any]):
     )
 
 
+def _get_row_value(row, key: str, index: int):
+    mapping = getattr(row, "_mapping", None)
+    if mapping is not None and key in mapping:
+        return mapping[key]
+    return row[index]
+
+
+def _to_bool(value) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, int):
+        return value == 1
+    if isinstance(value, str):
+        return value.strip() in {"1", "True", "true"}
+    return bool(value)
+
+
+def list_student_exam_schedules(db: Session, user: dict[str, Any]) -> list[dict]:
+    """Return exam schedules for the logged-in student only."""
+    if user.get("role") != "SINHVIEN":
+        raise PermissionDeniedError("Chi sinh vien moi duoc xem lich thi cua minh")
+
+    student = _student_for_user(db, user)
+    if not student.malop:
+        raise ResourceNotFoundError("Sinh vien chua duoc phan lop")
+
+    try:
+        rows = db_exam.list_exam_schedules_for_student(db, student.masv)
+    except SQLAlchemyError as exc:
+        raise RepositoryError(f"Khong the lay lich thi cua sinh vien: {exc}") from exc
+
+    schedules: list[dict] = []
+    for row in rows:
+        exam_date = _get_row_value(row, "NGAYTHI", 3)
+        thoigian = int(_get_row_value(row, "THOIGIAN", 5) or 0)
+        if exam_date and datetime.now() > exam_date + timedelta(minutes=thoigian):
+            continue
+
+        schedules.append(
+            {
+                "mamh": (_get_row_value(row, "MAMH", 0) or "").strip(),
+                "tenmh": (_get_row_value(row, "TENMH", 1) or "").strip(),
+                "lan": int(_get_row_value(row, "LAN", 2) or 0),
+                "ngaythi": exam_date.isoformat() if exam_date else "",
+                "ngaythi_text": (
+                    exam_date.strftime("%d/%m/%Y %H:%M") if exam_date else ""
+                ),
+                "socauthi": int(_get_row_value(row, "SOCAUTHI", 4) or 0),
+                "thoigian": thoigian,
+                "trangthai": (_get_row_value(row, "TRANGTHAI", 6) or "").strip(),
+                "duoc_bat_dau_thi": _to_bool(
+                    _get_row_value(row, "DUOC_BAT_DAU_THI", 7)
+                ),
+                "malop": (student.malop or "").strip(),
+            }
+        )
+
+    today_val = date.today()
+    def sort_key(s_dict: dict) -> tuple:
+        dt_str = s_dict["ngaythi"]
+        dt = datetime.fromisoformat(dt_str) if dt_str else datetime.max
+        is_today = (dt.date() == today_val)
+        return (0 if is_today else 1, dt)
+
+    schedules.sort(key=sort_key)
+    return schedules
+
+
 def list_available_classes(db: Session, user: dict[str, Any]):
     """Return classes registered by the teacher for practice."""
     from db.model import DbLop, DbGiaoVienDangKy
@@ -164,6 +233,24 @@ def get_exam_info(
         raise ResourceNotFoundError(
             "Khong tim thay lich thi phu hop voi mon, lop, ngay thi va lan thi da chon"
         )
+    if user.get("role") == "SINHVIEN":
+        active_session = db_exam.get_latest_session(
+            db,
+            user.get("ma", ""),
+            subject_id,
+            attempt,
+            class_id,
+            exam_date,
+            "DANG_LAM",
+        )
+        if active_session:
+            sync_session_time(db, active_session)
+            if active_session.trangthai == "DANG_LAM":
+                registration.active_session_status = "DANG_LAM"
+                registration.active_session_message = (
+                    "Bai thi nay chua hoan thanh. "
+                    "Tiep tuc lam bai de hoan tat bai thi nay."
+                )
     return registration
 
 
@@ -208,6 +295,27 @@ def _select_questions(db: Session, registration) -> list[DbBoDe]:
     return questions
 
 
+def _ensure_student_can_start_exam(
+    db: Session,
+    user: dict[str, Any],
+    registration,
+    exam_date: date,
+) -> None:
+    """Prevent students from starting exams outside the registered date."""
+    if user.get("role") != "SINHVIEN":
+        return
+
+    student_id = user.get("ma", "")
+    if db_exam.get_score(db, student_id, registration.mamh, registration.lan):
+        raise ConflictError("Đã thi")
+
+    today = date.today()
+    if exam_date > today:
+        raise ConflictError("Chưa đến ngày thi")
+    if exam_date < today:
+        raise ConflictError("Đã quá hạn")
+
+
 def get_or_create_exam(
     db: Session,
     subject_id: str,
@@ -221,6 +329,7 @@ def get_or_create_exam(
     registration = get_exam_info(
         db, subject_id, attempt, class_id, exam_date_value, user
     )
+    _ensure_student_can_start_exam(db, user, registration, exam_date)
     if user.get("role") == "SINHVIEN":
         existing = db_exam.get_latest_session(
             db,
@@ -233,6 +342,10 @@ def get_or_create_exam(
         if existing:
             remaining = sync_session_time(db, existing)
             if existing.trangthai != "DANG_LAM":
+                if existing.trangthai == "DA_NOP":
+                    raise ConflictError(
+                        "Ban da hoan thanh bai thi nay roi, khong duoc phep thi lai"
+                    )
                 raise ConflictError(
                     f"Phien thi dang o trang thai {existing.trangthai}, "
                     "khong the tao phien moi"
@@ -592,22 +705,26 @@ def build_review(
     subject = db_exam.get_subject(db, session.mamh)
     class_info = db_exam.get_class(db, session.malop)
     score = db_exam.get_score(db, student.masv, session.mamh, session.lan)
+
     from sqlalchemy import text
-    query = text(
+    query_sp = text(
         "EXEC SP_GET_CT_BAITHI_FROM_PHIENTHI "
         "@MASV = :masv, @MAMH = :mamh, @LAN = :lan"
     )
-    rows = db.execute(query, {
-        "masv": student.masv,
-        "mamh": session.mamh,
-        "lan": session.lan
-    }).fetchall()
+    rows = db.execute(
+        query_sp,
+        {
+            "masv": student.masv,
+            "mamh": (session.mamh or "").strip(),
+            "lan": session.lan,
+        },
+    ).fetchall()
 
     results: list[dict] = []
     correct_count = wrong_count = unanswered_count = 0
     for number, row in enumerate(rows, start=1):
         q_id = row[0]
-        q_noidung = row[1]
+        noidung = row[1]
         q_a = row[2]
         q_b = row[3]
         q_c = row[4]
@@ -645,7 +762,12 @@ def build_review(
         results.append(
             {
                 "number": number,
-                "text": q_noidung,
+                "question_id": q_id,
+                "text": noidung,
+                "a": q_a,
+                "b": q_b,
+                "c": q_c,
+                "d": q_d,
                 "status_key": key,
                 "status_label": label,
                 "selected_answer": answer or "Chưa trả lời",
@@ -682,12 +804,16 @@ def build_review(
                 if class_info
                 else session.malop
             ),
+            "class_code": (session.malop or "").strip(),
             "attempt": session.lan,
             "level": (session.trinhdo or "").strip(),
             "student_name": (
                 f"{(student.ho or '').strip()} {(student.ten or '').strip()}"
             ).strip(),
             "student_code": (student.masv or "").strip(),
+            "exam_date": (
+                session.ngaythi.strftime("%d/%m/%Y") if session.ngaythi else ""
+            ),
             "started_at": session.batdau_luc.strftime("%d/%m/%Y %H:%M:%S"),
             "duration": f"{used_seconds // 60} phút {used_seconds % 60:02d} giây",
             "submitted_at": (
@@ -722,24 +848,43 @@ def get_class_score_table(
     malop: str,
     mamh: str,
     lan: int,
+    user: dict | None = None,
 ) -> list[dict]:
     """Get the score sheet for a class, subject, and attempt."""
     from sqlalchemy import text
     from core.report_utils import score_to_words, score_to_letter
-    
+
     malop = malop.strip()
     mamh = mamh.strip()
-    
+
+    if user and user.get("role") == "GIANGVIEN":
+        teacher_id = (user.get("ma") or "").strip()
+        from db.model import DbGiaoVienDangKy
+        reg = (
+            db.query(DbGiaoVienDangKy)
+            .filter(
+                DbGiaoVienDangKy.malop == malop,
+                DbGiaoVienDangKy.mamh == mamh,
+                DbGiaoVienDangKy.lan == lan,
+                DbGiaoVienDangKy.magv == teacher_id,
+            )
+            .first()
+        )
+        if reg is None:
+            raise PermissionDeniedError(
+                "Bạn không có quyền xem bảng điểm của lịch thi này."
+            )
+
     query = text("EXEC SP_GET_BANGDIEM_MONHOC @MALOP = :malop, @MAMH = :mamh, @LAN = :lan")
     rows = db.execute(query, {"malop": malop, "mamh": mamh, "lan": lan}).fetchall()
-    
+
     results = []
     for idx, row in enumerate(rows, start=1):
         masv = row[0]
         ho = row[1]
         ten = row[2]
         score_val = row[3]
-        
+
         results.append({
             "stt": idx,
             "masv": (masv or "").strip(),
@@ -749,20 +894,34 @@ def get_class_score_table(
             "diem_chu": score_to_letter(score_val) if score_val is not None else "",
             "diem_chu_viet": score_to_words(score_val) if score_val is not None else "",
         })
-        
+
     return results
 
 
 
-def list_all_classes(db: Session) -> list:
-    """Return all classes for selection."""
+def list_all_classes(db: Session, user: dict | None = None) -> list:
+    """Return classes for selection. Teachers only see classes where they registered exams."""
+    if user and user.get("role") == "GIANGVIEN":
+        teacher_id = (user.get("ma") or "").strip()
+        return db_exam.list_classes_by_teacher(db, teacher_id)
     from db.model import DbLop
     return db.query(DbLop).order_by(DbLop.malop.asc()).all()
 
 
-def list_all_subjects(db: Session) -> list:
-    """Return all subjects for selection."""
+def list_all_subjects(db: Session, user: dict | None = None) -> list:
+    """Return subjects for selection. Teachers only see subjects they registered exams for."""
+    if user and user.get("role") == "GIANGVIEN":
+        teacher_id = (user.get("ma") or "").strip()
+        return db_exam.list_subjects_by_teacher(db, teacher_id)
     return db_exam.list_all_subjects(db)
+
+
+def list_teacher_registrations(db: Session, user: dict) -> list:
+    """Return all exam registrations for the current teacher, newest first."""
+    if user.get("role") != "GIANGVIEN":
+        raise PermissionDeniedError("Chỉ giảng viên mới có danh sách kỳ thi đăng ký.")
+    teacher_id = (user.get("ma") or "").strip()
+    return db_exam.list_registrations_by_teacher(db, teacher_id)
 
 
 def list_students_by_class(db: Session, malop: str):

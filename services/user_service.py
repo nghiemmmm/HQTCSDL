@@ -60,10 +60,10 @@ def _login_staff(db: Session, request: DangNhap) -> dict[str, str]:
 
     names = (profile.Hoten or "").strip().split()
     return {
-        "ma": profile.Username,
-        "ho": " ".join(names[:-1]) if len(names) > 1 else "",
-        "ten": names[-1] if names else "",
-        "role": profile.Rolename,
+        "ma": (profile.Username or "").strip(),
+        "ho": (" ".join(names[:-1]) if len(names) > 1 else "").strip(),
+        "ten": (names[-1] if names else "").strip(),
+        "role": (profile.Rolename or "").strip(),
     }
 
 
@@ -96,11 +96,45 @@ def _login_student(db: Session, request: DangNhap) -> dict[str, str]:
             }
         )
     return {
-        "ma": student.MASV,
-        "ho": student.HO,
-        "ten": student.TEN,
+        "ma": (student.MASV or "").strip(),
+        "ho": (student.HO or "").strip(),
+        "ten": (student.TEN or "").strip(),
         "role": "SINHVIEN",
     }
+
+
+def delete_login_account(db: Session, login_name: str, current_user: dict) -> dict[str, str]:
+    """Delete a SQL Server login account."""
+    login_name = (login_name or "").strip()
+    if not login_name:
+        raise ValidationError(
+            {"field": "loginname", "message": "Login name khong duoc de trong."}
+        )
+
+    current_login = (current_user.get("ma") or "").strip()
+    if login_name.lower() == current_login.lower():
+        raise ValidationError(
+            {
+                "field": "loginname",
+                "message": "Khong duoc xoa tai khoan dang dang nhap.",
+            }
+        )
+
+    if db_user.find_sql_login(db, login_name) is None:
+        raise ResourceNotFoundError(
+            {"field": "loginname", "message": "Tai khoan login khong ton tai."}
+        )
+
+    try:
+        db_user.delete_sql_account(login_name)
+    except Exception as exc:
+        raise RepositoryError(
+            {
+                "field": "system",
+                "message": f"Khong the xoa tai khoan login: {exc}",
+            }
+        ) from exc
+    return {"message": f"Da xoa tai khoan login {login_name}"}
 
 
 def register(request: DangKy) -> dict[str, str]:
@@ -113,7 +147,7 @@ def register(request: DangKy) -> dict[str, str]:
                 "message": "Chỉ được phép tạo tài khoản cho Giảng viên hoặc PGV.",
             }
         )
-    sql_role = "db_owner"
+    sql_role = role
     try:
         db_user.create_sql_account(
             request.loginname,
@@ -122,6 +156,16 @@ def register(request: DangKy) -> dict[str, str]:
             sql_role,
         )
     except Exception as exc:
+        err_str = str(exc)
+        # SQL Server raises error 50000 "Login name bị trùng" when loginname exists
+        if "trùng" in err_str or "50000" in err_str or "duplicate" in err_str.lower():
+            from services.exceptions import ConflictError
+            raise ConflictError(
+                {
+                    "field": "loginname",
+                    "message": f"Tài khoản '{request.loginname}' đã tồn tại. Vui lòng chọn tên đăng nhập khác.",
+                }
+            ) from exc
         raise RepositoryError(
             {
                 "field": "system",

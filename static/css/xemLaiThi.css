@@ -3,6 +3,113 @@
   gap: 14px;
 }
 
+.exam-result-sheet {
+  padding: 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+}
+
+.sheet-header,
+.sheet-info,
+.sheet-summary {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.sheet-info {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding-bottom: 14px;
+  border-bottom: 2px solid #0f172a;
+}
+
+.sheet-header div,
+.sheet-info div,
+.sheet-summary span {
+  padding: 10px;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.sheet-header span,
+.sheet-info span {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.sheet-header strong,
+.sheet-info strong,
+.sheet-summary strong {
+  display: block;
+  margin-top: 4px;
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.result-table-wrap {
+  overflow-x: auto;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+
+.result-table {
+  width: 100%;
+  min-width: 1120px;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.result-table th,
+.result-table td {
+  padding: 9px 10px;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+  font-size: 13px;
+  line-height: 1.45;
+  vertical-align: top;
+}
+
+.result-table th {
+  background: #e2e8f0;
+  text-align: center;
+  font-weight: 900;
+}
+
+.result-table td:nth-child(1),
+.result-table td:nth-child(2),
+.result-table td:nth-child(8),
+.result-table td:nth-child(9) {
+  text-align: center;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.result-table .question-text {
+  min-width: 260px;
+}
+
+.result-table .row-correct {
+  background: #f0fdf4;
+}
+
+.result-table .row-wrong {
+  background: #fef2f2;
+}
+
+.result-table .row-unanswered {
+  background: #fffbeb;
+}
+
+.sheet-summary {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 14px;
+}
+
 .submit-success,
 .score-panel,
 .overview-card,
@@ -434,6 +541,12 @@
 }
 
 @media (max-width: 760px) {
+  .sheet-header,
+  .sheet-info,
+  .sheet-summary {
+    grid-template-columns: 1fr;
+  }
+
   .submit-success,
   .section-head,
   .question-head,

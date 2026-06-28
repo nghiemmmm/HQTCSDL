@@ -133,7 +133,7 @@ def get_monhoc(
 ):
     """Return subjects for exam registration."""
     try:
-        return exam_registration_service.list_subjects(db)
+        return exam_registration_service.list_subjects(db, user)
     except ServiceError as exc:
         raise_http_error(exc)
 

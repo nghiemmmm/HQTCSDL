@@ -220,12 +220,22 @@
   <h2>BẢNG ĐIỂM MÔN HỌC</h2>
   
   <div class="filter-grid">
+    {% if user.role == "GIANGVIEN" %}
+    <div class="field" style="grid-column: 1 / -1;">
+      <label for="selectMyExam">⚡ Kỳ thi của tôi</label>
+      <select id="selectMyExam" onchange="onMyExamSelect()">
+        <option value="">-- Chọn nhanh kỳ thi --</option>
+      </select>
+      <span id="myExamLoading" style="font-size:12px; color:var(--text-secondary); display:none;">Đang tải danh sách kỳ thi...</span>
+    </div>
+    <hr style="grid-column: 1 / -1; border: none; border-top: 1px solid var(--border-color); margin: 0;">
+    {% endif %}
     <div class="field">
       <label for="selectClass">Lớp học</label>
       <select id="selectClass">
         <option value="">-- Chọn lớp học --</option>
         {% for c in classes %}
-        <option value="{{ c.malop }}">{{ c.malop }} - {{ c.tenlop }}</option>
+        <option value="{{ c.malop | trim }}">{{ c.malop | trim }} - {{ c.tenlop }}</option>
         {% endfor %}
       </select>
     </div>
@@ -235,7 +245,7 @@
       <select id="selectSubject">
         <option value="">-- Chọn môn học --</option>
         {% for s in subjects %}
-        <option value="{{ s.mamh }}">{{ s.mamh }} - {{ s.tenmh }}</option>
+        <option value="{{ s.mamh | trim }}">{{ s.mamh | trim }} - {{ s.tenmh }}</option>
         {% endfor %}
       </select>
     </div>
@@ -278,7 +288,6 @@
           <th>Tên</th>
           <th style="width: 100px; text-align: center;">Điểm số</th>
           <th style="width: 100px; text-align: center;">Điểm chữ</th>
-          <th>Điểm chữ viết</th>
         </tr>
       </thead>
       <tbody id="scoreboardBody">
@@ -290,6 +299,50 @@
 
 {% block page_js %}
 <script>
+  /* ── Quick-select: load teacher's own registrations ── */
+  {% if user.role == "GIANGVIEN" %}
+  (async function loadMyExams() {
+    const sel = document.getElementById("selectMyExam");
+    const loading = document.getElementById("myExamLoading");
+    if (!sel) return;
+    loading.style.display = "inline";
+    try {
+      const res = await fetch("/thi/api/danh-sach-ky-thi-gv");
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      data.registrations.forEach(r => {
+        const opt = document.createElement("option");
+        opt.value = JSON.stringify({ malop: r.malop, mamh: r.mamh, lan: r.lan });
+        opt.text = `${r.tenmh} (${r.mamh}) — ${r.tenlop} — Lần ${r.lan} — 📅 ${r.ngaythi}`;
+        sel.appendChild(opt);
+      });
+    } catch (_) {
+      sel.disabled = true;
+      sel.options[0].text = "Không tải được danh sách kỳ thi";
+    } finally {
+      loading.style.display = "none";
+    }
+  })();
+
+  function onMyExamSelect() {
+    const sel = document.getElementById("selectMyExam");
+    if (!sel.value) return;
+    const { malop, mamh, lan } = JSON.parse(sel.value);
+
+    // Auto-fill the 3 filter dropdowns
+    const classSelect   = document.getElementById("selectClass");
+    const subjectSelect = document.getElementById("selectSubject");
+    const attemptSelect = document.getElementById("selectAttempt");
+
+    for (const opt of classSelect.options)   { if (opt.value.trim() === malop.trim())        { opt.selected = true; break; } }
+    for (const opt of subjectSelect.options) { if (opt.value.trim() === mamh.trim())         { opt.selected = true; break; } }
+    for (const opt of attemptSelect.options) { if (opt.value.trim() === String(lan).trim())  { opt.selected = true; break; } }
+
+    // Immediately fetch the score table
+    fetchScoreboard();
+  }
+  {% endif %}
+
   function showError(msg) {
     const err = document.getElementById("errorText");
     if (msg) {
@@ -327,7 +380,7 @@
       tbody.innerHTML = "";
       
       if (data.students.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 20px;">Lớp học này chưa có sinh viên nào.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 20px;">Lớp học này chưa có sinh viên nào.</td></tr>';
         document.getElementById("tableContainer").style.display = "block";
         return;
       }
@@ -360,17 +413,12 @@
         tdDiemChu.innerText = s.diem_chu || "-";
         tdDiemChu.style.textAlign = "center";
         tdDiemChu.style.fontWeight = "600";
-        
-        const tdDiemChuViet = document.createElement("td");
-        tdDiemChuViet.innerText = s.diem_chu_viet || "-";
-        
         tr.appendChild(tdStt);
         tr.appendChild(tdMasv);
         tr.appendChild(tdHo);
         tr.appendChild(tdTen);
         tr.appendChild(tdDiem);
         tr.appendChild(tdDiemChu);
-        tr.appendChild(tdDiemChuViet);
         
         tbody.appendChild(tr);
       });

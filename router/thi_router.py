@@ -125,8 +125,8 @@ def ket_qua_sinh_vien(
 ):
     """Render the student-result query page."""
     try:
-        classes = exam_service.list_all_classes(db)
-        subjects = exam_service.list_all_subjects(db)
+        classes = exam_service.list_all_classes(db, user)
+        subjects = exam_service.list_all_subjects(db, user)
     except ServiceError as exc:
         raise_http_error(exc)
     return templates.TemplateResponse(
@@ -151,8 +151,8 @@ def bang_diem(
 ):
     """Render the class scoreboard print page."""
     try:
-        classes = exam_service.list_all_classes(db)
-        subjects = exam_service.list_all_subjects(db)
+        classes = exam_service.list_all_classes(db, user)
+        subjects = exam_service.list_all_subjects(db, user)
     except ServiceError as exc:
         raise_http_error(exc)
     return templates.TemplateResponse(
@@ -204,7 +204,7 @@ def bang_diem_data(
 ):
     """Return scores sheet data for a class."""
     try:
-        students_data = exam_service.get_class_score_table(db, malop, mamh, lan)
+        students_data = exam_service.get_class_score_table(db, malop, mamh, lan, user)
         from schemas.schemas import BangDiemMonHocPublic
         mapped_students = []
         for s in students_data:
@@ -220,6 +220,35 @@ def bang_diem_data(
                 )
             )
         return BangDiemMonHocResponse(students=mapped_students)
+    except ServiceError as exc:
+        raise_http_error(exc)
+
+
+@router.get("/api/danh-sach-ky-thi-gv")
+def danh_sach_ky_thi_gv(
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.PRINT_SCORE_TABLE))],
+):
+    """Return all exam registrations for the current teacher, newest first."""
+    try:
+        data = exam_service.list_teacher_registrations(db, user)
+        return {"registrations": data}
+    except ServiceError as exc:
+        raise_http_error(exc)
+
+
+@router.get("/api/ket-qua-ky-thi")
+def ket_qua_ky_thi(
+    malop: str,
+    mamh: str,
+    lan: int,
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.VIEW_STUDENT_SCORE))],
+):
+    """Return all student results for a specific exam (malop, mamh, lan)."""
+    try:
+        results = exam_service.list_class_exam_results(db, malop, mamh, lan, user)
+        return {"students": results}
     except ServiceError as exc:
         raise_http_error(exc)
 
@@ -242,6 +271,18 @@ def mon_hoc_duoc_thi(db: DatabaseDep, user: ExamUserDep):
     """Return subjects available to the current exam actor."""
     try:
         return exam_service.list_available_subjects(db, user)
+    except ServiceError as exc:
+        raise_http_error(exc)
+
+
+@router.get("/lich-thi-cua-toi")
+def lich_thi_cua_toi(
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.TAKE_EXAM))],
+):
+    """Return exam schedules for the logged-in student."""
+    try:
+        return exam_service.list_student_exam_schedules(db, user)
     except ServiceError as exc:
         raise_http_error(exc)
 

@@ -60,16 +60,17 @@ class DbBoDe(Base):
     mamh = Column(NCHAR(5), ForeignKey("MONHOC.mamh"))
     trinhdo = Column(CHAR(1))
     noidung = Column(Unicode(200))
-    a = Column(Unicode(50))
-    b = Column(Unicode(50))
-    c = Column(Unicode(50))
-    d = Column(Unicode(50))
+    a = Column(Unicode(200))
+    b = Column(Unicode(200))
+    c = Column(Unicode(200))
+    d = Column(Unicode(200))
     dap_an = Column(CHAR(1))
     magv = Column(NCHAR(8), ForeignKey("GIAOVIEN.magv"))
 
     __table_args__ = (
         CheckConstraint("trinhdo IN ('A','B','C')"),
         CheckConstraint("dap_an IN ('A','B','C','D')"),
+        {"implicit_returning": False},
     )
 
     monhoc = relationship("DbMonHoc", back_populates="bode")
@@ -119,6 +120,7 @@ class DbPhienThi(Base):
     __table_args__ = (
         CheckConstraint("lan BETWEEN 1 AND 2"),
         CheckConstraint("trangthai IN ('DANG_LAM','DA_NOP','HET_GIO','HUY_BO')"),
+        {"implicit_returning": False},
     )
 
 

@@ -16,36 +16,35 @@
   <dl class="exam-card-meta">
     {% if exam.started_text %}
     <div>
-      <dt>Bắt đầu làm</dt>
+      <dt>Bat dau lam</dt>
       <dd>{{ exam.started_text }}</dd>
     </div>
     {% endif %}
     {% if exam.remaining_text %}
     <div>
-      <dt>Thời gian còn lại</dt>
+      <dt>Thoi gian con lai</dt>
       <dd>{{ exam.remaining_text }}</dd>
     </div>
     {% endif %}
     <div>
-      <dt>Bắt đầu</dt>
+      <dt>Bat dau</dt>
       <dd>{{ exam.start_at }}</dd>
     </div>
     <div>
-      <dt>Kết thúc</dt>
+      <dt>Ket thuc</dt>
       <dd>{{ exam.end_at }}</dd>
     </div>
     <div>
-      <dt>Thời lượng</dt>
+      <dt>Thoi luong</dt>
       <dd>{{ exam.duration }}</dd>
     </div>
     <div>
-      <dt>Điểm số</dt>
-      <dd>{% if exam.score is not none %}{{ exam.score }}{% else %}Chưa có{% endif %}</dd>
+      <dt>Diem so</dt>
+      <dd>{% if exam.score is not none %}{{ exam.score }}{% else %}Chua co{% endif %}</dd>
     </div>
   </dl>
 
   <div class="exam-card-actions">
     <a class="history-btn primary-action" href="{{ exam.action_url }}">{{ exam.action_label }}</a>
-    <a class="history-btn" href="{{ exam.detail_url }}">Xem chi tiết</a>
   </div>
 </article>

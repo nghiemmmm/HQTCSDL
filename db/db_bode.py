@@ -22,8 +22,29 @@ def get_by_id(db: Session, question_id: int) -> DbBoDe | None:
 
 
 def create_bode(db: Session, request: CauHoiCreate) -> DbBoDe:
-    """Insert a question."""
-    question = DbBoDe(**request.model_dump())
+    """Insert a question, manually generating CAUHOI ID if identity column is disabled (e.g. Subscriber site)."""
+    from sqlalchemy import text, func
+
+    is_identity = False
+    try:
+        res = db.execute(text("""
+            SELECT is_identity
+            FROM sys.columns
+            WHERE object_id = object_id('BODE') AND name = 'CAUHOI'
+        """)).scalar()
+        is_identity = bool(res)
+    except Exception:
+        is_identity = True
+
+    data = request.model_dump()
+    if not is_identity:
+        DbBoDe.__table__.c.cauhoi.autoincrement = False
+        max_id = db.query(func.max(DbBoDe.cauhoi)).scalar() or 0
+        data["cauhoi"] = max_id + 1
+    else:
+        DbBoDe.__table__.c.cauhoi.autoincrement = True
+
+    question = DbBoDe(**data)
     db.add(question)
     db.commit()
     db.refresh(question)

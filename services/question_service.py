@@ -9,7 +9,35 @@ from sqlalchemy.orm import Session
 from db import db_bode, db_giaovien
 from db.model import DbBoDe, DbPhienThi
 from schemas.schemas import BoDeDisplay, CauHoiCreate, CauHoiUpdate
-from services.exceptions import PermissionDeniedError, RepositoryError, ResourceNotFoundError
+from services.exceptions import (
+    PermissionDeniedError,
+    RepositoryError,
+    ResourceNotFoundError,
+    ValidationError,
+)
+
+
+UNIQUE_ANSWERS_MESSAGE = "Bốn đáp án A, B, C, D không được trùng nội dung."
+
+
+def _normalize_answer(answer: str | None) -> str:
+    return (answer or "").strip().casefold()
+
+
+def _validate_unique_answers(
+    a: str | None,
+    b: str | None,
+    c: str | None,
+    d: str | None,
+) -> None:
+    answers = [
+        _normalize_answer(a),
+        _normalize_answer(b),
+        _normalize_answer(c),
+        _normalize_answer(d),
+    ]
+    if len(set(answers)) != len(answers):
+        raise ValidationError(UNIQUE_ANSWERS_MESSAGE)
 
 
 def _owned_question(db: Session, question_id: int, user: dict[str, Any]) -> DbBoDe:
@@ -68,6 +96,7 @@ def create_question(
     """Create a question, assigning teachers to their own records."""
     if user.get("role") == "GIANGVIEN":
         request.magv = user.get("ma", "")
+    _validate_unique_answers(request.a, request.b, request.c, request.d)
     try:
         return db_bode.create_bode(db, request)
     except SQLAlchemyError as exc:
@@ -114,6 +143,12 @@ def update_question(
     question = _owned_question(db, question_id, user)
     if user.get("role") == "GIANGVIEN":
         request.magv = user.get("ma", "")
+    _validate_unique_answers(
+        request.a if request.a is not None else question.a,
+        request.b if request.b is not None else question.b,
+        request.c if request.c is not None else question.c,
+        request.d if request.d is not None else question.d,
+    )
     try:
         return db_bode.update_bode(db, question, request)
     except SQLAlchemyError as exc:

@@ -102,6 +102,19 @@ def dang_ky(
         raise_http_error(exc)
 
 
+@router.delete("/register/{loginname}", response_model=Message)
+def xoa_tai_khoan(
+    loginname: str,
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.CREATE_USER))],
+):
+    """Delete a SQL Server login account."""
+    try:
+        return user_service.delete_login_account(db, loginname, user)
+    except ServiceError as exc:
+        raise_http_error(exc)
+
+
 @router.get("/register", response_class=HTMLResponse)
 def register(
     request: Request,

@@ -32,8 +32,8 @@ class DangKy(BaseModel):
 class UserBase(BaseModel):
     ma: str = Field(..., max_length=8)
     ho: Optional[str] = Field(None, max_length=40)
-    ten: Optional[str] = Field(None, max_length=10)
-    role: Optional[str] = Field(None, max_length=10)
+    ten: Optional[str] = Field(None, max_length=50)
+    role: Optional[str] = Field(None, max_length=50)
 
 
 class UserPublic(UserBase):
@@ -83,7 +83,7 @@ class LopPublic(LopBase):
 class SinhVienBase(BaseModel):
     masv: str = Field(..., max_length=8)
     ho: Optional[str] = Field(None, max_length=40)
-    ten: Optional[str] = Field(None, max_length=10)
+    ten: Optional[str] = Field(None, max_length=50)
     ngaysinh: Optional[date] = None
     diachi: Optional[str] = Field(None, max_length=100)
     malop: Optional[str] = Field(None, max_length=15)
@@ -95,7 +95,7 @@ class SinhVienCreate(SinhVienBase):
 
 class SinhVienUpdate(BaseModel):
     ho: Optional[str] = Field(None, max_length=40)
-    ten: Optional[str] = Field(None, max_length=10)
+    ten: Optional[str] = Field(None, max_length=50)
     ngaysinh: Optional[date] = None
     diachi: Optional[str] = Field(None, max_length=100)
     malop: Optional[str] = Field(None, max_length=15)
@@ -136,7 +136,7 @@ class SystemUserPublic(SystemUserBase):
 class GiaoVienBase(BaseModel):
     magv: str = Field(..., max_length=8)
     ho: Optional[str] = Field(None, max_length=40)
-    ten: Optional[str] = Field(None, max_length=10)
+    ten: Optional[str] = Field(None, max_length=50)
     diachi: Optional[str] = Field(None, max_length=50)
     sodtll: Optional[str] = Field(None, max_length=15)
 
@@ -147,7 +147,7 @@ class GiaoVienCreate(GiaoVienBase):
 
 class GiaoVienUpdate(BaseModel):
     ho: Optional[str] = Field(None, max_length=40)
-    ten: Optional[str] = Field(None, max_length=10)
+    ten: Optional[str] = Field(None, max_length=50)
     diachi: Optional[str] = Field(None, max_length=50)
     sodtll: Optional[str] = Field(None, max_length=15)
 
@@ -168,10 +168,10 @@ class BoDeBase(BaseModel):
     mamh: str = Field(..., max_length=5)
     trinhdo: str = Field(..., pattern="^[ABC]$")
     noidung: str = Field(..., max_length=200)
-    a: str = Field(..., max_length=50)
-    b: str = Field(..., max_length=50)
-    c: str = Field(..., max_length=50)
-    d: str = Field(..., max_length=50)
+    a: str = Field(..., max_length=200)
+    b: str = Field(..., max_length=200)
+    c: str = Field(..., max_length=200)
+    d: str = Field(..., max_length=200)
     dap_an: str = Field(..., pattern="^[ABCD]$")
     magv: Optional[str] = Field(None, max_length=8)
 
@@ -184,10 +184,10 @@ class CauHoiUpdate(BaseModel):
     mamh: Optional[str] = Field(None, max_length=5)
     trinhdo: Optional[str] = Field(None, pattern="^[ABC]$")
     noidung: Optional[str] = Field(None, max_length=200)
-    a: Optional[str] = Field(None, max_length=50)
-    b: Optional[str] = Field(None, max_length=50)
-    c: Optional[str] = Field(None, max_length=50)
-    d: Optional[str] = Field(None, max_length=50)
+    a: Optional[str] = Field(None, max_length=200)
+    b: Optional[str] = Field(None, max_length=200)
+    c: Optional[str] = Field(None, max_length=200)
+    d: Optional[str] = Field(None, max_length=200)
     dap_an: Optional[str] = Field(None, pattern="^[ABCD]$")
     magv: Optional[str] = Field(None, max_length=8)
 
@@ -235,6 +235,8 @@ class DangKyThi(BaseModel):
 
 
 class ThongTinThi(DangKyThi):
+    active_session_status: Optional[str] = None
+    active_session_message: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
 
