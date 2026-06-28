@@ -1,12 +1,13 @@
 """Business operations for the question bank."""
 
+import json
 from typing import Any
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from db import db_bode, db_giaovien
-from db.model import DbBoDe
+from db.model import DbBoDe, DbPhienThi
 from schemas.schemas import BoDeDisplay, CauHoiCreate, CauHoiUpdate
 from services.exceptions import PermissionDeniedError, RepositoryError, ResourceNotFoundError
 
@@ -23,6 +24,20 @@ def _owned_question(db: Session, question_id: int, user: dict[str, Any]) -> DbBo
     return question
 
 
+
+def _question_payload(question: DbBoDe) -> dict[str, Any]:
+    return {
+        "cauhoi": question.cauhoi,
+        "mamh": (question.mamh or "").strip(),
+        "trinhdo": (question.trinhdo or "").strip(),
+        "noidung": question.noidung or "",
+        "a": question.a or "",
+        "b": question.b or "",
+        "c": question.c or "",
+        "d": question.d or "",
+        "dap_an": (question.dap_an or "").strip(),
+        "magv": (question.magv or "").strip(),
+    }
 def get_page_data(db: Session, user: dict[str, Any]) -> dict[str, list]:
     """Build the question-page data while enforcing teacher ownership."""
     questions = (
@@ -32,10 +47,7 @@ def get_page_data(db: Session, user: dict[str, Any]) -> dict[str, list]:
     )
     teachers = db_giaovien.get_all(db)
     return {
-        "bodes": [
-            BoDeDisplay.model_validate(item).model_dump()
-            for item in questions
-        ],
+        "bodes": [_question_payload(item) for item in questions],
         "giaoviens": [
             {
                 "magv": (teacher.magv or "").strip(),
@@ -61,6 +73,35 @@ def create_question(
     except SQLAlchemyError as exc:
         db.rollback()
         raise RepositoryError(str(exc)) from exc
+
+
+def _contains_question_id(value: Any, question_id: int) -> bool:
+    if isinstance(value, dict):
+        for key in ("cauhoi", "id", "question_id"):
+            if str(value.get(key, "")).strip() == str(question_id):
+                return True
+        return any(_contains_question_id(item, question_id) for item in value.values())
+    if isinstance(value, list):
+        return any(_contains_question_id(item, question_id) for item in value)
+    return str(value).strip() == str(question_id)
+
+
+def get_question_status(
+    db: Session,
+    question_id: int,
+    user: dict[str, Any],
+) -> dict[str, bool]:
+    """Return whether a question has already been used in an exam session."""
+    _owned_question(db, question_id, user)
+    for exam_session in db.query(DbPhienThi.danhsach_cauhoi).all():
+        raw_value = exam_session[0]
+        try:
+            question_list = json.loads(raw_value or "[]")
+        except (TypeError, json.JSONDecodeError):
+            question_list = raw_value
+        if _contains_question_id(question_list, question_id):
+            return {"da_su_dung": True}
+    return {"da_su_dung": False}
 
 
 def update_question(

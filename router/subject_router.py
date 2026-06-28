@@ -4,8 +4,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from core.templates import Jinja2Templates
+from sqlalchemy import func
 
+from db.model import DbGiaoVienDangKy
 from db.roles import Permission
 from router.dependencies import DatabaseDep, require_permission
 from router.error_mapping import raise_http_error
@@ -52,6 +54,26 @@ def search(
 ):
     """Search subjects."""
     return _handle(lambda: subject_service.search_subjects(db, keyword))
+
+
+@router.get("/{mamh}/check-status")
+def check_status(
+    mamh: str,
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.VIEW_SUBJECT))],
+):
+    """Return whether the subject is already used by an exam registration."""
+    def action():
+        subject_service.get_subject(db, mamh)
+        registered = (
+            db.query(DbGiaoVienDangKy)
+            .filter(func.trim(DbGiaoVienDangKy.mamh) == mamh.strip())
+            .first()
+            is not None
+        )
+        return {"da_dangky_thi": registered}
+
+    return _handle(action)
 
 
 @router.get("/{mamh}")

@@ -4,8 +4,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from core.templates import Jinja2Templates
+from sqlalchemy import func
 
+from db.model import DbBoDe, DbGiaoVienDangKy
 from db.roles import Permission
 from router.dependencies import DatabaseDep, require_permission
 from router.error_mapping import raise_http_error
@@ -74,6 +76,33 @@ def get_one(
     """Return one teacher."""
     try:
         return teacher_service.get_teacher(db, magv)
+    except ServiceError as exc:
+        raise_http_error(exc)
+
+
+@router.get("/{magv}/check-status")
+def check_status(
+    magv: str,
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.VIEW_TEACHER))],
+):
+    """Return whether the teacher is linked to registrations or questions."""
+    try:
+        teacher_service.get_teacher(db, magv)
+        code = magv.strip()
+        co_gan_mon = (
+            db.query(DbGiaoVienDangKy)
+            .filter(func.trim(DbGiaoVienDangKy.magv) == code)
+            .first()
+            is not None
+        )
+        co_cauhoi = (
+            db.query(DbBoDe)
+            .filter(func.trim(DbBoDe.magv) == code)
+            .first()
+            is not None
+        )
+        return {"co_gan_mon": co_gan_mon, "co_cauhoi": co_cauhoi}
     except ServiceError as exc:
         raise_http_error(exc)
 

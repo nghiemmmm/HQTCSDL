@@ -4,8 +4,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from core.templates import Jinja2Templates
+from sqlalchemy import func
 
+from db.model import DbBangDiem, DbGiaoVienDangKy, DbPhienThi
 from db.roles import Permission
 from router.dependencies import DatabaseDep, require_permission
 from router.error_mapping import raise_http_error
@@ -25,7 +27,7 @@ def hien_thi_mon_hoc(
     """Render the student management page."""
     return templates.TemplateResponse(
         "formSinhVien.html",
-        {"request": request, "user": user},
+        {"request": request, "user": user, "page_mode": "student"},
     )
 
 
@@ -51,6 +53,42 @@ def create_sinh_vien(
     """Create a student."""
     try:
         return student_service.create_student(db, sinhvien)
+    except ServiceError as exc:
+        raise_http_error(exc)
+
+
+@router.get("/{masv}/check-status")
+def check_status(
+    masv: str,
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.VIEW_STUDENT))],
+):
+    """Return whether the student already has exam data or registrations."""
+    try:
+        student = student_service.get_student(db, masv)
+        code = masv.strip()
+        class_code = (student.malop or "").strip()
+        da_thi = (
+            db.query(DbBangDiem)
+            .filter(func.trim(DbBangDiem.masv) == code)
+            .first()
+            is not None
+        )
+        co_phien_thi = (
+            db.query(DbPhienThi)
+            .filter(func.trim(DbPhienThi.masv) == code)
+            .first()
+            is not None
+        )
+        da_dang_ky = False
+        if class_code:
+            da_dang_ky = (
+                db.query(DbGiaoVienDangKy)
+                .filter(func.trim(DbGiaoVienDangKy.malop) == class_code)
+                .first()
+                is not None
+            )
+        return {"da_thi": da_thi or co_phien_thi, "da_dang_ky": da_dang_ky}
     except ServiceError as exc:
         raise_http_error(exc)
 

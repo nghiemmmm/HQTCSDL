@@ -14,6 +14,8 @@ let isThem = false;
 let isSua = false;
 let editingMa = null;
 let stackUndo = [];
+let pageSize = 10;
+let currentPage = 1;
 
 const maGVInput = document.getElementById("maGV");
 const hoGVInput = document.getElementById("hoGV");
@@ -76,25 +78,72 @@ async function parseResponse(res) {
     resData = {};
   }
   if (!res.ok) {
-    throw new Error(resData.detail || resData.message || "Lỗi không xác định");
+    const detail = resData.detail;
+    const message = detail?.message || detail?.detail || resData.message || detail;
+    throw new Error(typeof message === "string" ? message : "Loi khong xac dinh");
   }
   return resData;
 }
+
+function getFilteredRows() {
+  const keyword = searchGVInput ? searchGVInput.value.trim().toLowerCase() : "";
+  return data
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => {
+      if (!keyword) return true;
+      const matchMagv = (item.magv || "").toLowerCase().includes(keyword);
+      const matchHo = (item.ho || "").toLowerCase().includes(keyword);
+      const matchTen = (item.ten || "").toLowerCase().includes(keyword);
+      return matchMagv || matchHo || matchTen;
+    });
+}
+
+function renderPagination(totalRows, totalPages) {
+  const container = document.getElementById("giaoVienPagination");
+  if (!container) return;
+  if (totalRows <= pageSize) {
+    container.innerHTML = totalRows ? `Hien thi ${totalRows}/${totalRows}` : "Khong co du lieu";
+    return;
+  }
+  const from = (currentPage - 1) * pageSize + 1;
+  const to = Math.min(currentPage * pageSize, totalRows);
+  let buttons = "";
+  for (let page = 1; page <= totalPages; page++) {
+    buttons += `<button type="button" class="${page === currentPage ? "is-active" : ""}" onclick="goToGiaoVienPage(${page})">${page}</button>`;
+  }
+  container.innerHTML = `
+    <span>Hien thi ${from}-${to} trong ${totalRows}</span>
+    <button type="button" ${currentPage <= 1 ? "disabled" : ""} onclick="goToGiaoVienPage(${currentPage - 1})">Truoc</button>
+    ${buttons}
+    <button type="button" ${currentPage >= totalPages ? "disabled" : ""} onclick="goToGiaoVienPage(${currentPage + 1})">Sau</button>
+  `;
+}
+
+window.goToGiaoVienPage = function(page) {
+  currentPage = page;
+  render();
+};
 
 function render() {
   const tbody = document.getElementById("tbody");
   tbody.innerHTML = "";
 
-  const keyword = searchGVInput ? searchGVInput.value.trim().toLowerCase() : "";
+  const rows = getFilteredRows();
+  const totalRows = rows.length;
+  const totalPages = Math.ceil(totalRows / pageSize) || 1;
+  if (currentPage > totalPages) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
 
-  data.forEach((item, index) => {
-    if (keyword) {
-      const matchMagv = (item.magv || "").toLowerCase().includes(keyword);
-      const matchHo = (item.ho || "").toLowerCase().includes(keyword);
-      const matchTen = (item.ten || "").toLowerCase().includes(keyword);
-      if (!matchMagv && !matchHo && !matchTen) return;
-    }
+  const start = (currentPage - 1) * pageSize;
+  const pageRows = rows.slice(start, start + pageSize);
 
+  if (!pageRows.length) {
+    const row = document.createElement("tr");
+    row.innerHTML = `<td colspan="5">Khong co du lieu</td>`;
+    tbody.appendChild(row);
+  }
+
+  pageRows.forEach(({ item, index }) => {
     const row = document.createElement("tr");
 
     if (index === selectedIndex) {
@@ -112,6 +161,8 @@ function render() {
     row.onclick = () => selectRow(index);
     tbody.appendChild(row);
   });
+
+  renderPagination(totalRows, totalPages);
 }
 
 function selectRow(index) {
@@ -210,6 +261,7 @@ async function ghi() {
       resData = await parseResponse(res);
       const result = resData.data;
       data.push(result);
+      currentPage = Math.ceil(getFilteredRows().length / pageSize) || 1;
       stackUndo.push({ type: "ADD", data: result });
 
       isThem = false;
@@ -318,10 +370,10 @@ function xoa() {
       // Nếu không, hiển thị dialog xác nhận
       errorText.innerHTML = `
         <div style="background: #fee2e2; border: 1px solid #f87171; padding: 10px; border-radius: 4px; display: inline-block; color: #991b1b;">
-          Bạn có chắc muốn xóa giáo viên <b>${rowData.ho} ${rowData.ten}</b> ?
+          Ban co muon xoa giao vien <b>${rowData.ho} ${rowData.ten}</b>?
           <div style="margin-top: 8px;">
-            <button onclick="thucHienXoa()" style="background: #ef4444; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Xóa</button>
-            <button onclick="huyXoa()" style="background: #e5e7eb; color: #374151; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer;">Hủy</button>
+            <button onclick="thucHienXoa()" style="background: #ef4444; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Xoa</button>
+            <button onclick="huyXoa()" style="background: #e5e7eb; color: #374151; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer;">Huy</button>
           </div>
         </div>
       `;
@@ -407,6 +459,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (searchGVInput) {
     searchGVInput.addEventListener("input", () => {
       selectedIndex = -1;
+      currentPage = 1;
       render();
     });
   }

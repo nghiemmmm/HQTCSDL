@@ -9,8 +9,21 @@ const API_BASE_URL = "http://127.0.0.1:8000";
 const pageWrap = document.querySelector(".page-wrap");
 
 const pageMode = pageWrap?.dataset.pageMode || "class";
+function getErrorMessage(payload, fallback) {
+    const detail = payload?.detail;
+    const message = detail?.message || detail?.detail || payload?.message || detail;
+    return typeof message === "string" && message.trim() ? message : fallback;
+}
 
-
+async function readErrorMessage(response, fallback) {
+    let payload = {};
+    try {
+        payload = await response.json();
+    } catch {
+        payload = {};
+    }
+    return getErrorMessage(payload, fallback);
+}
 
 let selectedMaLop = "";
 
@@ -19,6 +32,10 @@ let selectedLopTen = "";
 let selectedStudentIndex = -1;
 
 let currentAction = "view";
+
+const PAGE_SIZE = 10;
+let classCurrentPage = 1;
+let studentCurrentPage = 1;
 
 
 
@@ -36,17 +53,22 @@ const btnClassDelete = document.getElementById("btnClassDelete");
 
 const btnClassEdit = document.getElementById("btnClassEdit");
 
+const classListActions = document.querySelector(".class-list-actions");
+
 const classFilterInput = document.getElementById("classFilterInput");
 
 const classFilterClear = document.getElementById("classFilterClear");
 
 const classFilterSummary = document.getElementById("classFilterSummary");
 
+const classPagination = document.getElementById("classPagination");
+const studentPagination = document.getElementById("studentPagination");
+
 const classListCard = document.getElementById("classListCard");
 
-const studentListCard = document.getElementById("studentListCard");
+const classSelectionPrompt = document.getElementById("classSelectionPrompt");
 
-const studentPromptCard = document.getElementById("studentPromptCard");
+const studentListCard = document.getElementById("studentListCard");
 
 const studentClassInfo = document.getElementById("studentClassInfo");
 
@@ -63,6 +85,8 @@ const txtMaSV = document.getElementById("txtMaSV");
 const txtHoTen = document.getElementById("txtHoTen");
 
 const txtNgaySinh = document.getElementById("txtNgaySinh");
+
+const studentDetailPanel = document.getElementById("studentDetailPanel");
 
 const viewMaSV = document.getElementById("viewMaSV");
 
@@ -162,6 +186,26 @@ function clearLopForm() {
 
 }
 
+
+function updateClassSelectionPrompt() {
+
+    if (!classSelectionPrompt) return;
+
+    classSelectionPrompt.style.display = pageMode === "student" && !selectedMaLop ? "block" : "none";
+
+}
+
+function updateClassActionState() {
+
+    const canActOnClass = pageMode === "class" && Boolean(selectedMaLop) && !currentFormAction;
+
+    if (classListActions) classListActions.style.display = canActOnClass ? "flex" : "none";
+
+    if (btnClassDelete) btnClassDelete.disabled = !canActOnClass;
+
+    if (btnClassEdit) btnClassEdit.disabled = !canActOnClass;
+
+}
 
 function setSelectedClassInfo() {
 
@@ -367,6 +411,8 @@ function renderSelectedStudentInfo(student) {
 
     }
 
+    if (studentDetailPanel) studentDetailPanel.style.display = student ? "block" : "none";
+
     viewMaSV.textContent = student?.maSV || "Chua chon";
 
     viewHoTen.textContent = student?.hoTen || "Chua chon";
@@ -488,6 +534,22 @@ function selectClass(lop) {
 
     setSelectedClassInfo();
 
+    updateClassSelectionPrompt();
+
+    if (pageMode === "class") {
+
+        currentFormAction = "";
+
+        updateClassActionState();
+
+        editingMaLop = "";
+
+        hideAllForms();
+
+    }
+
+    updateClassActionState();
+
     renderSelectedStudentInfo(null);
 
     if (studentClassInfo) {
@@ -499,8 +561,6 @@ function selectClass(lop) {
     if (pageMode === "student") {
 
         if (classListCard) classListCard.style.display = "none";
-
-        if (studentPromptCard) studentPromptCard.style.display = "none";
 
         if (studentListCard) studentListCard.style.display = "block";
 
@@ -548,6 +608,55 @@ function getFilteredClasses() {
 
 
 
+function renderPager(container, totalRows, currentPage, totalPages, onPageChangeName) {
+
+    if (!container) return;
+
+    if (totalRows <= PAGE_SIZE) {
+
+        container.innerHTML = totalRows ? `Hien thi ${totalRows}/${totalRows}` : "Khong co du lieu";
+
+        return;
+
+    }
+
+    const from = (currentPage - 1) * PAGE_SIZE + 1;
+
+    const to = Math.min(currentPage * PAGE_SIZE, totalRows);
+
+    let buttons = "";
+
+    for (let page = 1; page <= totalPages; page++) {
+
+        buttons += `<button type="button" class="${page === currentPage ? "is-active" : ""}" onclick="${onPageChangeName}(${page})">${page}</button>`;
+
+    }
+
+    container.innerHTML = `
+        <span>Hien thi ${from}-${to} trong ${totalRows}</span>
+        <button type="button" ${currentPage <= 1 ? "disabled" : ""} onclick="${onPageChangeName}(${currentPage - 1})">Truoc</button>
+        ${buttons}
+        <button type="button" ${currentPage >= totalPages ? "disabled" : ""} onclick="${onPageChangeName}(${currentPage + 1})">Sau</button>
+    `;
+
+}
+
+window.goToClassPage = function(page) {
+
+    classCurrentPage = page;
+
+    renderGridLop();
+
+};
+
+window.goToStudentPage = function(page) {
+
+    studentCurrentPage = page;
+
+    renderGridSV();
+
+};
+
 // Render grid lop
 
 function renderGridLop() {
@@ -574,7 +683,19 @@ function renderGridLop() {
 
 
 
-    if (rows.length === 0) {
+    const totalRows = rows.length;
+
+    const totalPages = Math.ceil(totalRows / PAGE_SIZE) || 1;
+
+    if (classCurrentPage > totalPages) classCurrentPage = totalPages;
+
+    if (classCurrentPage < 1) classCurrentPage = 1;
+
+    const pageRows = rows.slice((classCurrentPage - 1) * PAGE_SIZE, classCurrentPage * PAGE_SIZE);
+
+
+
+    if (pageRows.length === 0) {
 
         const tr = document.createElement("tr");
 
@@ -582,13 +703,15 @@ function renderGridLop() {
 
         tbody.appendChild(tr);
 
+        renderPager(classPagination, totalRows, classCurrentPage, totalPages, "goToClassPage");
+
         return;
 
     }
 
 
 
-    rows.forEach(lop => {
+    pageRows.forEach(lop => {
 
         const tr = document.createElement("tr");
 
@@ -608,9 +731,9 @@ function renderGridLop() {
 
     });
 
+    renderPager(classPagination, totalRows, classCurrentPage, totalPages, "goToClassPage");
+
 }
-
-
 
 async function loadLopFromServer() {
 
@@ -635,20 +758,17 @@ async function loadLopFromServer() {
             tenLop: ((item.tenlop ?? item.tenLop ?? "") + "").trim(),
 
         }));
+        if (selectedMaLop && !dsLop.some((lop) => lop.maLop === selectedMaLop)) {
 
+            selectedMaLop = "";
 
-
-        if (pageMode !== "student" && !selectedMaLop && dsLop.length > 0) {
-
-            selectedMaLop = dsLop[0].maLop;
-
-            selectedLopTen = dsLop[0].tenLop;
-
-            setSelectedClassInfo();
+            selectedLopTen = "";
 
         }
 
+        setSelectedClassInfo();
 
+        updateClassActionState();
 
         renderGridLop();
 
@@ -700,6 +820,8 @@ async function loadSVFromServer(maLop) {
 
         selectedStudentIndex = -1;
 
+        studentCurrentPage = 1;
+
 
 
         renderGridSV();
@@ -732,7 +854,35 @@ function renderGridSV() {
 
     tbody.innerHTML = "";
 
-    dsSV.forEach((sv, index) => {
+    const totalRows = dsSV.length;
+
+    const totalPages = Math.ceil(totalRows / PAGE_SIZE) || 1;
+
+    if (studentCurrentPage > totalPages) studentCurrentPage = totalPages;
+
+    if (studentCurrentPage < 1) studentCurrentPage = 1;
+
+    const pageRows = dsSV
+
+        .map((sv, index) => ({ sv, index }))
+
+        .slice((studentCurrentPage - 1) * PAGE_SIZE, studentCurrentPage * PAGE_SIZE);
+
+    if (pageRows.length === 0) {
+
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `<td colspan="3" class="empty-cell">Khong co sinh vien</td>`;
+
+        tbody.appendChild(tr);
+
+        renderPager(studentPagination, totalRows, studentCurrentPage, totalPages, "goToStudentPage");
+
+        return;
+
+    }
+
+    pageRows.forEach(({ sv, index }) => {
 
         const tr = document.createElement("tr");
 
@@ -758,9 +908,9 @@ function renderGridSV() {
 
     });
 
+    renderPager(studentPagination, totalRows, studentCurrentPage, totalPages, "goToStudentPage");
+
 }
-
-
 
 if (btnClassAdd) {
 
@@ -771,6 +921,8 @@ if (btnClassAdd) {
         editingMaLop = "";
 
         clearLopForm();
+
+        updateClassActionState();
 
         showLopForm(false);
 
@@ -810,6 +962,8 @@ if (btnClassEdit) {
 
         if (viewClassTen) viewClassTen.textContent = selectedLopTen || "Chua chon";
 
+        updateClassActionState();
+
         showLopForm(true);
 
         if (txtTenLop) txtTenLop.focus();
@@ -826,7 +980,7 @@ if (btnClassDelete) {
 
         if (!selectedMaLop) {
 
-            alert("Vui l?ng ch?n m?t l?p ?? x?a");
+            alert("Vui long chon mot lop de xoa");
 
             return;
 
@@ -836,13 +990,19 @@ if (btnClassDelete) {
 
         if (dsSV.length > 0) {
 
-            alert("Kh?ng th? x?a l?p v? ?? c? sinh vi?n");
+            alert("Khong the xoa lop vi da co sinh vien");
 
             return;
 
         }
 
+        const className = selectedLopTen ? `${selectedMaLop} - ${selectedLopTen}` : selectedMaLop;
 
+        if (!confirm(`Ban co muon xoa lop ${className}?`)) {
+
+            return;
+
+        }
 
         try {
 
@@ -856,13 +1016,11 @@ if (btnClassDelete) {
 
             if (!response.ok) {
 
-                const error = await response.json();
-
-                const message = error.detail?.message || error.detail || "X?a l?p th?t b?i";
+                const message = await readErrorMessage(response, "Xoa lop that bai");
 
                 if ((message + "").toLowerCase().includes("sinh")) {
 
-                    throw new Error("Kh?ng th? x?a l?p v? ?? c? sinh vi?n");
+                    throw new Error("Khong the xoa lop vi da co sinh vien");
 
                 }
 
@@ -872,11 +1030,15 @@ if (btnClassDelete) {
 
 
 
-            alert("X?a l?p th?nh c?ng!");
+            alert("Xoa lop thanh cong!");
 
             selectedMaLop = "";
 
             selectedLopTen = "";
+
+            setSelectedClassInfo();
+
+            updateClassActionState();
 
             hideAllForms();
 
@@ -884,7 +1046,7 @@ if (btnClassDelete) {
 
         } catch (error) {
 
-            alert(error.message || "L?i khi x?a l?p");
+            alert(error.message || "Loi khi xoa lop");
 
         }
 
@@ -966,9 +1128,9 @@ if (btnLopSave) {
 
             if (!response.ok) {
 
-                const error = await response.json();
+                const message = await readErrorMessage(response, "Luu lop that bai");
 
-                throw new Error(error.detail?.message || "Lưu lớp thất bại");
+                throw new Error(message);
 
             }
 
@@ -979,6 +1141,8 @@ if (btnLopSave) {
             alert(`${actionText} lớp thành công!`);
 
             currentFormAction = "";
+
+            updateClassActionState();
 
             hideAllForms();
 
@@ -1003,6 +1167,8 @@ if (btnLopCancel) {
     btnLopCancel.onclick = () => {
 
         currentFormAction = "";
+
+        updateClassActionState();
 
         editingMaLop = "";
 
@@ -1162,7 +1328,7 @@ if (btnDetailDelete) {
             }
 
             // Nếu chưa thi và chưa đăng ký, hỏi xác nhận
-            if (!confirm(`Xóa sinh viên ${student.maSV} - ${student.hoTen}?`)) {
+            if (!confirm(`Ban co muon xoa sinh vien ${student.maSV} - ${student.hoTen}?`)) {
                 return;
             }
 
@@ -1176,15 +1342,15 @@ if (btnDetailDelete) {
 
             if (!response.ok) {
 
-                const error = await response.json();
+                const message = await readErrorMessage(response, "Xoa sinh vien that bai");
 
-                throw new Error(error.detail?.message || "Xóa sinh viên thất bại");
+                throw new Error(message);
 
             }
 
 
 
-            alert("Xóa sinh viên thành công!");
+            alert("Xoa sinh vien thanh cong!");
 
             selectedStudentIndex = -1;
 
@@ -1312,9 +1478,9 @@ if (btnDetailSaveForm) {
 
             if (!response.ok) {
 
-                const error = await response.json();
+                const message = await readErrorMessage(response, "Luu sinh vien that bai");
 
-                throw new Error(error.detail?.message || "Lưu sinh viên thất bại");
+                throw new Error(message);
 
             }
 
@@ -1384,11 +1550,11 @@ btnBackToClasses?.addEventListener("click", () => {
 
     if (studentListCard) studentListCard.style.display = "none";
 
-    if (studentPromptCard) studentPromptCard.style.display = "block";
-
     if (classListCard) classListCard.style.display = "block";
 
     selectedStudentIndex = -1;
+
+    updateClassSelectionPrompt();
 
     renderSelectedStudentInfo(null);
 
@@ -1396,7 +1562,13 @@ btnBackToClasses?.addEventListener("click", () => {
 
 });
 
-classFilterInput?.addEventListener("input", renderGridLop);
+classFilterInput?.addEventListener("input", () => {
+
+    classCurrentPage = 1;
+
+    renderGridLop();
+
+});
 
 classFilterClear?.addEventListener("click", () => {
 
@@ -1409,6 +1581,8 @@ classFilterClear?.addEventListener("click", () => {
 
 
     classFilterInput.value = "";
+
+    classCurrentPage = 1;
 
     renderGridLop();
 

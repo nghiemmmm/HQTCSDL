@@ -124,11 +124,6 @@
       <button id="prevPageBtn" type="button">Truoc</button>
       <div id="pageNumbers" class="page-numbers"></div>
       <button id="nextPageBtn" type="button">Sau</button>
-      <select id="pageSizeSelect" aria-label="So dong moi trang">
-        <option value="5">5 dong</option>
-        <option value="10" selected>10 dong</option>
-        <option value="20">20 dong</option>
-      </select>
     </div>
   </section>
 </main>
@@ -141,5 +136,5 @@
   window.userRole = `{{ user.role if user else '' }}`;
   window.userMa = `{{ user.ma if user else '' }}`;
 </script>
-<script src="/static/js/boDe.js?v=5"></script>
+<script src="/static/js/boDe.js?v=8"></script>
 {% endblock %}

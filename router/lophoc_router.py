@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from core.templates import Jinja2Templates
 
 from db.roles import Permission
 from router.dependencies import DatabaseDep, require_permission
@@ -25,7 +25,7 @@ def hien_thi_sinh_vien(
     """Render the class and student page."""
     return templates.TemplateResponse(
         "formSinhVien.html",
-        {"request": request, "user": user},
+        {"request": request, "user": user, "page_mode": "class"},
     )
 
 

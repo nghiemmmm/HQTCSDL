@@ -1,4 +1,4 @@
-"""Business operations for subjects."""
+﻿"""Business operations for subjects."""
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
@@ -55,7 +55,7 @@ def update_subject(db: Session, mamh: str, request: MonHocBase) -> dict:
         raise ConflictError("Đã đăng ký thi không được sửa")
     try:
         db_monhoc.check_subject_update_conflict(db, mamh, request.tenmh)
-    except SQLAlchemyError as exc:
+    except (SQLAlchemyError, ValueError) as exc:
         orig_msg = str(exc)
         import re
         match = re.search(r"\[SQL Server\]\s*(.*)", orig_msg)
@@ -87,3 +87,5 @@ def delete_subject(db: Session, mamh: str) -> dict[str, str]:
         db.rollback()
         raise RepositoryError(str(exc)) from exc
     return {"message": f"Xóa thành công môn học: {name}"}
+
+

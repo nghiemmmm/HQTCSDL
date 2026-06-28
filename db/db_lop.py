@@ -1,5 +1,6 @@
 """Class repository containing persistence operations only."""
 
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from db.model import DbLop, DbSinhVien
@@ -13,17 +14,21 @@ def get_all_lop(db: Session) -> list[DbLop]:
 
 def get_by_id(db: Session, malop: str) -> DbLop | None:
     """Return one class by code."""
-    return db.query(DbLop).filter(DbLop.malop == malop).first()
+    return db.query(DbLop).filter(func.trim(DbLop.malop) == malop.strip()).first()
 
 
 def get_by_name(db: Session, tenlop: str) -> DbLop | None:
     """Return one class by name."""
-    return db.query(DbLop).filter(DbLop.tenlop == tenlop).first()
+    return db.query(DbLop).filter(func.trim(DbLop.tenlop) == tenlop.strip()).first()
 
 
 def count_students(db: Session, malop: str) -> int:
     """Count students in a class."""
-    return db.query(DbSinhVien).filter(DbSinhVien.malop == malop).count()
+    return (
+        db.query(DbSinhVien)
+        .filter(func.trim(DbSinhVien.malop) == malop.strip())
+        .count()
+    )
 
 
 def them_lop(db: Session, lop: LopDisplay) -> DbLop:
@@ -50,15 +55,12 @@ def xoa_lop(db: Session, entity: DbLop) -> None:
 
 
 def check_class_existence(db: Session, malop: str, tenlop: str) -> int:
-    """Check if class code or class name exists using SP_KT_Lop_Ton_Tai."""
-    from sqlalchemy import text
-    query = text("EXEC SP_KT_Lop_Ton_Tai @MALOP = :malop, @TENLOP = :tenlop")
-    row = db.execute(query, {
-        "malop": malop.strip(),
-        "tenlop": tenlop.strip()
-    }).fetchone()
-    
-    if row:
-        return int(row[0])
+    """Check if class code or class name exists."""
+    code = malop.strip()
+    name = tenlop.strip()
+    if code and get_by_id(db, code):
+        return 1
+    if name and get_by_name(db, name):
+        return 2
     return 0
 

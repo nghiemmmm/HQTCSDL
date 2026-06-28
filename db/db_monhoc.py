@@ -1,10 +1,14 @@
 """Subject repository containing SQLAlchemy persistence operations only."""
 
-from sqlalchemy import or_
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from db.model import DbGiaoVienDangKy, DbMonHoc
 from schemas.schemas import MonHocBase
+
+
+def _clean(value: str | None) -> str:
+    return (value or "").strip()
 
 
 def get_all(db: Session) -> list[DbMonHoc]:
@@ -14,12 +18,12 @@ def get_all(db: Session) -> list[DbMonHoc]:
 
 def get_by_id(db: Session, mamh: str) -> DbMonHoc | None:
     """Return one subject by code."""
-    return db.query(DbMonHoc).filter(DbMonHoc.mamh == mamh).first()
+    return db.query(DbMonHoc).filter(func.trim(DbMonHoc.mamh) == _clean(mamh)).first()
 
 
 def get_by_name(db: Session, tenmh: str) -> DbMonHoc | None:
     """Return one subject by name."""
-    return db.query(DbMonHoc).filter(DbMonHoc.tenmh == tenmh).first()
+    return db.query(DbMonHoc).filter(func.trim(DbMonHoc.tenmh) == _clean(tenmh)).first()
 
 
 def create(db: Session, request: MonHocBase) -> DbMonHoc:
@@ -58,31 +62,29 @@ def search(db: Session, keyword: str) -> list[DbMonHoc]:
 def has_exam_registration(db: Session, mamh: str) -> bool:
     """Return whether the subject is referenced by an exam registration."""
     return db.query(DbGiaoVienDangKy).filter(
-        DbGiaoVienDangKy.mamh == mamh
+        func.trim(DbGiaoVienDangKy.mamh) == _clean(mamh)
     ).first() is not None
 
 
 def check_subject_existence(db: Session, mamh: str, tenmh: str) -> int:
-    """Check if subject code or name exists using SP_KT_MonHoc_Ton_Tai."""
-    from sqlalchemy import text
-    query = text("EXEC SP_KT_MonHoc_Ton_Tai @MAMH = :mamh, @TENMH = :tenmh")
-    row = db.execute(query, {
-        "mamh": mamh.strip(),
-        "tenmh": tenmh.strip()
-    }).fetchone()
-    
-    if row:
-        return int(row[0])
+    """Return 1 when code exists, 2 when name exists, otherwise 0."""
+    subject_code = _clean(mamh)
+    subject_name = _clean(tenmh)
+
+    if db.query(DbMonHoc).filter(func.trim(DbMonHoc.mamh) == subject_code).first():
+        return 1
+    if db.query(DbMonHoc).filter(func.trim(DbMonHoc.tenmh) == subject_name).first():
+        return 2
     return 0
 
 
 def check_subject_update_conflict(db: Session, mamh: str, tenmh: str) -> None:
-    """Check if the new subject name conflicts with another subject using SP_KT_Sua_MonHoc_Ton_Tai."""
-    from sqlalchemy import text
-    query = text("EXEC SP_KT_Sua_MonHoc_Ton_Tai @MAMH = :mamh, @TENMH = :tenmh")
-    db.execute(query, {
-        "mamh": mamh.strip(),
-        "tenmh": tenmh.strip()
-    })
-
-
+    """Raise ValueError when the new subject name is used by another subject."""
+    subject_code = _clean(mamh)
+    subject_name = _clean(tenmh)
+    existing = db.query(DbMonHoc).filter(
+        func.trim(DbMonHoc.tenmh) == subject_name,
+        func.trim(DbMonHoc.mamh) != subject_code,
+    ).first()
+    if existing:
+        raise ValueError("Ten mon hoc da ton tai")

@@ -7,6 +7,8 @@ var isSua = false;
 var isThem = false;
 var editingMa = null;
 var stackUndo = [];
+var pageSize = 10;
+var currentPage = 1;
 
 var maMHInput = document.getElementById("maMH");
 var tenMHInput = document.getElementById("tenMH");
@@ -74,7 +76,9 @@ async function parseResponse(res) {
   }
 
   if (!res.ok) {
-    throw new Error(resData.detail || resData.message || "Lỗi không xác định");
+    var detail = resData.detail;
+    var message = detail?.message || detail?.detail || resData.message || detail;
+    throw new Error(typeof message === "string" ? message : "Lỗi không xác định");
   }
 
   return resData;
@@ -115,6 +119,7 @@ setTimeout(async () => {
 
       clearError();
       selectedIndex = -1;
+      currentPage = 1;
       render();
 
       var keyword = searchTenMHInput.value.trim().toLowerCase();
@@ -132,16 +137,60 @@ setTimeout(async () => {
 // ======================
 // RENDER
 // ======================
+function getFilteredRows() {
+  var keyword = searchTenMHInput ? searchTenMHInput.value.trim().toLowerCase() : "";
+  return data
+    .map((item, index) => ({ item: item, index: index }))
+    .filter(({ item }) => !keyword || (item.tenMH || "").toLowerCase().includes(keyword));
+}
+
+function renderPagination(totalRows, totalPages) {
+  var container = document.getElementById("monHocPagination");
+  if (!container) return;
+  if (totalRows <= pageSize) {
+    container.innerHTML = totalRows ? `Hien thi ${totalRows}/${totalRows}` : "Khong co du lieu";
+    return;
+  }
+  var from = (currentPage - 1) * pageSize + 1;
+  var to = Math.min(currentPage * pageSize, totalRows);
+  var buttons = "";
+  for (var page = 1; page <= totalPages; page++) {
+    buttons += `<button type="button" class="${page === currentPage ? "is-active" : ""}" onclick="goToMonHocPage(${page})">${page}</button>`;
+  }
+  container.innerHTML = `
+    <span>Hien thi ${from}-${to} trong ${totalRows}</span>
+    <button type="button" ${currentPage <= 1 ? "disabled" : ""} onclick="goToMonHocPage(${currentPage - 1})">Truoc</button>
+    ${buttons}
+    <button type="button" ${currentPage >= totalPages ? "disabled" : ""} onclick="goToMonHocPage(${currentPage + 1})">Sau</button>
+  `;
+}
+
+window.goToMonHocPage = function(page) {
+  currentPage = page;
+  render();
+};
+
 function render() {
   var tbody = document.getElementById("tbody");
   if (!tbody) return;
   tbody.innerHTML = "";
 
-  var keyword = searchTenMHInput ? searchTenMHInput.value.trim().toLowerCase() : "";
+  var rows = getFilteredRows();
+  var totalRows = rows.length;
+  var totalPages = Math.ceil(totalRows / pageSize) || 1;
+  if (currentPage > totalPages) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
 
-  data.forEach((item, index) => {
-    if (keyword && !(item.tenMH || "").toLowerCase().includes(keyword)) return;
+  var start = (currentPage - 1) * pageSize;
+  var pageRows = rows.slice(start, start + pageSize);
 
+  if (!pageRows.length) {
+    var emptyRow = document.createElement("tr");
+    emptyRow.innerHTML = `<td colspan="2">Khong co du lieu</td>`;
+    tbody.appendChild(emptyRow);
+  }
+
+  pageRows.forEach(({ item, index }) => {
     var row = document.createElement("tr");
 
     if (index === selectedIndex) {
@@ -156,6 +205,8 @@ function render() {
     row.onclick = () => selectRow(index);
     tbody.appendChild(row);
   });
+
+  renderPagination(totalRows, totalPages);
 }
 
 // ======================
@@ -293,6 +344,7 @@ window.ghi = async function() {
 
       var result = resData.data;
       data.push({ maMH: result.mamh, tenMH: result.tenmh });
+      currentPage = Math.ceil(getFilteredRows().length / pageSize) || 1;
       stackUndo.push({ type: "ADD", data: result });
 
       isThem = false;
@@ -370,10 +422,10 @@ window.xoa = async function() {
     if(errorText) {
         errorText.innerHTML = `
           <div style="background:#fee2e2;padding:10px;border-radius:6px;">
-            Xóa ${item.tenMH}?
+            Ban co muon xoa mon hoc ${item.tenMH}?
             <br><br>
-            <button onclick="thucHienXoa()">Xóa</button>
-            <button onclick="huyXoa()">Hủy</button>
+            <button onclick="thucHienXoa()">Xoa</button>
+            <button onclick="huyXoa()">Huy</button>
           </div>
         `;
     }
@@ -409,7 +461,7 @@ window.thucHienXoa = async function() {
 
 window.huyXoa = function() {
   clearError();
-  setState("Đã hủy xóa");
+  setState("Da huy xoa");
 };
 
 // ======================

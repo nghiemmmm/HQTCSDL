@@ -106,3 +106,34 @@ tbody tr:hover {
 tr.selected {
   background: #eef2ff;
 }
+
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--muted, #6b7280);
+  font-size: 13px;
+}
+
+.pagination-bar button {
+  min-width: 34px;
+  padding: 6px 10px;
+  border: 1px solid var(--border, #d1d5db);
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.pagination-bar button.is-active {
+  color: #fff;
+  border-color: var(--primary, #2563eb);
+  background: var(--primary, #2563eb);
+}
+
+.pagination-bar button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

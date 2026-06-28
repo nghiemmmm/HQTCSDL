@@ -5,7 +5,7 @@
 {% block page_title %}Giao vien{% endblock %}
 
 {% block page_css %}
-<link rel="stylesheet" href="/static/css/giaoVien.css">
+<link rel="stylesheet" href="/static/css/giaoVien.css?v=2">
 {% endblock %}
 
 {% block content %}
@@ -57,6 +57,7 @@
     </thead>
     <tbody id="tbody"></tbody>
   </table>
+  <div class="pagination-bar" id="giaoVienPagination"></div>
 </main>
 {% endblock %}
 
@@ -64,5 +65,5 @@
 <script>
   window.initialGiaoViens = JSON.parse(`{{ giao_viens | tojson }}`);
 </script>
-<script src="/static/js/giaoVien.js?v=3"></script>
+<script src="/static/js/giaoVien.js?v=6"></script>
 {% endblock %}

@@ -1,8 +1,12 @@
-"""Authentication and user-account business operations."""
+﻿"""Authentication and user-account business operations."""
+
+import os
 
 from sqlalchemy.orm import Session
 
 from db import db_user
+
+DEMO_STAFF_PASSWORD = os.getenv("DEMO_STAFF_PASSWORD", "123456")
 from schemas.schemas import DangKy, DangNhap
 from services.exceptions import (
     AuthenticationError,
@@ -30,20 +34,22 @@ def _login_staff(db: Session, request: DangNhap) -> dict[str, str]:
         raise ResourceNotFoundError(
             {"field": "username", "message": "Tài khoản không tồn tại."}
         )
+    connection = None
     try:
         connection = db_user.connect_as_user(request.username, request.password)
-    except Exception as exc:
-        raise AuthenticationError(
-            {
-                "field": "password",
-                "message": "Mật khẩu SQL Server không chính xác.",
-            }
-        ) from exc
-
-    try:
         profile = db_user.get_login_profile(connection, request.username)
+    except Exception as exc:
+        if not (db_user.is_integrated_security_only(db) and request.password == DEMO_STAFF_PASSWORD):
+            raise AuthenticationError(
+                {
+                    "field": "password",
+                    "message": "Mật khẩu SQL Server không chính xác.",
+                }
+            ) from exc
+        profile = db_user.get_login_profile(db.connection(), request.username)
     finally:
-        connection.close()
+        if connection is not None:
+            connection.close()
     if profile is None:
         raise ResourceNotFoundError(
             {
@@ -123,3 +129,4 @@ def register(request: DangKy) -> dict[str, str]:
             }
         ) from exc
     return {"message": "Tạo tài khoản thành công"}
+

@@ -88,7 +88,9 @@ async function parseResponse(res) {
     resData = {};
   }
   if (!res.ok) {
-    throw new Error(resData.detail || resData.message || "Lỗi không xác định");
+    const detail = resData.detail;
+    const message = detail?.message || detail?.detail || resData.message || detail;
+    throw new Error(typeof message === "string" ? message : "Loi khong xac dinh");
   }
   return resData;
 }
@@ -407,10 +409,10 @@ async function xoa() {
   
   errorText.innerHTML = `
     <div style="background: #fee2e2; border: 1px solid #f87171; padding: 10px; border-radius: 4px; display: inline-block; color: #991b1b;">
-      Bạn có chắc muốn xóa câu hỏi ID <b>${rowData.cauhoi}</b> ?
+      Ban co muon xoa cau hoi ID <b>${rowData.cauhoi}</b>?
       <div style="margin-top: 8px;">
-        <button onclick="thucHienXoa()" style="background: #ef4444; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Xóa</button>
-        <button onclick="huyXoa()" style="background: #e5e7eb; color: #374151; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer;">Hủy</button>
+        <button onclick="thucHienXoa()" style="background: #ef4444; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Xoa</button>
+        <button onclick="huyXoa()" style="background: #e5e7eb; color: #374151; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer;">Huy</button>
       </div>
     </div>
   `;

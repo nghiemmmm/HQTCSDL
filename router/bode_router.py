@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.templating import Jinja2Templates
+from core.templates import Jinja2Templates
 
 from db.roles import Permission
 from router.dependencies import DatabaseDep, require_permission
@@ -52,6 +52,19 @@ def create_bode(
             "data": BoDeDisplay.model_validate(question).model_dump(),
         },
     )
+
+
+@router.get("/{id}/check-status")
+def check_status(
+    id: int,
+    db: DatabaseDep,
+    user: Annotated[dict, Depends(require_permission(Permission.VIEW_QUESTION))],
+):
+    """Return whether the question appears in an active/saved exam session."""
+    try:
+        return question_service.get_question_status(db, id, user)
+    except ServiceError as exc:
+        raise_http_error(exc)
 
 
 @router.put("/{id}", response_model=BoDeDisplay)
