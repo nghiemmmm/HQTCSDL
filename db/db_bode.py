@@ -21,6 +21,12 @@ def get_by_id(db: Session, question_id: int) -> DbBoDe | None:
     return db.query(DbBoDe).filter(DbBoDe.cauhoi == question_id).first()
 
 
+def get_by_mamh(db: Session, mamh: str) -> list[DbBoDe]:
+    """Return questions by subject code."""
+    from sqlalchemy import func
+    clean_mamh = (mamh or "").strip()
+    return db.query(DbBoDe).filter(func.trim(DbBoDe.mamh) == clean_mamh).all()
+
 def create_bode(db: Session, request: CauHoiCreate) -> DbBoDe:
     """Insert a question, manually generating CAUHOI ID if identity column is disabled (e.g. Subscriber site)."""
     from sqlalchemy import text, func
@@ -56,38 +62,26 @@ def update_bode(
     question: DbBoDe,
     request: CauHoiUpdate,
 ) -> DbBoDe:
-    """Persist changes to a question using SP_Phuc_Hoi_Sua_Bo_De."""
-    mamh = request.mamh if request.mamh is not None else question.mamh
-    magv = request.magv if request.magv is not None else question.magv
-    trinhdo = request.trinhdo if request.trinhdo is not None else question.trinhdo
-    dapan = request.dap_an if request.dap_an is not None else question.dap_an
-    noidung = request.noidung if request.noidung is not None else question.noidung
-    a = request.a if request.a is not None else question.a
-    b = request.b if request.b is not None else question.b
-    c = request.c if request.c is not None else question.c
-    d = request.d if request.d is not None else question.d
+    """Persist changes to a question."""
+    if request.mamh is not None:
+        question.mamh = request.mamh
+    if request.magv is not None:
+        question.magv = request.magv
+    if request.trinhdo is not None:
+        question.trinhdo = request.trinhdo
+    if request.dap_an is not None:
+        question.dap_an = request.dap_an
+    if request.noidung is not None:
+        question.noidung = request.noidung
+    if request.a is not None:
+        question.a = request.a
+    if request.b is not None:
+        question.b = request.b
+    if request.c is not None:
+        question.c = request.c
+    if request.d is not None:
+        question.d = request.d
 
-    from sqlalchemy import text
-    query = text(
-        "EXEC SP_Phuc_Hoi_Sua_Bo_De "
-        "@MACH = :mach, @MAMH = :mamh, @MAGV = :magv, @TRINHDO = :trinhdo, "
-        "@DAPAN = :dapan, @NOIDUNG = :noidung, @A = :a, @B = :b, @C = :c, @D = :d"
-    )
-    db.execute(
-        query,
-        {
-            "mach": question.cauhoi,
-            "mamh": mamh,
-            "magv": magv,
-            "trinhdo": trinhdo,
-            "dapan": dapan,
-            "noidung": noidung,
-            "a": a,
-            "b": b,
-            "c": c,
-            "d": d,
-        },
-    )
     db.commit()
     db.refresh(question)
     return question

@@ -40,6 +40,12 @@ def create_registration(
             raise ValidationError(
                 "Ngày thi đăng ký phải bắt đầu từ ngày mai trở đi."
             )
+        
+        six_months_later = tomorrow_start + timedelta(days=180)
+        if request.ngaythi > six_months_later:
+            raise ValidationError(
+                "Ngày thi đăng ký không được vượt quá 6 tháng kể từ hiện tại."
+            )
 
     if user.get("role") in {"GIANGVIEN", "PGV"}:
         request.magv = (user.get("ma") or "").strip()
@@ -99,6 +105,12 @@ def update_registration(
         if request.ngaythi < tomorrow_start:
             raise ValidationError(
                 "Ngày thi đăng ký phải bắt đầu từ ngày mai trở đi."
+            )
+            
+        six_months_later = tomorrow_start + timedelta(days=180)
+        if request.ngaythi > six_months_later:
+            raise ValidationError(
+                "Ngày thi đăng ký không được vượt quá 6 tháng kể từ hiện tại."
             )
 
     _validate_attempt_sequence(db, request)

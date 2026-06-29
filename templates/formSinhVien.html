@@ -7,55 +7,52 @@
 {% block page_title %}{{ "Sinh vien" if is_student_page else "Lop hoc" }}{% endblock %}
 
 {% block page_css %}
-<link rel="stylesheet" href="/static/css/sinhVien.css?v=10">
+<link rel="stylesheet" href="/static/css/sinhVien.css?v=14">
 {% endblock %}
 
 {% block content %}
 <main class="page-wrap" data-page-mode="{{ page_mode|default('class') }}">
-    {% if is_class_page %}
-    <section class="card form-card" id="formLop" style="display: none;">
-        <h3>Nhap thong tin lop</h3>
-        <label for="txtMaLop">Ma lop</label>
-        <input type="text" id="txtMaLop" placeholder="VD: DA22TT01">
-
-        <label for="txtTenLop">Ten lop</label>
-        <input type="text" id="txtTenLop" placeholder="VD: Lop A">
-
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button id="btnLopSave" type="button" data-any-permission="create_class,update_class">Luu lop</button>
-            <button id="btnLopCancel" type="button">Huy</button>
-        </div>
-
-        <div class="class-detail" id="classDetailPanel" aria-live="polite" style="display: none; margin-top: 20px;">
-            <div class="class-detail-head">
-                <h4>Thong tin lop dang chon</h4>
-                <span class="chip">Chi tiet</span>
-            </div>
-            <div class="class-detail-body">
-                <p><span>Ma lop:</span> <strong id="viewClassMa">Chua chon</strong></p>
-                <p><span>Ten lop:</span> <strong id="viewClassTen">Chua chon</strong></p>
-            </div>
-        </div>
-    </section>
-    {% endif %}
+    
 
     {% if is_student_page %}
     <p id="classSelectionPrompt" class="class-selection-prompt">Vui long chon lop</p>
     {% endif %}
 
     <section class="grid-layout">
+    {% if is_class_page %}
+    <section class="card form-card class-form-card" id="formLop" style="width: 100%;">
+        <h3 style="margin-bottom: 15px;">Nhap thong tin lop</h3>
+        <div style="display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 250px;">
+                <label for="txtMaLop" style="display: block; margin-bottom: 5px;">Ma lop</label>
+                <input type="text" id="txtMaLop" maxlength="15" placeholder="VD: DA22TT01">
+            </div>
+            <div style="flex: 2; min-width: 250px;">
+                <label for="txtTenLop" style="display: block; margin-bottom: 5px;">Ten lop</label>
+                <input type="text" id="txtTenLop" placeholder="VD: Lop A">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 28px;">
+                <button id="btnLopSave" type="button" data-any-permission="create_class,update_class">Luu lop</button>
+                <button id="btnLopCancel" type="button">Huy</button>
+                <button id="btnLopUndo" type="button" style="display: none; background: #6b7280; border: none; color: white; padding: 10px 16px; border-radius: var(--radius-md); cursor: pointer;" title="Khoi phuc ten lop goc">Undo</button>
+            </div>
+        </div>
+        <div id="errorLop" style="color: #dc2626; font-weight: 500; font-size: 14px; margin-top: 10px; min-height: 20px;"></div>
+    </section>
+    {% endif %}
+
         <div class="card data-card" id="classListCard">
-            <div class="card-head">
-                <h3>Danh sach lop</h3>
+            <div class="class-filter" role="search" style="display: flex; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                <div style="display: flex; gap: 10px; align-items: center; flex: 1;">
+                    <input id="classFilterInput" type="search" placeholder="Tim theo ma lop hoac ten lop" aria-label="Tim theo ma lop hoac ten lop" style="max-width: 350px;">
+                    <button id="classFilterClear" type="button">Xoa loc</button>
+                </div>
+                
                 {% if is_class_page %}
                 <button id="btnClassAdd" class="table-primary-action" type="button" data-permission="create_class">Them lop</button>
                 {% else %}
                 <span class="chip">Lop hoc</span>
                 {% endif %}
-            </div>
-            <div class="class-filter" role="search">
-                <input id="classFilterInput" type="search" placeholder="Tim theo ma lop hoac ten lop" aria-label="Tim theo ma lop hoac ten lop">
-                <button id="classFilterClear" type="button">Xoa loc</button>
             </div>
             {% if is_class_page %}
             <div class="class-list-actions" aria-label="Thao tac voi lop dang chon" style="display: none;">
@@ -85,25 +82,24 @@
                     <h3>Danh sach sinh vien</h3>
                     <p id="studentClassInfo" class="selection-note">Chua chon lop</p>
                 </div>
-                <span class="chip">Sinh vien</span>
-            </div>
-            <div class="student-detail" id="studentDetailPanel" aria-live="polite" style="display: none;">
-                <div class="student-detail-head">
-                    <h4>Thong tin sinh vien dang chon</h4>
-                    <span class="chip">Chi tiet</span>
-                </div>
-                <div class="student-detail-body">
-                    <p><span>Ma SV:</span> <strong id="viewMaSV">Chua chon</strong></p>
-                    <p><span>Ho ten:</span> <strong id="viewHoTen">Chua chon</strong></p>
-                    <p><span>Ngay sinh:</span> <strong id="viewNgaySinh">Chua chon</strong></p>
-                    <p><span>Lop:</span> <strong id="viewMaLop">Chua chon</strong></p>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button id="btnBackToClasses" type="button" style="background-color: #64748b; color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px;">Chon lop khac</button>
+                    <span class="chip">Sinh vien</span>
                 </div>
             </div>
+            
 
             <section class="card form-card student-form-card" id="formSinhVien" style="display: none;">
-                <h3>Nhap thong tin sinh vien</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin: 0;" id="formSinhVienTitle">Nhap thong tin sinh vien</h3>
+                    <div style="display: flex; gap: 10px;" id="formSinhVienButtons">
+                        <button id="btnDetailSaveForm" type="button" style="padding: 6px 12px;">Luu sinh vien</button>
+                        <button id="btnDetailCancel" type="button" style="padding: 6px 12px; background-color: #9ca3af; color: white;">Huy</button>
+                        <button id="btnSVUndo" type="button" style="display: none; padding: 6px 12px; background-color: #6b7280; color: white; border: none; border-radius: var(--radius-md); cursor: pointer;" title="Khoi phuc thong tin goc">Undo</button>
+                    </div>
+                </div>
                 <label for="txtMaSV">Ma SV</label>
-                <input type="text" id="txtMaSV" placeholder="VD: B22DCCN001">
+                <input type="text" id="txtMaSV" maxlength="8" placeholder="VD: N19DCAT001">
 
                 <label for="txtHoTen">Ho ten</label>
                 <input type="text" id="txtHoTen" placeholder="VD: Nguyen Van A">
@@ -111,16 +107,14 @@
                 <label for="txtNgaySinh">Ngay sinh</label>
                 <input type="date" id="txtNgaySinh">
 
-                <div style="display: flex; gap: 10px; margin-top: 15px;">
-                    <button id="btnDetailSaveForm" type="button">Luu sinh vien</button>
-                    <button id="btnDetailCancel" type="button">Huy</button>
-                </div>
+                
+                <div id="errorSV" style="color: #dc2626; font-weight: 500; font-size: 14px; margin-top: 10px; min-height: 20px;"></div>
             </section>
             <div class="student-list-actions" aria-label="Thao tac voi sinh vien">
-                <button id="btnBackToClasses" type="button">Chon lop khac</button>
+                
                 <button id="btnDetailAdd" type="button" data-permission="create_student">Them</button>
-                <button id="btnDetailDelete" type="button" data-permission="delete_student">Xoa</button>
-                <button id="btnDetailEdit" type="button" data-permission="update_student">Hieu chinh</button>
+                <button id="btnDetailDelete" type="button" data-permission="delete_student" style="display: none;">Xoa</button>
+                <button id="btnDetailEdit" type="button" data-permission="update_student" style="display: none;">Hieu chinh</button>
             </div>
             <div class="table-wrap">
                 <table id="gridSV">
@@ -143,5 +137,5 @@
 {% endblock %}
 
 {% block page_js %}
-<script src="/static/js/sinhVien.js?v=20260624-9"></script>
+<script src="/static/js/sinhVien_v28.js?v=8"></script>
 {% endblock %}

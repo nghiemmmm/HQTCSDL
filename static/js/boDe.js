@@ -7,8 +7,6 @@ let selectedIndex = -1;
 let isThem = false;
 let isSua = false;
 let editingCauHoiId = null;
-let stackUndo = [];
-
 const userRole = (window.currentUser?.role || window.userRole || "").trim().toUpperCase();
 const userMa = (window.currentUser?.ma || window.userMa || "").trim();
 
@@ -25,6 +23,7 @@ const maMHInput = document.getElementById("maMH");
 const searchGVInput = document.getElementById("searchGV");
 const maGVInput = document.getElementById("maGV");
 const searchBoDeInput = document.getElementById("searchBoDe");
+const searchTrinhDoInput = document.getElementById("searchTrinhDo");
 const errorText = document.getElementById("errorText");
 const formPanel = document.getElementById("questionFormPanel");
 const formActions = document.getElementById("formActions");
@@ -46,18 +45,111 @@ const showTeacherColumn = userRole !== "GIANGVIEN";
 let currentPage = 1;
 let pageSize = parseInt(pageSizeSelect?.value || "10", 10);
 
-function setButtonState(state) {
+function setButtonState(state, daSuDung = false) {
   const editing = state === "editing";
   const hasSelection = selectedIndex >= 0;
 
   if (formPanel) formPanel.hidden = !(editing || hasSelection);
   if (formActions) formActions.hidden = !editing;
-  if (btnOpenThem) btnOpenThem.style.display = editing ? "none" : "inline-flex";
-  if (btnSua) btnSua.disabled = editing;
-  if (btnXoa) btnXoa.disabled = editing;
-  if (btnUndo) btnUndo.disabled = editing;
-  if (btnGhi) btnGhi.style.display = editing ? "inline-block" : "none";
-  if (btnHuy) btnHuy.style.display = editing ? "inline-block" : "none";
+  
+      if (state === "default") {
+      if (btnOpenThem) btnOpenThem.style.display = "inline-flex";
+      if (btnSua) btnSua.style.display = "none";
+      if (btnXoa) btnXoa.style.display = "none";
+      if (btnUndo) btnUndo.style.display = "none";
+      if (btnGhi) btnGhi.style.display = "none";
+      if (btnHuy) btnHuy.style.display = "none";
+      const btnHuyChon = document.getElementById("btnHuyChon");
+      if (btnHuyChon) btnHuyChon.style.display = "none";
+    } else if (state === "selected") {
+      if (btnOpenThem) btnOpenThem.style.display = "none";
+      if (btnSua) {
+        btnSua.style.display = "inline-block";
+        if (daSuDung) {
+          btnSua.disabled = true;
+          btnSua.style.opacity = 0.5;
+          btnSua.style.cursor = "not-allowed";
+          btnSua.title = "Câu hỏi đã được sử dụng trong đề thi";
+        } else {
+          btnSua.disabled = false;
+          btnSua.style.opacity = 1;
+          btnSua.style.cursor = "pointer";
+          btnSua.title = "";
+        }
+      }
+      if (btnXoa) {
+        btnXoa.style.display = "inline-block";
+        if (daSuDung) {
+          btnXoa.disabled = true;
+          btnXoa.style.opacity = 0.5;
+          btnXoa.style.cursor = "not-allowed";
+          btnXoa.title = "Câu hỏi đã được sử dụng trong đề thi";
+        } else {
+          btnXoa.disabled = false;
+          btnXoa.style.opacity = 1;
+          btnXoa.style.cursor = "pointer";
+          btnXoa.title = "";
+        }
+      }
+      if (btnUndo) btnUndo.style.display = "none";
+      if (btnGhi) btnGhi.style.display = "none";
+      if (btnHuy) btnHuy.style.display = "none";
+      const btnHuyChon = document.getElementById("btnHuyChon");
+      if (btnHuyChon) btnHuyChon.style.display = "inline-block";
+    } else if (state === "editing") {
+      if (btnOpenThem) btnOpenThem.style.display = "none";
+      if (btnSua) btnSua.style.display = "none";
+      if (btnXoa) btnXoa.style.display = "none";
+      if (btnUndo) btnUndo.style.display = isSua ? "inline-block" : "none";
+      if (btnGhi) btnGhi.style.display = "inline-block";
+      if (btnHuy) btnHuy.style.display = "inline-block";
+      const btnHuyChon = document.getElementById("btnHuyChon");
+      if (btnHuyChon) btnHuyChon.style.display = "none";
+    } else if (state === "selected") {
+    if (btnOpenThem) btnOpenThem.style.display = "none";
+    if (btnSua) {
+      btnSua.style.display = "inline-block";
+      if (daSuDung) {
+        btnSua.disabled = true;
+        btnSua.style.opacity = 0.5;
+        btnSua.style.cursor = "not-allowed";
+        btnSua.title = "Câu hỏi đã được sử dụng trong đề thi";
+      } else {
+        btnSua.disabled = false;
+        btnSua.style.opacity = 1;
+        btnSua.style.cursor = "pointer";
+        btnSua.title = "";
+      }
+    }
+    if (btnXoa) {
+      btnXoa.style.display = "inline-block";
+      if (daSuDung) {
+        btnXoa.disabled = true;
+        btnXoa.style.opacity = 0.5;
+        btnXoa.style.cursor = "not-allowed";
+        btnXoa.title = "Câu hỏi đã được sử dụng trong đề thi";
+      } else {
+        btnXoa.disabled = false;
+        btnXoa.style.opacity = 1;
+        btnXoa.style.cursor = "pointer";
+        btnXoa.title = "";
+      }
+    }
+    if (btnUndo) btnUndo.style.display = "none";
+    if (btnGhi) btnGhi.style.display = "none";
+    if (btnHuy) btnHuy.style.display = "none";
+    const btnHuyChon = document.getElementById("btnHuyChon");
+    if (btnHuyChon) btnHuyChon.style.display = "inline-block";
+  } else if (state === "editing") {
+    if (btnOpenThem) btnOpenThem.style.display = "none";
+    if (btnSua) btnSua.style.display = "none";
+    if (btnXoa) btnXoa.style.display = "none";
+    if (btnUndo) btnUndo.style.display = "none";
+    if (btnGhi) btnGhi.style.display = "inline-block";
+    if (btnHuy) btnHuy.style.display = "inline-block";
+    const btnHuyChon = document.getElementById("btnHuyChon");
+    if (btnHuyChon) btnHuyChon.style.display = "none";
+  }
 }
 
 function setFormTitle(text) {
@@ -87,15 +179,21 @@ function normalizeAnswerText(value) {
   return (value || "").trim().toLowerCase();
 }
 
-function hasDuplicateAnswers(question) {
-  const answers = [
-    normalizeAnswerText(question.a),
-    normalizeAnswerText(question.b),
-    normalizeAnswerText(question.c),
-    normalizeAnswerText(question.d)
-  ];
-  return new Set(answers).size !== answers.length;
-}
+function checkDuplicateAnswers(question) {
+    const a = normalizeAnswerText(question.a);
+    const b = normalizeAnswerText(question.b);
+    const c = normalizeAnswerText(question.c);
+    const d = normalizeAnswerText(question.d);
+
+    if (a === b) return "Đáp án A trùng đáp án B";
+    if (a === c) return "Đáp án A trùng đáp án C";
+    if (a === d) return "Đáp án A trùng đáp án D";
+    if (b === c) return "Đáp án B trùng đáp án C";
+    if (b === d) return "Đáp án B trùng đáp án D";
+    if (c === d) return "Đáp án C trùng đáp án D";
+
+    return null;
+  }
 
 async function parseResponse(res) {
   let resData = {};
@@ -127,15 +225,15 @@ async function parseResponse(res) {
 }
 
 function getFilteredRows() {
-  const keyword = searchBoDeInput ? searchBoDeInput.value.trim().toLowerCase() : "";
+  const selectedMaMH = searchBoDeInput ? searchBoDeInput.value.trim() : "";
+  const selectedTrinhDo = searchTrinhDoInput ? searchTrinhDoInput.value.trim() : "";
+  
   return data
     .map((item, index) => ({ item, index }))
     .filter(({ item }) => {
-      if (!keyword) return true;
-      const matchNoidung = (item.noidung || "").toLowerCase().includes(keyword);
-      const matchMaMH = (item.mamh || "").toLowerCase().includes(keyword);
-      const matchMaGV = (item.magv || "").toLowerCase().includes(keyword);
-      return matchNoidung || matchMaMH || matchMaGV;
+      if (selectedMaMH && (item.mamh || "").trim() !== selectedMaMH) return false;
+      if (selectedTrinhDo && (item.trinhdo || "").trim() !== selectedTrinhDo) return false;
+      return true;
     });
 }
 
@@ -223,39 +321,49 @@ function render() {
   renderPagination(totalRows, totalPages);
 }
 
-function selectRow(index) {
-  if (isSua || isThem) {
-    showError("Vui lòng Ghi hoặc Hủy trước khi chọn câu hỏi khác!");
-    return;
-  }
-  clearError();
-
-  selectedIndex = index;
-  const item = data[index];
+  async function selectRow(index) {
+    if (isSua || isThem) {
+      showError("Vui lòng Ghi hoặc Hủy trước khi chọn câu hỏi khác!");
+      return;
+    }
+    clearError();
   
-  cauHoiIdInput.value = item.cauhoi;
-  noiDungInput.value = item.noidung;
-  dapAnAInput.value = item.a;
-  dapAnBInput.value = item.b;
-  dapAnCInput.value = item.c;
-  dapAnDInput.value = item.d;
-  dapAnDungSelect.value = item.dap_an;
-  trinhDoSelect.value = item.trinhdo;
-  maMHInput.value = item.mamh;
+    selectedIndex = index;
+    const item = data[index];
+    
+    cauHoiIdInput.value = item.cauhoi;
+    noiDungInput.value = item.noidung;
+    dapAnAInput.value = item.a;
+    dapAnBInput.value = item.b;
+    dapAnCInput.value = item.c;
+    dapAnDInput.value = item.d;
+    dapAnDungSelect.value = item.dap_an;
+    trinhDoSelect.value = item.trinhdo;
+    maMHInput.value = item.mamh;
+    
+    const gvInfo = window.listGiaoViens ? window.listGiaoViens.find(g => g.magv === item.magv) : null;
+    if (searchGVInput) {
+      searchGVInput.value = gvInfo ? `${gvInfo.magv} - ${gvInfo.hoten}` : item.magv;
+    }
+    maGVInput.value = item.magv;
   
-  // Ánh xạ magv sang định dạng "MAGV - Tên" cho ô search
-  const gvInfo = window.listGiaoViens ? window.listGiaoViens.find(g => g.magv === item.magv) : null;
-  if (searchGVInput) {
-    searchGVInput.value = gvInfo ? `${gvInfo.magv} - ${gvInfo.hoten}` : item.magv;
+    let da_su_dung = false;
+    if (item.cauhoi) {
+      try {
+        const res = await fetch(`/bode/${item.cauhoi}/check-status`);
+        const statusData = await parseResponse(res);
+        da_su_dung = !!statusData.da_su_dung;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    setButtonState("selected", da_su_dung);
+    setFormTitle("Chi tiết câu hỏi");
+    disableAllInputs(true);
+  
+    render();
   }
-  maGVInput.value = item.magv;
-
-  setButtonState("default");
-  setFormTitle("Chi tiết câu hỏi");
-  disableAllInputs(true);
-
-  render();
-}
 
 function disableAllInputs(disabled) {
   noiDungInput.disabled = disabled;
@@ -355,7 +463,8 @@ async function ghi() {
   if (!obj.dap_an) return showError("Vui lòng chọn đáp án đúng!");
   if (!obj.trinhdo) return showError("Vui lòng chọn trình độ!");
   if (!obj.mamh) return showError("Mã môn học không được để trống!");
-  if (hasDuplicateAnswers(obj)) return showError("Bốn đáp án A, B, C, D không được trùng nội dung.");
+  const duplicateError = checkDuplicateAnswers(obj);
+    if (duplicateError) return showError(duplicateError);
   // Chỉ kiểm tra magv nếu không phải giáo viên
   if (userRole !== "GIANGVIEN" && !obj.magv) return showError("Mã giáo viên không được để trống!");
 
@@ -372,7 +481,6 @@ async function ghi() {
       resData = await parseResponse(res);
       const result = resData.data;
       data.push(result);
-      stackUndo.push({ type: "ADD", data: result });
       currentPage = Math.ceil(getFilteredRows().length / pageSize) || 1;
 
       isThem = false;
@@ -390,8 +498,6 @@ async function ghi() {
       resData = await parseResponse(res);
       const result = resData.data;
       data[selectedIndex] = result;
-
-      stackUndo.push({ type: "UPDATE", old, new: result, index: selectedIndex });
 
       isSua = false;
       showSuccess(resData.message);
@@ -460,7 +566,6 @@ async function thucHienXoa() {
     const res = await fetch(`/bode/${itemToDel.cauhoi}`, { method: "DELETE" });
     const resData = await parseResponse(res);
 
-    stackUndo.push({ type: "DELETE", data: itemToDel });
     data.splice(selectedIndex, 1);
 
     selectedIndex = -1;
@@ -476,85 +581,24 @@ async function thucHienXoa() {
   }
 }
 
-async function undo() {
+function undo() {
   clearError();
-  if (stackUndo.length === 0) return showError("Không có thao tác nào để Undo!");
-  if (isThem || isSua) return showError("Vui lòng Ghi hoặc Hủy thao tác hiện tại trước khi Undo!");
-
-  const action = stackUndo.pop();
-
-  try {
-    if (action.type === "ADD") {
-      const res = await fetch(`/bode/${action.data.cauhoi}`, { method: "DELETE" });
-      const resData = await parseResponse(res);
-      showSuccess("Undo: " + resData.message);
-      
-      // Remove from data array
-      const idToRemove = action.data.cauhoi;
-      data = data.filter(item => item.cauhoi !== idToRemove);
-    }
-
-    if (action.type === "DELETE") {
-      // Create body for POST without 'cauhoi' since it's auto-increment
-      // However, to correctly undo a delete and keep the same ID, some DBs require specific logic.
-      // Since we just call standard POST API, the ID might change.
-      // Alternatively, we recreate it and get the new ID back.
-      const postData = {
-        noidung: action.data.noidung,
-        a: action.data.a,
-        b: action.data.b,
-        c: action.data.c,
-        d: action.data.d,
-        dap_an: action.data.dap_an,
-        trinhdo: action.data.trinhdo,
-        mamh: action.data.mamh,
-        magv: action.data.magv
-      };
-
-      const res = await fetch("/bode", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(postData)
-      });
-      const resData = await parseResponse(res);
-      showSuccess("Undo: Đã khôi phục câu hỏi");
-      data.push(resData.data);
-    }
-
-    if (action.type === "UPDATE") {
-      const putData = {
-        noidung: action.old.noidung,
-        a: action.old.a,
-        b: action.old.b,
-        c: action.old.c,
-        d: action.old.d,
-        dap_an: action.old.dap_an,
-        trinhdo: action.old.trinhdo,
-        mamh: action.old.mamh,
-        magv: action.old.magv
-      };
-
-      const res = await fetch(`/bode/${action.old.cauhoi}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(putData)
-      });
-      const resData = await parseResponse(res);
-      showSuccess("Undo: Khôi phục nội dung cũ thành công");
-      
-      // Find and update in data array
-      const index = data.findIndex(item => item.cauhoi === action.old.cauhoi);
-      if(index !== -1) {
-          data[index] = resData.data;
-      }
-    }
-
-    selectedIndex = -1;
-    clearForm();
-    disableAllInputs(true);
-    render();
-  } catch (err) {
-    showError("Undo thất bại: " + err.message);
+  if (!isSua || selectedIndex < 0) return;
+  const item = data[selectedIndex];
+  if (!item) return;
+  cauHoiIdInput.value = item.cauhoi;
+  noiDungInput.value = item.noidung;
+  dapAnAInput.value = item.a;
+  dapAnBInput.value = item.b;
+  dapAnCInput.value = item.c;
+  dapAnDInput.value = item.d;
+  dapAnDungSelect.value = item.dap_an;
+  trinhDoSelect.value = item.trinhdo;
+  maMHInput.value = item.mamh;
+  if (maGVInput) maGVInput.value = item.magv || "";
+  if (searchGVInput) {
+    const gvInfo = window.listGiaoViens ? window.listGiaoViens.find(g => g.magv === item.magv) : null;
+    searchGVInput.value = gvInfo ? `${gvInfo.magv} - ${gvInfo.hoten}` : (item.magv || "");
   }
 }
 
@@ -562,14 +606,19 @@ document.addEventListener("DOMContentLoaded", () => {
   setButtonState("default");
   render();
 
+  const onFilterChange = () => {
+    selectedIndex = -1;
+    currentPage = 1;
+    clearForm();
+    disableAllInputs(true);
+    render();
+  };
+  
   if (searchBoDeInput) {
-    searchBoDeInput.addEventListener("input", () => {
-      selectedIndex = -1;
-      currentPage = 1;
-      clearForm();
-      disableAllInputs(true);
-      render();
-    });
+    searchBoDeInput.addEventListener("change", onFilterChange);
+  }
+  if (searchTrinhDoInput) {
+    searchTrinhDoInput.addEventListener("change", onFilterChange);
   }
 
   prevPageBtn?.addEventListener("click", () => {

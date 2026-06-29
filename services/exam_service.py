@@ -255,44 +255,23 @@ def get_exam_info(
 
 
 def _select_questions(db: Session, registration) -> list[DbBoDe]:
-    """Select exam questions by calling the SP_GET_CauHoi stored procedure."""
-    from sqlalchemy import text
-    from sqlalchemy.exc import DBAPIError
+    """Select exam questions without calling the missing SP_GET_CauHoi stored procedure."""
     from db.model import DbBoDe
+    import random
 
     required = int(registration.socauthi or 0)
     level = (registration.trinhdo or "").strip()
     mamh = (registration.mamh or "").strip()
 
-    query = text("EXEC SP_GET_CauHoi @mamh = :mamh, @trinhDo = :trinhDo, @socauthi = :socauthi")
-    try:
-        rows = db.execute(query, {"mamh": mamh, "trinhDo": level, "socauthi": required}).fetchall()
-    except DBAPIError as exc:
-        orig_msg = str(exc.orig)
-        import re
-        match = re.search(r"\[SQL Server\]\s*(.*)", orig_msg)
-        if match:
-            clean_msg = match.group(1).split(' (')[0].strip()
-        else:
-            clean_msg = orig_msg
-        raise ConflictError(clean_msg) from exc
+    all_questions = db.query(DbBoDe).filter(
+        DbBoDe.mamh == mamh,
+        DbBoDe.trinhdo == level
+    ).all()
+    
+    if len(all_questions) < required:
+        raise ConflictError(f"Không đủ câu hỏi thi cho môn {mamh} trình độ {level}. Yêu cầu {required} câu, hệ thống chỉ có {len(all_questions)} câu.")
 
-    questions = []
-    for row in rows:
-        questions.append(
-            DbBoDe(
-                cauhoi=row[0],
-                mamh=row[1],
-                trinhdo=row[2],
-                noidung=row[3],
-                a=row[4],
-                b=row[5],
-                c=row[6],
-                d=row[7],
-                dap_an=row[8]
-            )
-        )
-    return questions
+    return random.sample(all_questions, required)
 
 
 def _ensure_student_can_start_exam(
@@ -875,7 +854,17 @@ def get_class_score_table(
                 "Bạn không có quyền xem bảng điểm của lịch thi này."
             )
 
-    query = text("EXEC SP_GET_BANGDIEM_MONHOC @MALOP = :malop, @MAMH = :mamh, @LAN = :lan")
+    query = text("""
+        SELECT 
+            SV.MASV,
+            SV.HO,
+            SV.TEN,
+            BD.DIEM
+        FROM SINHVIEN SV
+        LEFT JOIN BANGDIEM BD ON SV.MASV = BD.MASV AND BD.MAMH = :mamh AND BD.LAN = :lan
+        WHERE SV.MALOP = :malop
+        ORDER BY SV.TEN, SV.HO
+    """)
     rows = db.execute(query, {"malop": malop, "mamh": mamh, "lan": lan}).fetchall()
 
     results = []
@@ -895,6 +884,55 @@ def get_class_score_table(
             "diem_chu_viet": score_to_words(score_val) if score_val is not None else "",
         })
 
+    return results
+
+def list_class_exam_results(
+    db: Session, malop: str, mamh: str, lan: int, user: dict | None = None
+) -> list[dict]:
+    """Return all student results for a specific exam, used in Ket qua sinh vien."""
+    from db.model import DbSinhVien, DbBangDiem, DbGiaoVienDangKy
+    
+    malop = malop.strip()
+    mamh = mamh.strip()
+    
+    if user and user.get("role") == "GIANGVIEN":
+        teacher_id = (user.get("ma") or "").strip()
+        reg = (
+            db.query(DbGiaoVienDangKy)
+            .filter(
+                DbGiaoVienDangKy.malop == malop,
+                DbGiaoVienDangKy.mamh == mamh,
+                DbGiaoVienDangKy.lan == lan,
+                DbGiaoVienDangKy.magv == teacher_id,
+            )
+            .first()
+        )
+        if reg is None:
+            raise PermissionDeniedError(
+                "Bạn không có quyền xem kết quả của lịch thi này."
+            )
+            
+    students = (
+        db.query(DbSinhVien, DbBangDiem.diem)
+        .outerjoin(
+            DbBangDiem,
+            (DbSinhVien.masv == DbBangDiem.masv) &
+            (DbBangDiem.mamh == mamh) &
+            (DbBangDiem.lan == lan)
+        )
+        .filter(DbSinhVien.malop == malop)
+        .order_by(DbSinhVien.ten, DbSinhVien.ho)
+        .all()
+    )
+    
+    results = []
+    for sv, diem in students:
+        hoten = f"{sv.ho or ''} {sv.ten or ''}".strip()
+        results.append({
+            "masv": sv.masv.strip(),
+            "hoten": hoten,
+            "diem": diem if diem is not None else None
+        })
     return results
 
 

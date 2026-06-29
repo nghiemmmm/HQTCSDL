@@ -67,28 +67,12 @@ def get_registration(
     mamh: str,
     lan: int,
 ) -> DbGiaoVienDangKy | None:
-    """Return an exam registration by its composite key using SP_GET_GVDK."""
-    from sqlalchemy import text
-    query = text("EXEC SP_GET_GVDK @MALOP = :malop, @MAMH = :mamh, @LAN = :lan")
-    row = db.execute(query, {
-        "malop": malop,
-        "mamh": mamh,
-        "lan": lan
-    }).fetchone()
-    
-    if row is None:
-        return None
-        
-    return DbGiaoVienDangKy(
-        magv=row[0],
-        malop=row[1],
-        mamh=row[2],
-        trinhdo=row[3],
-        lan=row[4],
-        ngaythi=row[5],
-        socauthi=row[6],
-        thoigian=row[7]
-    )
+    """Return an exam registration by its composite key."""
+    return db.query(DbGiaoVienDangKy).filter(
+        DbGiaoVienDangKy.malop == malop,
+        DbGiaoVienDangKy.mamh == mamh,
+        DbGiaoVienDangKy.lan == lan,
+    ).first()
 
 
 def get_registration_entity(
@@ -259,6 +243,38 @@ def get_monhocdk(db: Session, magv: str) -> list[DbMonHoc]:
 
 
 def list_registrations_in_range(db: Session, from_date: str, to_date: str) -> list:
-    """Return exam registrations between two dates using SP_GET_DS_GVDK."""
-    query = text("EXEC SP_GET_DS_GVDK @FROM = :from_date, @TO = :to_date")
-    return db.execute(query, {"from_date": from_date, "to_date": to_date}).fetchall()
+    """Return exam registrations between two dates without using missing SP."""
+    import datetime
+    
+    results = db.query(
+        DbLop.tenlop,
+        DbMonHoc.tenmh,
+        DbGiaoVien.ho,
+        DbGiaoVien.ten,
+        DbGiaoVienDangKy.socauthi,
+        DbGiaoVienDangKy.ngaythi,
+    ).select_from(DbGiaoVienDangKy).join(
+        DbLop, DbGiaoVienDangKy.malop == DbLop.malop
+    ).join(
+        DbMonHoc, DbGiaoVienDangKy.mamh == DbMonHoc.mamh
+    ).join(
+        DbGiaoVien, DbGiaoVienDangKy.magv == DbGiaoVien.magv
+    ).filter(
+        DbGiaoVienDangKy.ngaythi >= from_date,
+        DbGiaoVienDangKy.ngaythi <= to_date
+    ).order_by(DbGiaoVienDangKy.ngaythi).all()
+    
+    now = datetime.datetime.now()
+    formatted_results = []
+    for row in results:
+        hoten = f"{row.ho or ''} {row.ten or ''}".strip()
+        dathi = "X" if row.ngaythi and row.ngaythi < now else ""
+        formatted_results.append((
+            row.tenlop,
+            row.tenmh,
+            hoten,
+            row.socauthi,
+            row.ngaythi,
+            dathi
+        ))
+    return formatted_results

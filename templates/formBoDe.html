@@ -2,28 +2,19 @@
 
 {% block title %}Bo de{% endblock %}
 {% block page_kicker %}Ngan hang cau hoi{% endblock %}
-{% block page_title %}Bo de{% endblock %}
+{% block page_title %}Quan ly bo de{% endblock %}
 
 {% block page_css %}
-<link rel="stylesheet" href="/static/css/boDe.css?v=2">
+<link rel="stylesheet" href="/static/css/boDe.css?v=3">
 {% endblock %}
 
 {% block content %}
 <main class="wrap bode-page">
-  <div class="bode-head">
-    <div>
-      <h2>QUAN LY BO DE</h2>
-      <p>Quan ly ngan hang cau hoi, loc nhanh va phan trang danh sach.</p>
-    </div>
+  <div class="bode-head" style="justify-content: flex-end;">
     <button id="btnOpenThem" type="button" class="btn-add" onclick="them()" data-permission="create_question">Them cau hoi</button>
   </div>
 
   <section id="questionFormPanel" class="question-form-panel" hidden>
-    <div class="form-panel-head">
-      <h3 id="formTitle">Them cau hoi</h3>
-      <button type="button" class="btn-icon" onclick="huy()" aria-label="Dong form">x</button>
-    </div>
-
     <div class="form-grid">
     <div class="form-row" style="grid-column: span 2;">
       <label>Noi dung cau hoi</label>
@@ -31,8 +22,12 @@
     </div>
 
     <label>Ma mon hoc</label>
-    <input id="maMH" maxlength="5" disabled>
-
+    <select id="maMH" disabled>
+      <option value="" disabled selected hidden>-- Chọn mã môn học --</option>
+      {% for mh in monhocs %}
+      <option value="{{ mh.mamh }}">{{ mh.mamh }} - {{ mh.tenmh }}</option>
+      {% endfor %}
+            </select>
     <label>Dap an A</label>
     <input id="dapAnA" maxlength="200" disabled>
 
@@ -69,6 +64,7 @@
     </div>
 
     <div class="toolbar form-actions" id="formActions" hidden>
+      <button id="btnUndo" onclick="undo()" type="button" style="display: none; margin-right: 8px;">Undo</button>
       <button id="btnGhi" onclick="ghi()" data-any-permission="create_question,update_question" style="display: none;">Ghi</button>
       <button id="btnHuy" onclick="huy()" data-any-permission="create_question,update_question" style="display: none;">Huy</button>
     </div>
@@ -91,14 +87,22 @@
         <p id="pageSummary">Dang tai danh sach...</p>
       </div>
       <div class="list-actions">
-        <input
-          id="searchBoDe"
-          type="search"
-          placeholder="{% if user.role == 'GIANGVIEN' %}Nhap noi dung hoac ma mon de loc...{% else %}Nhap noi dung, ma mon hoac ma GV de loc...{% endif %}"
-        >
-        <button id="btnSua" type="button" onclick="sua()" data-permission="update_question">Sua</button>
-        <button id="btnXoa" type="button" onclick="xoa()" data-permission="delete_question">Xoa</button>
-        <button id="btnUndo" type="button" onclick="undo()" data-any-permission="create_question,update_question,delete_question">Undo</button>
+        <select id="searchBoDe">
+          <option value="">-- Tất cả môn học --</option>
+          {% for mh in monhocs %}
+          <option value="{{ mh.mamh }}">{{ mh.mamh }} - {{ mh.tenmh }}</option>
+          {% endfor %}
+        </select>
+        <select id="searchTrinhDo" style="margin-left: 8px;">
+          <option value="">-- Tất cả trình độ --</option>
+          <option value="A">Trình độ A</option>
+          <option value="B">Trình độ B</option>
+          <option value="C">Trình độ C</option>
+        </select>
+        <button id="btnSua" type="button" onclick="sua()" data-permission="update_question" style="display: none;">Sua</button>
+        <button id="btnXoa" type="button" onclick="xoa()" data-permission="delete_question" style="display: none;">Xoa</button>
+        <button id="btnHuyChon" type="button" onclick="huy()" style="display: none;">Huy</button>
+        
       </div>
     </div>
 
@@ -136,5 +140,5 @@
   window.userRole = `{{ user.role if user else '' }}`;
   window.userMa = `{{ user.ma if user else '' }}`;
 </script>
-<script src="/static/js/boDe.js?v=9"></script>
+<script src="/static/js/boDe.js?v=15"></script>
 {% endblock %}

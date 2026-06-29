@@ -48,7 +48,7 @@ class MonHocBase(BaseModel):
 
 
 class MonHocCreate(MonHocBase):
-    pass
+    mamh: Optional[str] = Field(None, max_length=5)
 
 
 class MonHocUpdate(BaseModel):

@@ -266,6 +266,12 @@ tbody tr:hover {
   width: min(420px, 46vw);
 }
 
+.list-actions select {
+  width: auto;
+  min-width: 150px;
+  max-width: 280px;
+}
+
 .list-actions button,
 .pagination-bar button {
   min-height: 36px;

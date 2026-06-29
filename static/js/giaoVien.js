@@ -463,4 +463,49 @@ document.addEventListener("DOMContentLoaded", () => {
       render();
     });
   }
+
+  if (maGVInput) {
+    maGVInput.addEventListener("input", () => {
+      if (isThem) {
+        const val = maGVInput.value.trim();
+        if (val) {
+          const exists = data.some(item => item.magv.toLowerCase() === val.toLowerCase());
+          if (exists) {
+            showError(`Mã giáo viên ${val} đã tồn tại`);
+            if (btnGhi) btnGhi.disabled = true;
+            hoGVInput.disabled = true;
+            tenGVInput.disabled = true;
+            diaChiGVInput.disabled = true;
+            sdtGVInput.disabled = true;
+            hoGVInput.style.backgroundColor = "#e5e7eb";
+            tenGVInput.style.backgroundColor = "#e5e7eb";
+            diaChiGVInput.style.backgroundColor = "#e5e7eb";
+            sdtGVInput.style.backgroundColor = "#e5e7eb";
+          } else {
+            clearError();
+            if (btnGhi) btnGhi.disabled = false;
+            hoGVInput.disabled = false;
+            tenGVInput.disabled = false;
+            diaChiGVInput.disabled = false;
+            sdtGVInput.disabled = false;
+            hoGVInput.style.backgroundColor = "";
+            tenGVInput.style.backgroundColor = "";
+            diaChiGVInput.style.backgroundColor = "";
+            sdtGVInput.style.backgroundColor = "";
+          }
+        } else {
+          clearError();
+          if (btnGhi) btnGhi.disabled = false;
+          hoGVInput.disabled = false;
+          tenGVInput.disabled = false;
+          diaChiGVInput.disabled = false;
+          sdtGVInput.disabled = false;
+          hoGVInput.style.backgroundColor = "";
+          tenGVInput.style.backgroundColor = "";
+          diaChiGVInput.style.backgroundColor = "";
+          sdtGVInput.style.backgroundColor = "";
+        }
+      }
+    });
+  }
 });

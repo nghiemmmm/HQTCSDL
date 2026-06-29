@@ -97,13 +97,49 @@ def list_registrations_by_teacher(db: Session, teacher_id: str) -> list:
 
 
 def list_exam_schedules_for_student(db: Session, student_id: str) -> list:
-    """Return exam schedules for a student through SP_GET_LICHTHI_SINHVIEN."""
+    """Return exam schedules for a student by passing the exact raw query."""
     from sqlalchemy import text
-
-    return db.execute(
-        text("EXEC dbo.SP_GET_LICHTHI_SINHVIEN @MASV = :masv"),
-        {"masv": student_id},
-    ).fetchall()
+    query = text("""
+        DECLARE @Today DATE = CAST(GETDATE() AS DATE);
+        SELECT
+            MAMH = RTRIM(GVDK.MAMH),
+            TENMH = MH.TENMH,
+            LAN = GVDK.LAN,
+            NGAYTHI = GVDK.NGAYTHI,
+            SOCAUTHI = GVDK.SOCAUTHI,
+            THOIGIAN = GVDK.THOIGIAN,
+            TRANGTHAI =
+                CASE
+                    WHEN BD.MASV IS NOT NULL
+                        THEN N'Đã thi'
+                    WHEN CAST(GVDK.NGAYTHI AS DATE) > @Today
+                        THEN N'Chưa đến ngày thi'
+                    WHEN CAST(GVDK.NGAYTHI AS DATE) = @Today
+                        THEN N'Được thi hôm nay'
+                    ELSE N'Đã quá hạn'
+                END,
+            DUOC_BAT_DAU_THI =
+                CONVERT(bit,
+                    CASE
+                        WHEN BD.MASV IS NULL
+                             AND CAST(GVDK.NGAYTHI AS DATE) = @Today
+                        THEN 1
+                        ELSE 0
+                    END
+                )
+        FROM SINHVIEN SV
+        INNER JOIN GIAOVIEN_DANGKY GVDK
+            ON GVDK.MALOP = SV.MALOP
+        INNER JOIN MONHOC MH
+            ON MH.MAMH = GVDK.MAMH
+        LEFT JOIN BANGDIEM BD
+            ON BD.MASV = SV.MASV
+           AND BD.MAMH = GVDK.MAMH
+           AND BD.LAN = GVDK.LAN
+        WHERE SV.MASV = :masv
+        ORDER BY GVDK.NGAYTHI DESC, GVDK.MAMH, GVDK.LAN;
+    """)
+    return db.execute(query, {"masv": student_id}).fetchall()
 
 
 def get_registration(
@@ -113,34 +149,21 @@ def get_registration(
     class_id: str,
     exam_date: date,
 ) -> DbGiaoVienDangKy | None:
-    """Return an exam registration matching its business key and date using SP_GET_GVDK."""
-    from sqlalchemy import text
-    query = text("EXEC SP_GET_GVDK @MALOP = :malop, @MAMH = :mamh, @LAN = :lan")
-    row = db.execute(query, {
-        "malop": class_id,
-        "mamh": subject_id,
-        "lan": attempt
-    }).fetchone()
-    
-    if row is None:
-        return None
-        
-    db_date = row[5]
-    if db_date:
-        # Check if dates match
-        if db_date.date() != exam_date:
-            return None
-            
-    return DbGiaoVienDangKy(
-        magv=row[0],
-        malop=row[1],
-        mamh=row[2],
-        trinhdo=row[3],
-        lan=row[4],
-        ngaythi=db_date,
-        socauthi=row[6],
-        thoigian=row[7]
+    """Return an exam registration matching its business key and date."""
+    reg = (
+        db.query(DbGiaoVienDangKy)
+        .filter(
+            DbGiaoVienDangKy.malop == class_id,
+            DbGiaoVienDangKy.mamh == subject_id,
+            DbGiaoVienDangKy.lan == attempt,
+        )
+        .first()
     )
+    if reg is None:
+        return None
+    if reg.ngaythi and reg.ngaythi.date() != exam_date:
+        return None
+    return reg
 
 
 def list_registrations_for_class(

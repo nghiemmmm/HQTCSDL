@@ -13,8 +13,22 @@ def get_all_gv(db: Session) -> list[DbGiaoVien]:
 
 
 def get_ds_gv_chua_quyen(db: Session) -> list:
-    """Return rows from the unregistered-teacher stored procedure."""
-    return db.execute(text("EXEC SP_GET_GV_CHUA_DK")).fetchall()
+    """Return rows from the unregistered-teacher stored procedure using raw query."""
+    query = text("""
+        SELECT 
+            GV.MAGV, 
+            GV.HO, 
+            GV.TEN,
+            CASE WHEN DP.name IS NOT NULL THEN 'Da co tai khoan' ELSE '' END AS TRANGTHAI,
+            SP.name AS LOGINNAME,
+            R.name AS ROLENAME
+        FROM GIAOVIEN GV
+        LEFT JOIN sys.database_principals DP ON GV.MAGV = DP.name
+        LEFT JOIN sys.server_principals SP ON DP.sid = SP.sid
+        LEFT JOIN sys.database_role_members RM ON DP.principal_id = RM.member_principal_id
+        LEFT JOIN sys.database_principals R ON RM.role_principal_id = R.principal_id
+    """)
+    return db.execute(query).fetchall()
 
 
 def get_all(db: Session) -> list[DbGiaoVien]:

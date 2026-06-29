@@ -106,11 +106,25 @@ function validateAttemptSequence(data) {
 }
 
 async function readError(response, fallback) {
-  const data = await response.json().catch(() => ({}));
-  if (typeof data.detail === "string") return data.detail;
-  if (data.detail && typeof data.detail.message === "string") return data.detail.message;
-  if (Array.isArray(data.detail)) return data.detail.map(item => item.msg).join("; ");
-  return data.message || fallback;
+  try {
+    const text = await response.text();
+    try {
+      const data = JSON.parse(text);
+      if (typeof data.detail === "string") return data.detail;
+      if (data.detail && typeof data.detail.message === "string") return data.detail.message;
+      if (Array.isArray(data.detail)) return data.detail.map(item => item.msg).join("; ");
+      if (data.message) return data.message;
+      return JSON.stringify(data) !== "{}" ? JSON.stringify(data) : fallback;
+    } catch (e) {
+      // If not JSON, it might be an HTML 500 error page or plain text
+      console.error("Non-JSON error response:", text);
+      return text.includes("Exception") || text.includes("Error") 
+        ? "Lỗi hệ thống từ máy chủ (HTTP " + response.status + "). Chi tiết: " + text.substring(0, 100) + "..." 
+        : fallback;
+    }
+  } catch (err) {
+    return fallback;
+  }
 }
 
 async function checkQuestionAvailability(data) {
@@ -325,6 +339,22 @@ async function submitForm(event) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  const dateInput = document.getElementById("date");
+  if (dateInput) {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    
+    const tzOffset = tomorrow.getTimezoneOffset() * 60000;
+    const minLocalISO = new Date(tomorrow - tzOffset).toISOString().slice(0, 16);
+    dateInput.min = minLocalISO;
+    
+    const maxDate = new Date(tomorrow);
+    maxDate.setDate(maxDate.getDate() + 180);
+    const maxLocalISO = new Date(maxDate - tzOffset).toISOString().slice(0, 16);
+    dateInput.max = maxLocalISO;
+  }
+
   const searchInput = document.getElementById("searchInput");
   if (searchInput && !shouldShowTeacherColumn()) {
     searchInput.placeholder = "Tim lop, mon";

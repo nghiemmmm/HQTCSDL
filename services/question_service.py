@@ -6,7 +6,7 @@ from typing import Any
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from db import db_bode, db_giaovien
+from db import db_bode, db_giaovien, db_monhoc
 from db.model import DbBoDe, DbPhienThi
 from schemas.schemas import BoDeDisplay, CauHoiCreate, CauHoiUpdate
 from services.exceptions import (
@@ -14,6 +14,7 @@ from services.exceptions import (
     RepositoryError,
     ResourceNotFoundError,
     ValidationError,
+    ConflictError,
 )
 
 
@@ -74,6 +75,7 @@ def get_page_data(db: Session, user: dict[str, Any]) -> dict[str, list]:
         else db_bode.get_all_bode(db)
     )
     teachers = db_giaovien.get_all(db)
+    subjects = db_monhoc.get_all(db)
     return {
         "bodes": [_question_payload(item) for item in questions],
         "giaoviens": [
@@ -85,8 +87,52 @@ def get_page_data(db: Session, user: dict[str, Any]) -> dict[str, list]:
             }
             for teacher in teachers
         ],
+        "monhocs": [
+            {
+                "mamh": (subject.mamh or "").strip(),
+                "tenmh": (subject.tenmh or "").strip(),
+            }
+            for subject in subjects
+        ],
     }
 
+
+def _check_duplicate_question(
+    db: Session,
+    mamh: str,
+    noidung: str,
+    a: str,
+    b: str,
+    c: str,
+    d: str,
+    exclude_id: int | None = None
+) -> None:
+    questions = db_bode.get_by_mamh(db, mamh)
+    req_noidung = (noidung or "").strip().casefold()
+    req_answers = {
+        _normalize_answer(a),
+        _normalize_answer(b),
+        _normalize_answer(c),
+        _normalize_answer(d)
+    }
+
+    for q in questions:
+        if exclude_id and q.cauhoi == exclude_id:
+            continue
+            
+        q_noidung = (q.noidung or "").strip().casefold()
+        if q_noidung != req_noidung:
+            continue
+            
+        q_answers = {
+            _normalize_answer(q.a),
+            _normalize_answer(q.b),
+            _normalize_answer(q.c),
+            _normalize_answer(q.d)
+        }
+        
+        if req_answers == q_answers:
+            raise ConflictError("Câu hỏi này đã tồn tại trong bộ đề của môn học (trùng nội dung và 4 đáp án).")
 
 def create_question(
     db: Session,
@@ -97,6 +143,7 @@ def create_question(
     if user.get("role") == "GIANGVIEN":
         request.magv = user.get("ma", "")
     _validate_unique_answers(request.a, request.b, request.c, request.d)
+    _check_duplicate_question(db, request.mamh, request.noidung, request.a, request.b, request.c, request.d)
     try:
         return db_bode.create_bode(db, request)
     except SQLAlchemyError as exc:
@@ -143,12 +190,16 @@ def update_question(
     question = _owned_question(db, question_id, user)
     if user.get("role") == "GIANGVIEN":
         request.magv = user.get("ma", "")
-    _validate_unique_answers(
-        request.a if request.a is not None else question.a,
-        request.b if request.b is not None else question.b,
-        request.c if request.c is not None else question.c,
-        request.d if request.d is not None else question.d,
-    )
+    
+    a_val = request.a if request.a is not None else question.a
+    b_val = request.b if request.b is not None else question.b
+    c_val = request.c if request.c is not None else question.c
+    d_val = request.d if request.d is not None else question.d
+    mamh_val = request.mamh if request.mamh is not None else question.mamh
+    noidung_val = request.noidung if request.noidung is not None else question.noidung
+
+    _validate_unique_answers(a_val, b_val, c_val, d_val)
+    _check_duplicate_question(db, mamh_val, noidung_val, a_val, b_val, c_val, d_val, exclude_id=question_id)
     try:
         return db_bode.update_bode(db, question, request)
     except SQLAlchemyError as exc:

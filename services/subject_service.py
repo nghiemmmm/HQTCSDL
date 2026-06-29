@@ -1,10 +1,11 @@
-﻿"""Business operations for subjects."""
+"""Business operations for subjects."""
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from db import db_monhoc
 from db.model import DbMonHoc
+from sqlalchemy import func
 from schemas.schemas import MonHocBase
 from services.exceptions import ConflictError, RepositoryError, ResourceNotFoundError
 
@@ -31,7 +32,10 @@ def search_subjects(db: Session, keyword: str) -> list[DbMonHoc]:
 
 
 def create_subject(db: Session, request: MonHocBase) -> dict:
-    """Create a subject after duplicate checks."""
+    """Create a subject after duplicate checks and auto-generating mamh."""
+    if not request.mamh:
+        raise ConflictError("Mã môn học không được để trống")
+    request.mamh = request.mamh.strip().upper()
     status = db_monhoc.check_subject_existence(db, request.mamh, request.tenmh)
     if status == 1:
         raise ConflictError("Mã môn học đã tồn tại")

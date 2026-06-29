@@ -15,6 +15,7 @@ var tenMHInput = document.getElementById("tenMH");
 var searchTenMHInput = document.getElementById("searchTenMH");
 var stateText = document.getElementById("stateText");
 var errorText = document.getElementById("errorText");
+var formGrid = document.getElementById("formGrid");
 
 var btnThem = document.getElementById("btnThem");
 var btnSua = document.getElementById("btnSua");
@@ -24,13 +25,33 @@ var btnHuy = document.getElementById("btnHuy");
 var btnUndo = document.getElementById("btnUndo");
 
 function setButtonState(state) {
-  if (state === "default") {
+  var showUndo = stackUndo.length > 0 ? "inline-block" : "none";
+  
+  // Reset opacity/disabled
+  if (btnSua) { btnSua.disabled = false; btnSua.style.opacity = "1"; btnSua.style.cursor = "pointer"; }
+  if (btnXoa) { btnXoa.disabled = false; btnXoa.style.opacity = "1"; btnXoa.style.cursor = "pointer"; }
+  
+  if (state === "initial") {
+    if (btnThem) btnThem.style.display = "inline-block";
+    if (btnSua) btnSua.style.display = "none";
+    if (btnXoa) btnXoa.style.display = "none";
+    if (btnUndo) btnUndo.style.display = "none";
+    if (btnGhi) btnGhi.style.display = "none";
+    if (btnHuy) btnHuy.style.display = "none";
+  } else if (state === "default") {
     if (btnThem) btnThem.style.display = "inline-block";
     if (btnSua) btnSua.style.display = "inline-block";
     if (btnXoa) btnXoa.style.display = "inline-block";
-    if (btnUndo) btnUndo.style.display = "inline-block";
+    if (btnUndo) btnUndo.style.display = "none";
     if (btnGhi) btnGhi.style.display = "none";
     if (btnHuy) btnHuy.style.display = "none";
+  } else if (state === "selected") {
+    if (btnThem) btnThem.style.display = "none";
+    if (btnSua) btnSua.style.display = "inline-block";
+    if (btnXoa) btnXoa.style.display = "inline-block";
+    if (btnUndo) btnUndo.style.display = "none";
+    if (btnGhi) btnGhi.style.display = "none";
+    if (btnHuy) btnHuy.style.display = "inline-block";
   } else if (state === "editing") {
     if (btnThem) btnThem.style.display = "none";
     if (btnSua) btnSua.style.display = "none";
@@ -48,12 +69,20 @@ function showError(msg) {
   if (errorText) {
     errorText.style.color = "#dc2626";
     errorText.innerText = msg;
+    if (window.messageTimeout) clearTimeout(window.messageTimeout);
+    window.messageTimeout = setTimeout(() => {
+      if (errorText.innerText === msg) errorText.innerText = "";
+    }, 5000);
   }
 }
 function showSuccess(msg) {
   if (errorText) {
     errorText.style.color = "#16a34a";
     errorText.innerText = msg;
+    if (window.messageTimeout) clearTimeout(window.messageTimeout);
+    window.messageTimeout = setTimeout(() => {
+      if (errorText.innerText === msg) errorText.innerText = "";
+    }, 5000);
   }
 }
 function clearError() {
@@ -112,6 +141,7 @@ setTimeout(async () => {
 
   render();
   setState(`Đã load ${data.length} môn học`);
+  setButtonState("initial");
 
   if (searchTenMHInput) {
     searchTenMHInput.addEventListener("input", () => {
@@ -212,7 +242,7 @@ function render() {
 // ======================
 // SELECT
 // ======================
-window.selectRow = function(index) {
+window.selectRow = async function(index) {
   if (isSua || isThem) {
     showError("Vui lòng Ghi hoặc Hủy trước khi chọn môn khác!");
     return;
@@ -220,26 +250,57 @@ window.selectRow = function(index) {
   clearError();
 
   selectedIndex = index;
-  if (maMHInput) maMHInput.value = data[index].maMH;
-  if (tenMHInput) tenMHInput.value = data[index].tenMH;
+  var item = data[index];
+  if (maMHInput) maMHInput.value = item.maMH;
+  if (tenMHInput) tenMHInput.value = item.tenMH;
 
-  setState("Đang chọn: " + data[index].maMH);
+  setState("Đang chọn: " + item.maMH);
+  if (formGrid) formGrid.style.display = "grid";
+  setButtonState("selected");
+  
+  try {
+      var checkRes = await fetch(`/monhoc/${encodeURIComponent(item.maMH)}/check-status`);
+      if (checkRes.ok) {
+          var checkData = await checkRes.json();
+          if (checkData.da_dangky_thi || checkData.da_thi) {
+              if (btnSua) { btnSua.disabled = false; btnSua.style.opacity = "0.4"; btnSua.style.cursor = "pointer"; }
+              if (btnXoa) { btnXoa.disabled = false; btnXoa.style.opacity = "0.4"; btnXoa.style.cursor = "pointer"; }
+          }
+      }
+  } catch (e) {
+      console.error(e);
+  }
+
   render();
 };
 
 // ======================
 // VALIDATE
 // ======================
+
+
 function validate() {
   var ma = maMHInput ? maMHInput.value.trim() : "";
   var ten = tenMHInput ? tenMHInput.value.trim() : "";
 
-  if (!ma || !ten) {
-    showError("Vui lòng nhập đầy đủ Mã môn học và Tên môn học.");
+  if (isThem && !ma) {
+    showError("Vui lòng nhập Mã môn học.");
     return false;
   }
-  if (ma.length > 5) {
-    showError("Mã môn học không được vượt quá 5 ký tự.");
+  
+  if (isThem && ma) {
+    var val = ma.toUpperCase();
+    var exists = data.some(function(item) { 
+      return item.maMH && item.maMH.trim().toUpperCase() === val; 
+    });
+    if (exists) {
+        showError("Mã môn học đã tồn tại trong danh sách!");
+        return false;
+    }
+  }
+
+  if (!ten) {
+    showError("Vui lòng nhập đầy đủ Tên môn học.");
     return false;
   }
   if (ten.length > 50) {
@@ -258,16 +319,18 @@ window.them = function() {
   isSua = false;
   selectedIndex = -1;
   setButtonState("editing");
+  if (formGrid) formGrid.style.display = "grid";
 
   if(maMHInput) {
-      maMHInput.disabled = false;
-      maMHInput.style.backgroundColor = "";
-      maMHInput.value = "";
-      maMHInput.focus();
-  }
+        maMHInput.disabled = false;
+        maMHInput.style.backgroundColor = "";
+        maMHInput.value = "";
+        setTimeout(() => { maMHInput.focus(); }, 50);
+    }
   if(tenMHInput) {
       tenMHInput.disabled = false;
       tenMHInput.value = "";
+      
   }
 
   render();
@@ -308,7 +371,7 @@ window.sua = async function() {
     }
     if(tenMHInput) {
         tenMHInput.disabled = false;
-        tenMHInput.focus();
+        
     }
   } catch (err) {
     console.error("Error in sua:", err);
@@ -386,7 +449,8 @@ window.ghi = async function() {
       tenMHInput.value = "";
   }
   selectedIndex = -1;
-  setButtonState("default");
+  if (formGrid) formGrid.style.display = "none";
+  setButtonState("initial");
 
   render();
 };
@@ -451,7 +515,11 @@ window.thucHienXoa = async function() {
     selectedIndex = -1;
     clearError();
     showSuccess(resData.message);
+    if (formGrid) formGrid.style.display = "none";
+    setButtonState("initial");
 
+    if (selectedIndex === -1) setButtonState("initial");
+    else setButtonState("default");
     render();
 
   } catch (err) {
@@ -484,7 +552,8 @@ window.huy = function() {
   }
 
   selectedIndex = -1;
-  setButtonState("default");
+  if (formGrid) formGrid.style.display = "none";
+  setButtonState("initial");
   render();
 };
 
@@ -492,55 +561,52 @@ window.huy = function() {
 // UNDO
 // ======================
 window.undo = async function() {
-  clearError();
-  if (isThem || isSua) return showError("Không thể undo lúc này");
-
-  var action = stackUndo.pop();
-  if (!action) return;
-
-  try {
-    if (action.type === "ADD") {
-      var res = await fetch(`/monhoc/${action.data.mamh}`, { method: "DELETE" });
-      var resData = await parseResponse(res);
-      showSuccess("Undo: " + resData.message);
-      data.pop();
+    clearError();
+    if (isSua && selectedIndex >= 0) {
+        var original = data[selectedIndex];
+        if (tenMHInput) {
+            tenMHInput.value = original.tenMH;
+        }
+        if (btnUndo) btnUndo.style.display = "none";
+        return;
     }
-
-    if (action.type === "DELETE") {
-      var res2 = await fetch("/monhoc", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mamh: action.data.maMH,
-          tenmh: action.data.tenMH
-        })
-      });
-
-      var resData2 = await parseResponse(res2);
-      showSuccess("Undo: " + resData2.message);
-
-      data.push({ maMH: action.data.maMH, tenMH: action.data.tenMH });
-    }
-
-    if (action.type === "UPDATE") {
-      var res3 = await fetch(`/monhoc/${action.new.maMH}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mamh: action.old.maMH,
-          tenmh: action.old.tenMH
-        })
-      });
-
-      var resData3 = await parseResponse(res3);
-      showSuccess("Undo: " + resData3.message);
-
-      data[action.index] = action.old;
-    }
-
-    render();
-
-  } catch (err) {
-    showError("Undo thất bại: " + err.message);
-  }
 };
+
+
+// Real-time validation for duplicate subject code
+if (maMHInput) {
+    maMHInput.addEventListener('input', function() {
+        if (!isThem) return;
+        var val = this.value.trim().toUpperCase();
+        if (!val) {
+            clearError();
+            if (btnGhi) { btnGhi.disabled = false; btnGhi.style.opacity = "1"; }
+            return;
+        }
+        
+        var exists = data.some(function(item) { 
+            return item.maMH && item.maMH.trim().toUpperCase() === val; 
+        });
+        
+        if (exists) {
+            showError("Mã môn học đã tồn tại trong danh sách!");
+            if (btnGhi) { btnGhi.disabled = true; btnGhi.style.opacity = "0.5"; btnGhi.style.cursor = "not-allowed"; }
+        } else {
+            clearError();
+            if (btnGhi) { btnGhi.disabled = false; btnGhi.style.opacity = "1"; btnGhi.style.cursor = "pointer"; }
+        }
+    });
+}
+
+if (tenMHInput) {
+    tenMHInput.addEventListener('input', function() {
+        if (isSua && selectedIndex >= 0) {
+            var original = data[selectedIndex];
+            if (this.value.trim() !== (original.tenMH || "").trim()) {
+                if (btnUndo) btnUndo.style.display = "inline-block";
+            } else {
+                if (btnUndo) btnUndo.style.display = "none";
+            }
+        }
+    });
+}
