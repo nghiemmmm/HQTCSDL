@@ -255,23 +255,55 @@ def get_exam_info(
 
 
 def _select_questions(db: Session, registration) -> list[DbBoDe]:
-    """Select exam questions without calling the missing SP_GET_CauHoi stored procedure."""
+    """Select exam questions applying the 70/30 distribution rule."""
     from db.model import DbBoDe
     import random
+    import math
 
     required = int(registration.socauthi or 0)
     level = (registration.trinhdo or "").strip()
     mamh = (registration.mamh or "").strip()
 
-    all_questions = db.query(DbBoDe).filter(
+    main_questions = db.query(DbBoDe).filter(
         DbBoDe.mamh == mamh,
         DbBoDe.trinhdo == level
     ).all()
     
-    if len(all_questions) < required:
-        raise ConflictError(f"Không đủ câu hỏi thi cho môn {mamh} trình độ {level}. Yêu cầu {required} câu, hệ thống chỉ có {len(all_questions)} câu.")
-
-    return random.sample(all_questions, required)
+    if len(main_questions) >= required:
+        return random.sample(main_questions, required)
+        
+    min_main_required = math.ceil(0.7 * required)
+    if len(main_questions) < min_main_required:
+        raise ConflictError(
+            f"Không đủ câu hỏi thi cho môn {mamh} trình độ {level}. "
+            f"Yêu cầu tối thiểu {min_main_required} câu (70%), hệ thống chỉ có {len(main_questions)} câu."
+        )
+        
+    lower_level = 'B' if level == 'A' else ('C' if level == 'B' else None)
+    if not lower_level:
+        raise ConflictError(
+            f"Không đủ câu hỏi thi cho môn {mamh} trình độ {level}. "
+            f"Yêu cầu {required} câu, hệ thống chỉ có {len(main_questions)} câu."
+        )
+        
+    needed_from_lower = required - len(main_questions)
+    lower_questions = db.query(DbBoDe).filter(
+        DbBoDe.mamh == mamh,
+        DbBoDe.trinhdo == lower_level
+    ).all()
+    
+    if len(lower_questions) < needed_from_lower:
+        raise ConflictError(
+            f"Không đủ câu hỏi thi bù từ trình độ {lower_level}. "
+            f"Cần thêm {needed_from_lower} câu, hệ thống chỉ có {len(lower_questions)} câu."
+        )
+        
+    selected_main = main_questions
+    selected_lower = random.sample(lower_questions, needed_from_lower)
+    
+    final_selection = selected_main + selected_lower
+    random.shuffle(final_selection)
+    return final_selection
 
 
 def _ensure_student_can_start_exam(

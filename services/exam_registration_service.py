@@ -246,43 +246,70 @@ def check_question_availability(
     trinhdo: str,
     socauthi: int,
 ) -> dict:
-    """Check if the question bank has enough questions for an exam setup."""
-    try:
-        row = db_dangkythi.check_question_count_with_procedure(
-            db,
-            mamh,
-            trinhdo,
-            socauthi,
+    """Check if the question bank has enough questions for an exam setup (70/30 rule)."""
+    import math
+    
+    count_main = db_dangkythi.count_questions(db, mamh, trinhdo)
+    
+    if count_main >= socauthi:
+        return _question_count_result(count_main, socauthi, mamh, trinhdo)
+        
+    min_main_required = math.ceil(0.7 * socauthi)
+    if count_main < min_main_required:
+        return _question_count_result(
+            count_main, 
+            socauthi, 
+            mamh, 
+            trinhdo, 
+            valid=False, 
+            detail=f"Cần tối thiểu {min_main_required} câu trình độ {trinhdo} (70%), nhưng chỉ có {count_main}."
         )
-        if row:
-            return _question_count_result(
-                int(row[1] or 0),
-                socauthi,
-                mamh,
-                trinhdo,
-            )
-    except Exception:
-        count = db_dangkythi.count_questions(db, mamh, trinhdo)
-        return _question_count_result(count, socauthi, mamh, trinhdo)
-
-    count = db_dangkythi.count_questions(db, mamh, trinhdo)
-    return _question_count_result(count, socauthi, mamh, trinhdo)
-
+        
+    lower_level = 'B' if trinhdo == 'A' else ('C' if trinhdo == 'B' else None)
+    if not lower_level:
+        return _question_count_result(
+            count_main, 
+            socauthi, 
+            mamh, 
+            trinhdo, 
+            valid=False,
+            detail=f"Cần thêm câu hỏi, trình độ {trinhdo} không được lấy câu hỏi từ mức thấp hơn."
+        )
+        
+    needed_from_lower = socauthi - count_main
+    count_lower = db_dangkythi.count_questions(db, mamh, lower_level)
+    
+    if count_lower >= needed_from_lower:
+        return {
+            "is_hop_le": True,
+            "so_cau_co_san": count_main + count_lower,
+            "so_cau_yeu_cau": socauthi,
+            "thong_bao": f"Đủ câu hỏi. Dùng {count_main} câu trình độ {trinhdo} và {needed_from_lower} câu trình độ {lower_level}."
+        }
+    else:
+        return {
+            "is_hop_le": False,
+            "so_cau_co_san": count_main + count_lower,
+            "so_cau_yeu_cau": socauthi,
+            "thong_bao": f"Không đủ câu hỏi. Có {count_main} câu {trinhdo} và {count_lower} câu {lower_level} (Cần bù {needed_from_lower} câu {lower_level})."
+        }
 
 def _question_count_result(
     count: int,
     required: int,
     mamh: str,
     trinhdo: str,
+    valid: bool | None = None,
+    detail: str | None = None,
 ) -> dict:
-    is_valid = count >= required
+    is_valid = count >= required if valid is None else valid
     subject = (mamh or "").strip()
     level = (trinhdo or "").strip()
-    return {
-        "is_hop_le": is_valid,
-        "so_cau_co_san": count,
-        "so_cau_yeu_cau": required,
-        "thong_bao": (
+    
+    if detail:
+        msg = detail
+    else:
+        msg = (
             f"Đủ câu hỏi thi cho môn {subject}, trình độ {level}. "
             f"Yêu cầu {required} câu, hiện có {count} câu."
             if is_valid
@@ -291,7 +318,13 @@ def _question_count_result(
                 f"Yêu cầu {required} câu, hiện có {count} câu. "
                 "Vui lòng giảm số câu thi hoặc bổ sung câu hỏi vào bộ đề."
             )
-        ),
+        )
+        
+    return {
+        "is_hop_le": is_valid,
+        "so_cau_co_san": count,
+        "so_cau_yeu_cau": required,
+        "thong_bao": msg,
     }
 
 
