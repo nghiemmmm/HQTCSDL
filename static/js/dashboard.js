@@ -81,14 +81,24 @@
 
     function markActiveNavigation() {
         const currentPath = window.location.pathname.replace(/\/$/, '') || '/home';
-        const navLinks = document.querySelectorAll('.sidebar-nav a[data-nav]:not([hidden])');
+        const navLinks = Array.from(document.querySelectorAll('.sidebar-nav a[data-nav]:not([hidden])'));
+
+        let bestMatch = null;
+        let bestLength = -1;
 
         navLinks.forEach((link) => {
             const navPath = link.dataset.nav.replace(/\/$/, '');
             if (currentPath === navPath || currentPath.startsWith(navPath + '/')) {
-                link.classList.add('is-active');
+                if (navPath.length > bestLength) {
+                    bestLength = navPath.length;
+                    bestMatch = link;
+                }
             }
         });
+
+        if (bestMatch) {
+            bestMatch.classList.add('is-active');
+        }
     }
 
     function setupSidebar() {

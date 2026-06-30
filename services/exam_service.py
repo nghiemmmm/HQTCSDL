@@ -643,11 +643,11 @@ def build_history(db: Session, user: dict[str, Any]) -> dict:
         elif active:
             label, key, action = "Đang làm", "dang-lam", "Tiếp tục làm bài"
         elif start_at and now < start_at:
-            label, key, action = "Chưa thi", "chua-thi", "Vào thi"
+            label, key, action = "Chưa thi", "chua-thi", "Chưa mở"
         elif start_at and end_at and start_at <= now <= end_at:
             label, key, action = "Đang làm", "dang-lam", "Tiếp tục làm bài"
         else:
-            label, key, action = "Hết hạn", "het-han", "Xem chi tiết"
+            label, key, action = "Hết hạn", "het-han", "Bỏ lỡ"
         date_text = exam_date.isoformat() if exam_date else ""
         exam_url = (
             f"/thi/lam-bai?mamonhoc={code}&lanthi={registration.lan}"
@@ -656,7 +656,7 @@ def build_history(db: Session, user: dict[str, Any]) -> dict:
         result_url = (
             f"/thi/xem-lai?session_id={submitted.id}"
             if submitted
-            else "/thi/xem-lai"
+            else None
         )
         item = {
             "title": f"Đề thi {name} - Lần {registration.lan}",
@@ -681,7 +681,7 @@ def build_history(db: Session, user: dict[str, Any]) -> dict:
             ),
             "score": score.diem if score else None,
             "action_label": action,
-            "action_url": exam_url if key in {"chua-thi", "dang-lam"} else result_url,
+            "action_url": exam_url if key == "dang-lam" else (result_url if key != "chua-thi" else None),
             "detail_url": result_url,
         }
         (recent if score else unfinished).append(item)
@@ -717,19 +717,28 @@ def build_review(
     class_info = db_exam.get_class(db, session.malop)
     score = db_exam.get_score(db, student.masv, session.mamh, session.lan)
 
-    from sqlalchemy import text
-    query_sp = text(
-        "EXEC SP_GET_CT_BAITHI_FROM_PHIENTHI "
-        "@MASV = :masv, @MAMH = :mamh, @LAN = :lan"
-    )
-    rows = db.execute(
-        query_sp,
-        {
-            "masv": student.masv,
-            "mamh": (session.mamh or "").strip(),
-            "lan": session.lan,
-        },
-    ).fetchall()
+    import json
+    from db.model import DbBoDe
+
+    try:
+        question_ids = json.loads(session.danhsach_cauhoi) if session.danhsach_cauhoi else []
+    except Exception:
+        question_ids = []
+        
+    try:
+        student_answers = json.loads(session.dapan_dachon) if session.dapan_dachon else {}
+    except Exception:
+        student_answers = {}
+
+    questions = db.query(DbBoDe).filter(DbBoDe.cauhoi.in_(question_ids)).all() if question_ids else []
+    q_map = {q.cauhoi: q for q in questions}
+
+    rows = []
+    for q_id in question_ids:
+        q = q_map.get(q_id)
+        if q:
+            ans = student_answers.get(str(q_id), "")
+            rows.append((q.cauhoi, q.noidung, q.a, q.b, q.c, q.d, q.dap_an, ans))
 
     results: list[dict] = []
     correct_count = wrong_count = unanswered_count = 0

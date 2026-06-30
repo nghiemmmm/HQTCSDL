@@ -219,8 +219,6 @@ def get_latest_session(
         DbPhienThi.masv == student_id,
         DbPhienThi.mamh == subject_id,
         DbPhienThi.lan == attempt,
-        DbPhienThi.malop == class_id,
-        DbPhienThi.ngaythi == exam_date,
     )
     if status:
         query = query.filter(DbPhienThi.trangthai == status)

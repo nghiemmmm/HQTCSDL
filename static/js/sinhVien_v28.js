@@ -1122,8 +1122,8 @@ if (btnLopSave) {
 
 
         if (!maLop) {
-
-            alert("Vui lòng nhập mã lớp");
+            const el = document.getElementById("errorLop");
+            if (el) { el.style.color = "#dc2626"; el.innerText = "Vui lòng nhập mã lớp"; } else { alert("Vui lòng nhập mã lớp"); }
 
             txtMaLop?.focus();
 
@@ -1134,8 +1134,8 @@ if (btnLopSave) {
 
 
         if (!tenLop) {
-
-            alert("Vui lòng nhập tên lớp");
+            const el = document.getElementById("errorLop");
+            if (el) { el.style.color = "#dc2626"; el.innerText = "Vui lòng nhập tên lớp"; } else { alert("Vui lòng nhập tên lớp"); }
 
             txtTenLop?.focus();
 
@@ -1190,8 +1190,8 @@ if (btnLopSave) {
 
 
             const actionText = currentFormAction === "edit_lop" ? "Sửa" : "Thêm";
-
-            alert(`${actionText} lớp thành công!`);
+            const el = document.getElementById("errorLop");
+            if (el) { el.style.color = "#16a34a"; el.innerText = `${actionText} lớp thành công!`; } else { alert(`${actionText} lớp thành công!`); }
 
             currentFormAction = "";
 
@@ -1202,8 +1202,8 @@ if (btnLopSave) {
             loadLopFromServer();
 
         } catch (error) {
-
-            alert(error.message || "Lỗi khi lưu lớp");
+            const el = document.getElementById("errorLop");
+            if (el) { el.style.color = "#dc2626"; el.innerText = error.message || "Lỗi khi lưu lớp"; } else { alert(error.message || "Lỗi khi lưu lớp"); }
 
         }
 
@@ -1571,8 +1571,8 @@ if (btnDetailSaveForm) {
 
 
             const actionText = currentFormAction === "edit_sv" ? "Sửa" : "Thêm";
-
-            alert(`${actionText} sinh viên thành công!`);
+            const el = document.getElementById("errorSV");
+            if (el) { el.style.color = "#16a34a"; el.innerText = `${actionText} sinh viên thành công!`; } else { alert(`${actionText} sinh viên thành công!`); }
 
             currentFormAction = "";
 
@@ -1585,8 +1585,8 @@ if (btnDetailSaveForm) {
             loadSVFromServer(selectedMaLop);
 
         } catch (error) {
-
-            alert(error.message || "Lỗi khi lưu sinh viên");
+            const el = document.getElementById("errorSV");
+            if (el) { el.style.color = "#dc2626"; el.innerText = error.message || "Lỗi khi lưu sinh viên"; } else { alert(error.message || "Lỗi khi lưu sinh viên"); }
 
         }
 

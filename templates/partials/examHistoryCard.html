@@ -45,6 +45,10 @@
   </dl>
 
   <div class="exam-card-actions">
+    {% if exam.action_url %}
     <a class="history-btn primary-action" href="{{ exam.action_url }}">{{ exam.action_label }}</a>
+    {% else %}
+    <span class="history-btn primary-action disabled" style="opacity: 0.5; cursor: not-allowed;">{{ exam.action_label }}</span>
+    {% endif %}
   </div>
 </article>

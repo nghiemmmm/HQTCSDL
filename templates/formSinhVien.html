@@ -25,7 +25,7 @@
         <div style="display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
             <div style="flex: 1; min-width: 250px;">
                 <label for="txtMaLop" style="display: block; margin-bottom: 5px;">Ma lop</label>
-                <input type="text" id="txtMaLop" maxlength="15" placeholder="VD: DA22TT01">
+                <input type="text" id="txtMaLop" maxlength="15" placeholder="VD: DA22TT01" oninput="this.value = this.value.toUpperCase()">
             </div>
             <div style="flex: 2; min-width: 250px;">
                 <label for="txtTenLop" style="display: block; margin-bottom: 5px;">Ten lop</label>
@@ -99,7 +99,7 @@
                     </div>
                 </div>
                 <label for="txtMaSV">Ma SV</label>
-                <input type="text" id="txtMaSV" maxlength="8" placeholder="VD: N19DCAT001">
+                <input type="text" id="txtMaSV" maxlength="8" placeholder="VD: N19DCAT001" oninput="this.value = this.value.toUpperCase()">
 
                 <label for="txtHoTen">Ho ten</label>
                 <input type="text" id="txtHoTen" placeholder="VD: Nguyen Van A">
@@ -137,5 +137,5 @@
 {% endblock %}
 
 {% block page_js %}
-<script src="/static/js/sinhVien_v28.js?v=8"></script>
+<script src="/static/js/sinhVien_v28.js?v=9"></script>
 {% endblock %}
